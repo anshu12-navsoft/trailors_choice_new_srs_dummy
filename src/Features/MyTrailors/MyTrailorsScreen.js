@@ -92,7 +92,7 @@ const MyTrailorsScreen = ({ navigation }) => {
   const totalRevenue = '4,821.00';
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
 
       {/* Header */}
       <View style={styles.header}>

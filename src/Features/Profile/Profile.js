@@ -25,10 +25,6 @@ const Profile = ({ navigation }) => {
     { id: '1', title: t('menu_rental_history') },
     { id: '2', title: t('menu_wishlist') },
     { id: '3', title: t('tab_my_trailers') },
-    { id: '11', title: t('booking_requests_title') },
-    { id: '19', title: t('my_bookings_owner_title') },
-    { id: '20', title: t('availability_calendar_title') },
-    { id: '12', title: t('menu_revenue_payouts') },
     { id: '22', title: t('my_reviews_title') },
     { id: '4', title: t('menu_support') },
     { id: '5', title: t('settings_title') },
@@ -78,14 +74,6 @@ const Profile = ({ navigation }) => {
     if (item.id === '2') navigation.navigate('OwnerBookings');
     if (item.id === '3') navigation.navigate('MyTrailors');
     if (item.id === '5') navigation.navigate('Settings');
-    if (item.id === '10') navigation.navigate('DriverVerification');
-    if (item.id === '11') navigation.navigate('BookingRequests');
-    if (item.id === '12') navigation.navigate('EarningsDashboard');
-    if (item.id === '17') navigation.navigate('RenterDashboard');
-    if (item.id === '18') navigation.navigate('OwnerDashboard');
-    if (item.id === '19') navigation.navigate('OwnerBookings');
-    if (item.id === '20') navigation.navigate('AvailabilityCalendar');
-    if (item.id === '21') navigation.navigate('OwnerVerification');
     if (item.id === '22') navigation.navigate('OwnerReviews');
     if (item.id === '9') dispatch(logout());
   };
@@ -134,7 +122,7 @@ const Profile = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
       <CustomFlatList
         data={menuData}
         renderItem={renderItem}

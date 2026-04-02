@@ -33,7 +33,7 @@ const screenOptions = {
   tabBarActiveTintColor: '#E53935',
   tabBarInactiveTintColor: '#555',
   tabBarLabelStyle: { fontSize: moderateScale(11) },
-  tabBarStyle: { height: moderateScale(60), paddingBottom: moderateScale(6), paddingTop: 0, backgroundColor: 'red' },
+  tabBarStyle: { height: moderateScale(60), paddingBottom: moderateScale(6), paddingTop: 0 },
   tabBarItemStyle: { marginTop: 0 },
   safeAreaInsets: { bottom: 0 },
 };

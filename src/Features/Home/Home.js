@@ -177,7 +177,7 @@ const Home = ({ navigation }) => {
   const favorites = useSelector(state => state.trailer.favorites);
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
+    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* ── Top bar ── */}
         <View style={styles.topBar}>

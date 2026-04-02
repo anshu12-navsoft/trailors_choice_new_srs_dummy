@@ -2,17 +2,17 @@
  * Stripe Payment Service
  *
  * ⚠️  DEVELOPMENT / TESTING ONLY  ⚠️
- * The secret key is embedded here because no backend is available.
+ * The secret key is loaded from src/config/env.js (gitignored).
  * NEVER ship a secret key in a production app — move payment-intent
  * creation to your server before going live.
  */
 
-const PUBLISHABLE_KEY =
-  'pk_test_51TBsAk3Xqn2V4hcQEMxGbLC03XWdbOTeukHyy7dHQsZUp7QZNLZnj3JL9KirhbVdZBR3a5K5AnJPSL6l06SFY2LU00rfgs8qNw';
+import { STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY } from '../config/env';
+
+const PUBLISHABLE_KEY = STRIPE_PUBLISHABLE_KEY;
 
 // ⚠️ MOVE THIS TO YOUR BACKEND BEFORE GOING LIVE
-const SECRET_KEY =
-  'REMOVED';
+const SECRET_KEY = STRIPE_SECRET_KEY;
 
 const BASE_URL = 'https://api.stripe.com/v1';
 
