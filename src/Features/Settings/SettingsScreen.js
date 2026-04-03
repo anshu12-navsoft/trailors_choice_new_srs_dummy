@@ -25,7 +25,7 @@ import i18n from '../../Services/bilingual_il8n/index';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleTheme } from '../../App/Redux/Slices/themeSlice';
 import { useColors } from '../../Theme/ThemeContext';
-
+import { styles } from './Settings.style';
 const LANGUAGES = [
   { code: 'en', label: 'English', native: 'English' },
   { code: 'es', label: 'Spanish', native: 'Español' },
@@ -37,17 +37,27 @@ const USER_ID = 'user_123';
 // ── reusable sub-components (each reads colors from context) ─────────────────
 const SettingRow = ({ icon, label, sublabel, right, onPress, danger }) => {
   const colors = useColors();
-  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return (
     <Pressable
       onPress={onPress}
-      style={({ pressed }) => [styles.row, pressed && onPress && styles.rowPressed]}
-      disabled={!onPress}>
+      style={({ pressed }) => [
+        styles.row,
+        pressed && onPress && styles.rowPressed,
+      ]}
+      disabled={!onPress}
+    >
       <View style={[styles.iconWrap, danger && styles.iconWrapDanger]}>
-        <Icon name={icon} size={moderateScale(18)} color={danger ? colors.error : colors.primary} />
+        <Icon
+          name={icon}
+          size={moderateScale(18)}
+          color={danger ? colors.error : colors.primary}
+        />
       </View>
       <View style={styles.rowBody}>
-        <Text style={[styles.rowLabel, danger && { color: colors.error }]}>{label}</Text>
+        <Text style={[styles.rowLabel, danger && { color: colors.error }]}>
+          {label}
+        </Text>
         {sublabel ? <Text style={styles.rowSub}>{sublabel}</Text> : null}
       </View>
       {right}
@@ -73,23 +83,25 @@ const SettingsScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const isDark = useSelector(state => state.theme.isDark);
   const colors = useColors();
-  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const [biometricSupported, setBiometricSupported] = useState(false);
   const [biometricType, setBiometricType] = useState('');
   const [biometricEnabled, setBiometricEnabled] = useState(false);
   const [enablingBiometric, setEnablingBiometric] = useState(false);
 
-  const [currentLang, setCurrentLang] = useState(i18n.language?.startsWith('es') ? 'es' : 'en');
+  const [currentLang, setCurrentLang] = useState(
+    i18n.language?.startsWith('es') ? 'es' : 'en',
+  );
   const [langModalVisible, setLangModalVisible] = useState(false);
 
-  const handleSelectLanguage = (code) => {
+  const handleSelectLanguage = code => {
     i18n.changeLanguage(code);
     setCurrentLang(code);
     setLangModalVisible(false);
   };
 
-  const currentLangLabel = LANGUAGES.find(l => l.code === currentLang)?.label ?? 'English';
+  const currentLangLabel =
+    LANGUAGES.find(l => l.code === currentLang)?.label ?? 'English';
 
   const [pushEnabled, setPushEnabled] = useState(true);
   const [emailEnabled, setEmailEnabled] = useState(true);
@@ -138,15 +150,25 @@ const SettingsScreen = ({ navigation }) => {
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       {/* header */}
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={10} style={styles.backBtn}>
-          <Icon name="arrow-left" size={moderateScale(22)} color={colors.textPrimary} />
+        <Pressable
+          onPress={() => navigation.goBack()}
+          hitSlop={10}
+          style={styles.backBtn}
+        >
+          <Icon
+            name="arrow-left"
+            size={moderateScale(22)}
+            color={colors.textPrimary}
+          />
         </Pressable>
         <Text style={styles.headerTitle}>{t('settings_title')}</Text>
         <View style={styles.backBtn} />
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+      >
         {/* ── Security ── */}
         <SectionHeader title={t('security_section')} />
         <View style={styles.card}>
@@ -180,7 +202,13 @@ const SettingsScreen = ({ navigation }) => {
             label={t('change_password')}
             sublabel={t('update_password')}
             onPress={() => Alert.alert(t('coming_soon'))}
-            right={<Icon name="chevron-right" size={moderateScale(18)} color={colors.textDisabled} />}
+            right={
+              <Icon
+                name="chevron-right"
+                size={moderateScale(18)}
+                color={colors.textDisabled}
+              />
+            }
           />
           <Divider />
           <SettingRow
@@ -188,7 +216,13 @@ const SettingsScreen = ({ navigation }) => {
             label={t('two_factor_auth')}
             sublabel={t('add_security_layer')}
             onPress={() => Alert.alert(t('coming_soon'))}
-            right={<Icon name="chevron-right" size={moderateScale(18)} color={colors.textDisabled} />}
+            right={
+              <Icon
+                name="chevron-right"
+                size={moderateScale(18)}
+                color={colors.textDisabled}
+              />
+            }
           />
         </View>
 
@@ -246,7 +280,13 @@ const SettingsScreen = ({ navigation }) => {
             label={t('language_label')}
             sublabel={currentLangLabel}
             onPress={() => setLangModalVisible(true)}
-            right={<Icon name="chevron-right" size={moderateScale(18)} color={colors.textDisabled} />}
+            right={
+              <Icon
+                name="chevron-right"
+                size={moderateScale(18)}
+                color={colors.textDisabled}
+              />
+            }
           />
           <Divider />
           <SettingRow
@@ -278,7 +318,11 @@ const SettingsScreen = ({ navigation }) => {
                 t('delete_account_message'),
                 [
                   { text: t('cancel_button'), style: 'cancel' },
-                  { text: t('delete_account'), style: 'destructive', onPress: () => {} },
+                  {
+                    text: t('delete_account'),
+                    style: 'destructive',
+                    onPress: () => {},
+                  },
                 ],
               )
             }
@@ -293,11 +337,13 @@ const SettingsScreen = ({ navigation }) => {
         visible={langModalVisible}
         transparent
         animationType="slide"
-        onRequestClose={() => setLangModalVisible(false)}>
+        onRequestClose={() => setLangModalVisible(false)}
+      >
         <TouchableOpacity
           style={styles.modalOverlay}
           activeOpacity={1}
-          onPress={() => setLangModalVisible(false)}>
+          onPress={() => setLangModalVisible(false)}
+        >
           <View style={styles.modalSheet}>
             <View style={styles.modalHandle} />
             <Text style={styles.modalTitle}>{t('select_language')}</Text>
@@ -309,13 +355,18 @@ const SettingsScreen = ({ navigation }) => {
                   idx < LANGUAGES.length - 1 && styles.langOptionBorder,
                 ]}
                 onPress={() => handleSelectLanguage(lang.code)}
-                activeOpacity={0.7}>
+                activeOpacity={0.7}
+              >
                 <View style={styles.langOptionLeft}>
                   <Text style={styles.langLabel}>{lang.label}</Text>
                   <Text style={styles.langNative}>{lang.native}</Text>
                 </View>
                 {currentLang === lang.code && (
-                  <Icon name="check" size={moderateScale(18)} color={colors.primary} />
+                  <Icon
+                    name="check"
+                    size={moderateScale(18)}
+                    color={colors.primary}
+                  />
                 )}
               </TouchableOpacity>
             ))}
@@ -325,141 +376,5 @@ const SettingsScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-// ── styles factory ───────────────────────────────────────────────────────────
-const createStyles = (colors) => StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.background },
-
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: moderateScale(16),
-    paddingVertical: moderateScale(12),
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-  },
-  backBtn: { width: moderateScale(36) },
-  headerTitle: {
-    fontSize: Fonts.size.lg,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-
-  content: {
-    paddingHorizontal: moderateScale(16),
-    paddingBottom: moderateScale(40),
-  },
-
-  sectionHeader: {
-    fontSize: Fonts.size.xs,
-    fontWeight: '700',
-    color: colors.textDisabled,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginTop: verticalScale(24),
-    marginBottom: verticalScale(8),
-    marginLeft: moderateScale(4),
-  },
-
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: moderateScale(14),
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: moderateScale(14),
-    paddingVertical: moderateScale(13),
-    gap: moderateScale(12),
-    backgroundColor: colors.surface,
-  },
-  rowPressed: { backgroundColor: colors.border },
-  iconWrap: {
-    width: moderateScale(34),
-    height: moderateScale(34),
-    borderRadius: moderateScale(10),
-    backgroundColor: colors.divider,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  iconWrapDanger: { backgroundColor: '#FEE2E2' },
-  rowBody: { flex: 1 },
-  rowLabel: {
-    fontSize: Fonts.size.sm,
-    fontWeight: '600',
-    color: colors.textPrimary,
-  },
-  rowSub: {
-    fontSize: Fonts.size.xs,
-    color: colors.textSecondary,
-    marginTop: moderateScale(2),
-  },
-
-  divider: {
-    height: 1,
-    backgroundColor: colors.border,
-    marginLeft: moderateScale(60),
-  },
-
-  version: {
-    textAlign: 'center',
-    fontSize: Fonts.size.xs,
-    color: colors.textDisabled,
-    marginTop: verticalScale(32),
-  },
-
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    justifyContent: 'flex-end',
-  },
-  modalSheet: {
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: moderateScale(20),
-    borderTopRightRadius: moderateScale(20),
-    paddingHorizontal: moderateScale(16),
-    paddingBottom: moderateScale(36),
-    paddingTop: moderateScale(12),
-  },
-  modalHandle: {
-    width: moderateScale(40),
-    height: moderateScale(4),
-    borderRadius: moderateScale(2),
-    backgroundColor: colors.border,
-    alignSelf: 'center',
-    marginBottom: moderateScale(16),
-  },
-  modalTitle: {
-    fontSize: Fonts.size.md,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: moderateScale(12),
-  },
-  langOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: moderateScale(14),
-  },
-  langOptionBorder: {
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-  },
-  langOptionLeft: { gap: moderateScale(2) },
-  langLabel: {
-    fontSize: Fonts.size.sm,
-    fontWeight: '600',
-    color: colors.textPrimary,
-  },
-  langNative: {
-    fontSize: Fonts.size.xs,
-    color: colors.textSecondary,
-  },
-});
 
 export default SettingsScreen;

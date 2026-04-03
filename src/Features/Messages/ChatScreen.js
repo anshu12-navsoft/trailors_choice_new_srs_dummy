@@ -14,7 +14,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-
+import { styles } from './Chat.style';
 import socketService from '../../Services/socket.service';
 import {
   setMessages,
@@ -28,38 +28,136 @@ let typingTimer = null;
 /* ── TODO: remove once backend is live ── */
 const MOCK_MESSAGES = {
   group_demo: [
-    { _id: 'g1', senderId: 'u4', senderName: 'Emily', text: 'Hey team, anyone free Saturday?', createdAt: new Date(Date.now() - 7200_000).toISOString(), read: true },
-    { _id: 'g2', senderId: 'u5', senderName: 'David', text: 'I can do Saturday morning!', createdAt: new Date(Date.now() - 6000_000).toISOString(), read: true },
-    { _id: 'g3', senderId: 'me', senderName: 'Me', text: 'Same, what time works?', createdAt: new Date(Date.now() - 5400_000).toISOString(), read: true },
-    { _id: 'g4', senderId: 'u4', senderName: 'Emily', text: 'Anyone free Saturday morning?', createdAt: new Date(Date.now() - 3600_000).toISOString(), read: false },
+    {
+      _id: 'g1',
+      senderId: 'u4',
+      senderName: 'Emily',
+      text: 'Hey team, anyone free Saturday?',
+      createdAt: new Date(Date.now() - 7200_000).toISOString(),
+      read: true,
+    },
+    {
+      _id: 'g2',
+      senderId: 'u5',
+      senderName: 'David',
+      text: 'I can do Saturday morning!',
+      createdAt: new Date(Date.now() - 6000_000).toISOString(),
+      read: true,
+    },
+    {
+      _id: 'g3',
+      senderId: 'me',
+      senderName: 'Me',
+      text: 'Same, what time works?',
+      createdAt: new Date(Date.now() - 5400_000).toISOString(),
+      read: true,
+    },
+    {
+      _id: 'g4',
+      senderId: 'u4',
+      senderName: 'Emily',
+      text: 'Anyone free Saturday morning?',
+      createdAt: new Date(Date.now() - 3600_000).toISOString(),
+      read: false,
+    },
   ],
   conv_1: [
-    { _id: 'm1', senderId: 'u2', text: 'Hey! Is the trailer still available this weekend?', createdAt: new Date(Date.now() - 3600_000 * 2).toISOString(), read: true },
-    { _id: 'm2', senderId: 'me', text: 'Yes it is! Saturday or Sunday?', createdAt: new Date(Date.now() - 3600_000 * 1.5).toISOString(), read: true },
-    { _id: 'm3', senderId: 'u2', text: 'Saturday would be perfect. What time can I pick it up?', createdAt: new Date(Date.now() - 3600_000).toISOString(), read: true },
-    { _id: 'm4', senderId: 'u2', text: 'Is the trailer still available this weekend?', createdAt: new Date(Date.now() - 600_000).toISOString(), read: false },
+    {
+      _id: 'm1',
+      senderId: 'u2',
+      text: 'Hey! Is the trailer still available this weekend?',
+      createdAt: new Date(Date.now() - 3600_000 * 2).toISOString(),
+      read: true,
+    },
+    {
+      _id: 'm2',
+      senderId: 'me',
+      text: 'Yes it is! Saturday or Sunday?',
+      createdAt: new Date(Date.now() - 3600_000 * 1.5).toISOString(),
+      read: true,
+    },
+    {
+      _id: 'm3',
+      senderId: 'u2',
+      text: 'Saturday would be perfect. What time can I pick it up?',
+      createdAt: new Date(Date.now() - 3600_000).toISOString(),
+      read: true,
+    },
+    {
+      _id: 'm4',
+      senderId: 'u2',
+      text: 'Is the trailer still available this weekend?',
+      createdAt: new Date(Date.now() - 600_000).toISOString(),
+      read: false,
+    },
   ],
   conv_2: [
-    { _id: 'm5', senderId: 'me', text: 'Hi Mike, your booking is confirmed.', createdAt: new Date(Date.now() - 7200_000).toISOString(), read: true },
-    { _id: 'm6', senderId: 'u3', text: 'Awesome, thanks!', createdAt: new Date(Date.now() - 5400_000).toISOString(), read: true },
-    { _id: 'm7', senderId: 'u3', text: "Great, I'll pick it up at 9am.", createdAt: new Date(Date.now() - 3600_000).toISOString(), read: true },
+    {
+      _id: 'm5',
+      senderId: 'me',
+      text: 'Hi Mike, your booking is confirmed.',
+      createdAt: new Date(Date.now() - 7200_000).toISOString(),
+      read: true,
+    },
+    {
+      _id: 'm6',
+      senderId: 'u3',
+      text: 'Awesome, thanks!',
+      createdAt: new Date(Date.now() - 5400_000).toISOString(),
+      read: true,
+    },
+    {
+      _id: 'm7',
+      senderId: 'u3',
+      text: "Great, I'll pick it up at 9am.",
+      createdAt: new Date(Date.now() - 3600_000).toISOString(),
+      read: true,
+    },
   ],
   conv_3: [
-    { _id: 'm8', senderId: 'u4', text: 'Do you deliver to downtown?', createdAt: new Date(Date.now() - 86400_000).toISOString(), read: true },
-    { _id: 'm9', senderId: 'me', text: 'Sorry, pickup only at the moment.', createdAt: new Date(Date.now() - 82800_000).toISOString(), read: true },
-    { _id: 'm10', senderId: 'u4', text: 'Thanks for the quick response!', createdAt: new Date(Date.now() - 79200_000).toISOString(), read: true },
+    {
+      _id: 'm8',
+      senderId: 'u4',
+      text: 'Do you deliver to downtown?',
+      createdAt: new Date(Date.now() - 86400_000).toISOString(),
+      read: true,
+    },
+    {
+      _id: 'm9',
+      senderId: 'me',
+      text: 'Sorry, pickup only at the moment.',
+      createdAt: new Date(Date.now() - 82800_000).toISOString(),
+      read: true,
+    },
+    {
+      _id: 'm10',
+      senderId: 'u4',
+      text: 'Thanks for the quick response!',
+      createdAt: new Date(Date.now() - 79200_000).toISOString(),
+      read: true,
+    },
   ],
 };
 
 const ChatScreen = ({ route, navigation }) => {
-  const { conversationId, otherUser, isGroup = false, groupName, participants = [] } = route.params;
+  const {
+    conversationId,
+    otherUser,
+    isGroup = false,
+    groupName,
+    participants = [],
+  } = route.params;
   const { t } = useTranslation();
   const dispatch = useDispatch();
 
   /* TODO: replace 'me' fallback with real userId once auth stores it */
   const currentUserId = useSelector(state => state.auth.userId) ?? 'me';
-  const messages = useSelector(state => state.chat.messages[conversationId] ?? []);
-  const isOtherTyping = useSelector(state => state.chat.typing[conversationId] ?? false);
+  const messages = useSelector(
+    state => state.chat.messages[conversationId] ?? [],
+  );
+  const isOtherTyping = useSelector(
+    state => state.chat.typing[conversationId] ?? false,
+  );
 
   const [text, setText] = useState('');
   const flatListRef = useRef(null);
@@ -68,7 +166,12 @@ const ChatScreen = ({ route, navigation }) => {
   useEffect(() => {
     /* TODO: remove mock seed once backend is live */
     if (messages.length === 0 && MOCK_MESSAGES[conversationId]) {
-      dispatch(setMessages({ conversationId, messages: MOCK_MESSAGES[conversationId] }));
+      dispatch(
+        setMessages({
+          conversationId,
+          messages: MOCK_MESSAGES[conversationId],
+        }),
+      );
     }
 
     socketService.emit('join_room', { conversationId });
@@ -112,16 +215,22 @@ const ChatScreen = ({ route, navigation }) => {
   }, [conversationId, currentUserId, dispatch]);
 
   /* ── typing events ── */
-  const handleChangeText = useCallback(value => {
-    setText(value);
+  const handleChangeText = useCallback(
+    value => {
+      setText(value);
 
-    socketService.emit('typing', { conversationId, userId: currentUserId });
+      socketService.emit('typing', { conversationId, userId: currentUserId });
 
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => {
-      socketService.emit('stop_typing', { conversationId, userId: currentUserId });
-    }, 1500);
-  }, [conversationId, currentUserId]);
+      clearTimeout(typingTimer);
+      typingTimer = setTimeout(() => {
+        socketService.emit('stop_typing', {
+          conversationId,
+          userId: currentUserId,
+        });
+      }, 1500);
+    },
+    [conversationId, currentUserId],
+  );
 
   /* ── send message ── */
   const handleSend = useCallback(() => {
@@ -142,67 +251,105 @@ const ChatScreen = ({ route, navigation }) => {
     setText('');
 
     clearTimeout(typingTimer);
-    socketService.emit('stop_typing', { conversationId, userId: currentUserId });
+    socketService.emit('stop_typing', {
+      conversationId,
+      userId: currentUserId,
+    });
   }, [text, conversationId, currentUserId, dispatch]);
 
   /* ── scroll to bottom on new message ── */
   useEffect(() => {
     if (messages.length > 0) {
-      setTimeout(() => flatListRef.current?.scrollToEnd({ animated: true }), 100);
+      setTimeout(
+        () => flatListRef.current?.scrollToEnd({ animated: true }),
+        100,
+      );
     }
   }, [messages.length]);
 
   /* ── render message bubble ── */
-  const renderItem = useCallback(({ item }) => {
-    const isMine = item.senderId === currentUserId;
-    return (
-      <View style={[styles.bubbleRow, isMine ? styles.bubbleRowRight : styles.bubbleRowLeft]}>
-        <View style={[styles.bubble, isMine ? styles.bubbleMine : styles.bubbleTheirs]}>
-          {isGroup && !isMine && item.senderName && (
-            <Text style={styles.senderName}>{item.senderName}</Text>
-          )}
-          <Text style={[styles.bubbleText, isMine && styles.bubbleTextMine]}>
-            {item.text}
-          </Text>
-          <View style={styles.bubbleMeta}>
-            <Text style={[styles.bubbleTime, isMine && styles.bubbleTimeMine]}>
-              {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </Text>
-            {isMine && (
-              <Icon
-                name={item.read ? 'done-all' : 'done'}
-                size={12}
-                color={item.read ? '#60A5FA' : 'rgba(255,255,255,0.7)'}
-                style={{ marginLeft: 3 }}
-              />
+  const renderItem = useCallback(
+    ({ item }) => {
+      const isMine = item.senderId === currentUserId;
+      return (
+        <View
+          style={[
+            styles.bubbleRow,
+            isMine ? styles.bubbleRowRight : styles.bubbleRowLeft,
+          ]}
+        >
+          <View
+            style={[
+              styles.bubble,
+              isMine ? styles.bubbleMine : styles.bubbleTheirs,
+            ]}
+          >
+            {isGroup && !isMine && item.senderName && (
+              <Text style={styles.senderName}>{item.senderName}</Text>
             )}
+            <Text style={[styles.bubbleText, isMine && styles.bubbleTextMine]}>
+              {item.text}
+            </Text>
+            <View style={styles.bubbleMeta}>
+              <Text
+                style={[styles.bubbleTime, isMine && styles.bubbleTimeMine]}
+              >
+                {new Date(item.createdAt).toLocaleTimeString([], {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                })}
+              </Text>
+              {isMine && (
+                <Icon
+                  name={item.read ? 'done-all' : 'done'}
+                  size={12}
+                  color={item.read ? '#60A5FA' : 'rgba(255,255,255,0.7)'}
+                  style={{ marginLeft: 3 }}
+                />
+              )}
+            </View>
           </View>
         </View>
-      </View>
-    );
-  }, [currentUserId]);
+      );
+    },
+    [currentUserId],
+  );
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       {/* Header */}
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.backBtn} hitSlop={8}>
+        <Pressable
+          onPress={() => navigation.goBack()}
+          style={styles.backBtn}
+          hitSlop={8}
+        >
           <Icon name="arrow-back" size={moderateScale(22)} color="#333" />
         </Pressable>
-        <View style={[styles.headerAvatar, isGroup && styles.headerAvatarGroup]}>
-          {isGroup
-            ? <Icon name="group" size={moderateScale(18)} color="#fff" />
-            : <Text style={styles.headerAvatarText}>{(otherUser?.name?.[0] ?? '?').toUpperCase()}</Text>
-          }
+        <View
+          style={[styles.headerAvatar, isGroup && styles.headerAvatarGroup]}
+        >
+          {isGroup ? (
+            <Icon name="group" size={moderateScale(18)} color="#fff" />
+          ) : (
+            <Text style={styles.headerAvatarText}>
+              {(otherUser?.name?.[0] ?? '?').toUpperCase()}
+            </Text>
+          )}
         </View>
         <View style={styles.headerInfo}>
           <Text style={styles.headerName}>
-            {isGroup ? groupName : (otherUser?.name ?? t('chat_unknown_user'))}
+            {isGroup ? groupName : otherUser?.name ?? t('chat_unknown_user')}
           </Text>
-          {isGroup
-            ? <Text style={styles.headerSub}>{participants.length} {t('group_members')}</Text>
-            : isOtherTyping && <Text style={styles.typingText}>{t('chat_typing')}</Text>
-          }
+          {isGroup ? (
+            <Text style={styles.headerSub}>
+              {participants.length} {t('group_members')}
+            </Text>
+          ) : (
+            isOtherTyping && (
+              <Text style={styles.typingText}>{t('chat_typing')}</Text>
+            )
+          )}
         </View>
       </View>
 
@@ -244,94 +391,5 @@ const ChatScreen = ({ route, navigation }) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
-
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: moderateScale(12),
-    paddingVertical: moderateScale(10),
-    borderBottomWidth: 1,
-    borderColor: '#EEEEEE',
-    backgroundColor: '#fff',
-  },
-  backBtn: { marginRight: moderateScale(8) },
-  headerAvatar: {
-    width: moderateScale(36),
-    height: moderateScale(36),
-    borderRadius: moderateScale(18),
-    backgroundColor: '#E53935',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: moderateScale(8),
-  },
-  headerAvatarGroup: { backgroundColor: '#7C3AED' },
-  headerAvatarText: { color: '#fff', fontWeight: '700', fontSize: moderateScale(14) },
-  headerInfo: { flex: 1 },
-  headerName: { fontSize: moderateScale(16), fontWeight: '600', color: '#111' },
-  headerSub: { fontSize: moderateScale(11), color: '#999', marginTop: 1 },
-  typingText: { fontSize: moderateScale(11), color: '#22C55E', marginTop: 1 },
-
-  messageList: { paddingHorizontal: moderateScale(12), paddingVertical: moderateScale(8) },
-
-  bubbleRow: { marginVertical: moderateScale(3), flexDirection: 'row' },
-  bubbleRowLeft: { justifyContent: 'flex-start' },
-  bubbleRowRight: { justifyContent: 'flex-end' },
-
-  bubble: {
-    maxWidth: '75%',
-    paddingHorizontal: moderateScale(12),
-    paddingVertical: moderateScale(8),
-    borderRadius: moderateScale(16),
-  },
-  bubbleMine: {
-    backgroundColor: '#E53935',
-    borderBottomRightRadius: moderateScale(4),
-  },
-  bubbleTheirs: {
-    backgroundColor: '#F1F1F1',
-    borderBottomLeftRadius: moderateScale(4),
-  },
-  senderName: { fontSize: moderateScale(11), fontWeight: '600', color: '#7C3AED', marginBottom: 2 },
-  bubbleText: { fontSize: moderateScale(14), color: '#333', lineHeight: moderateScale(20) },
-  bubbleTextMine: { color: '#fff' },
-
-  bubbleMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginTop: 2 },
-  bubbleTime: { fontSize: moderateScale(10), color: '#999' },
-  bubbleTimeMine: { color: 'rgba(255,255,255,0.7)' },
-
-  inputBar: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    paddingHorizontal: moderateScale(12),
-    paddingVertical: moderateScale(8),
-    borderTopWidth: 1,
-    borderColor: '#EEEEEE',
-    backgroundColor: '#fff',
-  },
-  input: {
-    flex: 1,
-    minHeight: moderateScale(40),
-    maxHeight: moderateScale(100),
-    backgroundColor: '#F5F5F5',
-    borderRadius: moderateScale(20),
-    paddingHorizontal: moderateScale(14),
-    paddingVertical: moderateScale(8),
-    fontSize: moderateScale(14),
-    color: '#333',
-    marginRight: moderateScale(8),
-  },
-  sendBtn: {
-    width: moderateScale(40),
-    height: moderateScale(40),
-    borderRadius: moderateScale(20),
-    backgroundColor: '#E53935',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sendBtnDisabled: { backgroundColor: '#ccc' },
-});
 
 export default ChatScreen;

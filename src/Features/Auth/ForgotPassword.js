@@ -2,16 +2,14 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  TextInput,
-  TouchableOpacity,
-  StyleSheet,
   ActivityIndicator,
   Alert,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import CustomTextInput from '../../Components/TextInput/CustomTextInput';
-import { moderateScale, verticalScale } from 'react-native-size-matters';
+import { verticalScale } from 'react-native-size-matters';
 import CustomButton from '../../Components/Buttons/CustomButton';
+import { styles } from './ForgotPassword.styles';
 const ForgotPassword = ({ navigation }) => {
   const { t } = useTranslation();
   const [value, setValue] = useState('');
@@ -85,44 +83,3 @@ const ForgotPassword = ({ navigation }) => {
 };
 
 export default ForgotPassword;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    padding: 24,
-    justifyContent: 'center',
-    backgroundColor: '#FFF',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    textAlign: 'center',
-  },
-  subtitle: {
-    textAlign: 'center',
-    color: '#666',
-    marginTop: 8,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#CCC',
-    borderRadius: 8,
-    padding: 14,
-    marginTop: 30,
-  },
-  button: {
-    backgroundColor: '#4CAF50',
-    paddingVertical: 14,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  buttonText: {
-    color: '#FFF',
-    fontWeight: '600',
-  },
-  error: {
-    color: 'red',
-    marginTop: 8,
-  },
-});

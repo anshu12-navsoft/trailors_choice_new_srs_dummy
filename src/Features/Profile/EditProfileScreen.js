@@ -18,13 +18,24 @@ import Icon from 'react-native-vector-icons/Feather';
 import CustomTextInput from '../../Components/TextInput/CustomTextInput';
 import CustomButton from '../../Components/Buttons/CustomButton';
 import DateTimePicker from '../../Components/DateTimePicker/DateTimePicker';
-import { openCamera, openGallery } from '../../utils/helpers/mediaPicker.helper';
+import {
+  openCamera,
+  openGallery,
+} from '../../utils/helpers/mediaPicker.helper';
 import colors from '../../Constants/Colors';
-
+import { styles } from './EditProfile.style';
 const STATUS_CONFIG = {
   active: { labelKey: 'account_status_active', bg: '#D1FAE5', text: '#065F46' },
-  restricted: { labelKey: 'account_status_restricted', bg: '#FEF3C7', text: '#92400E' },
-  suspended: { labelKey: 'account_status_suspended', bg: '#FEE2E2', text: '#991B1B' },
+  restricted: {
+    labelKey: 'account_status_restricted',
+    bg: '#FEF3C7',
+    text: '#92400E',
+  },
+  suspended: {
+    labelKey: 'account_status_suspended',
+    bg: '#FEE2E2',
+    text: '#991B1B',
+  },
 };
 
 const EditProfileScreen = ({ route, navigation }) => {
@@ -46,36 +57,40 @@ const EditProfileScreen = ({ route, navigation }) => {
 
   // ── photo picker ──────────────────────────────────────────────
   const handlePickPhoto = () => {
-    Alert.alert(t('profile_photo_title'), t('choose_option'), [
-      {
-        text: t('camera_option'),
-        onPress: async () => {
-          try {
-            const file = await openCamera();
-            if (file) setPhoto(file);
-          } catch (e) {
-            Alert.alert('Error', e.message);
-          }
+    Alert.alert(
+      t('profile_photo_title'),
+      t('choose_option'),
+      [
+        {
+          text: t('camera_option'),
+          onPress: async () => {
+            try {
+              const file = await openCamera();
+              if (file) setPhoto(file);
+            } catch (e) {
+              Alert.alert('Error', e.message);
+            }
+          },
         },
-      },
-      {
-        text: t('gallery_option'),
-        onPress: async () => {
-          try {
-            const file = await openGallery();
-            if (file) setPhoto(file);
-          } catch (e) {
-            Alert.alert('Error', e.message);
-          }
+        {
+          text: t('gallery_option'),
+          onPress: async () => {
+            try {
+              const file = await openGallery();
+              if (file) setPhoto(file);
+            } catch (e) {
+              Alert.alert('Error', e.message);
+            }
+          },
         },
-      },
-      photo && {
-        text: t('remove_photo'),
-        style: 'destructive',
-        onPress: () => setPhoto(null),
-      },
-      { text: t('cancel_button'), style: 'cancel' },
-    ].filter(Boolean));
+        photo && {
+          text: t('remove_photo'),
+          style: 'destructive',
+          onPress: () => setPhoto(null),
+        },
+        { text: t('cancel_button'), style: 'cancel' },
+      ].filter(Boolean),
+    );
   };
 
   // ── validation ────────────────────────────────────────────────
@@ -116,27 +131,41 @@ const EditProfileScreen = ({ route, navigation }) => {
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       <KeyboardAvoidingView
         style={styles.flex}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
         {/* ── top bar ── */}
         <View style={styles.topBar}>
-          <Pressable onPress={() => navigation.goBack()} style={styles.backBtn} hitSlop={8}>
-            <Icon name="arrow-left" size={moderateScale(22)} color={colors.textPrimary} />
+          <Pressable
+            onPress={() => navigation.goBack()}
+            style={styles.backBtn}
+            hitSlop={8}
+          >
+            <Icon
+              name="arrow-left"
+              size={moderateScale(22)}
+              color={colors.textPrimary}
+            />
           </Pressable>
-          <Text style={styles.topBarTitle}>{t('edit_profile_screen_title')}</Text>
+          <Text style={styles.topBarTitle}>
+            {t('edit_profile_screen_title')}
+          </Text>
           <View style={styles.backBtn} />
         </View>
 
         <ScrollView
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}>
-
+          showsVerticalScrollIndicator={false}
+        >
           {/* ── account status badge ── */}
           <View style={styles.statusRow}>
             <Text style={styles.statusLabel}>{t('account_status_label')}</Text>
-            <View style={[styles.statusBadge, { backgroundColor: statusCfg.bg }]}>
-              <View style={[styles.statusDot, { backgroundColor: statusCfg.text }]} />
+            <View
+              style={[styles.statusBadge, { backgroundColor: statusCfg.bg }]}
+            >
+              <View
+                style={[styles.statusDot, { backgroundColor: statusCfg.text }]}
+              />
               <Text style={[styles.statusText, { color: statusCfg.text }]}>
                 {t(statusCfg.labelKey)}
               </Text>
@@ -182,7 +211,11 @@ const EditProfileScreen = ({ route, navigation }) => {
               maximumDate={new Date()}
               onDateChange={setDob}
               customStyles={{
-                container: { width: '100%', alignSelf: 'auto', marginVertical: 0 },
+                container: {
+                  width: '100%',
+                  alignSelf: 'auto',
+                  marginVertical: 0,
+                },
               }}
             />
           </View>
@@ -222,7 +255,10 @@ const EditProfileScreen = ({ route, navigation }) => {
           />
 
           {/* ── contact information ── */}
-          <SectionHeader title={t('contact_information_section')} icon="phone" />
+          <SectionHeader
+            title={t('contact_information_section')}
+            icon="phone"
+          />
 
           <CustomTextInput
             label={t('phone_number_label')}
@@ -286,121 +322,6 @@ const sectionStyles = StyleSheet.create({
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
-});
-
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.background },
-  flex: { flex: 1 },
-
-  // top bar
-  topBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: moderateScale(16),
-    paddingVertical: moderateScale(12),
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.background,
-  },
-  backBtn: { width: moderateScale(36) },
-  topBarTitle: {
-    fontSize: moderateScale(17),
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-
-  scroll: {
-    paddingHorizontal: moderateScale(20),
-    paddingBottom: moderateScale(40),
-  },
-
-  // status
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: moderateScale(16),
-    paddingHorizontal: moderateScale(4),
-  },
-  statusLabel: {
-    fontSize: moderateScale(14),
-    color: colors.textSecondary,
-    fontWeight: '500',
-  },
-  statusBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: moderateScale(10),
-    paddingVertical: moderateScale(4),
-    borderRadius: moderateScale(20),
-    gap: moderateScale(5),
-  },
-  statusDot: {
-    width: moderateScale(7),
-    height: moderateScale(7),
-    borderRadius: moderateScale(4),
-  },
-  statusText: {
-    fontSize: moderateScale(13),
-    fontWeight: '600',
-  },
-
-  // photo
-  photoSection: {
-    alignItems: 'center',
-    marginTop: moderateScale(20),
-    marginBottom: moderateScale(4),
-  },
-  avatarWrapper: { position: 'relative' },
-  avatar: {
-    width: moderateScale(88),
-    height: moderateScale(88),
-    borderRadius: moderateScale(44),
-  },
-  avatarPlaceholder: {
-    width: moderateScale(88),
-    height: moderateScale(88),
-    borderRadius: moderateScale(44),
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  cameraIcon: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: colors.primary,
-    width: moderateScale(26),
-    height: moderateScale(26),
-    borderRadius: moderateScale(13),
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: colors.background,
-  },
-  photoHint: {
-    marginTop: moderateScale(8),
-    fontSize: moderateScale(12),
-    color: colors.textSecondary,
-  },
-
-  // address row
-  row: {
-    flexDirection: 'row',
-    gap: moderateScale(12),
-  },
-  halfInput: { flex: 1 },
-
-  // DOB wrapper — normalise width/margin from DateTimePicker's own styles
-  dobWrapper: {
-    width: '100%',
-    marginBottom: moderateScale(4),
-  },
-
-  saveBtn: { marginTop: moderateScale(28) },
 });
 
 export default EditProfileScreen;

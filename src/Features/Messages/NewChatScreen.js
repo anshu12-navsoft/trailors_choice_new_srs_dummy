@@ -12,7 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-
+import { styles } from './NewChat.style';
 import { upsertConversation } from '../../App/Redux/Slices/chatSlice';
 
 /* TODO: replace with real users fetched from API */
@@ -31,15 +31,18 @@ const NewChatScreen = ({ navigation }) => {
   const conversations = useSelector(state => state.chat.conversations);
   const [search, setSearch] = useState('');
 
-  const filtered = useMemo(() =>
-    MOCK_USERS.filter(u =>
-      u.name.toLowerCase().includes(search.toLowerCase())
-    ), [search]);
+  const filtered = useMemo(
+    () =>
+      MOCK_USERS.filter(u =>
+        u.name.toLowerCase().includes(search.toLowerCase()),
+      ),
+    [search],
+  );
 
   const handleSelectUser = user => {
     /* reuse existing conversation if one already exists */
-    const existing = conversations.find(c =>
-      !c.isGroup && c.otherUser?.id === user.id
+    const existing = conversations.find(
+      c => !c.isGroup && c.otherUser?.id === user.id,
     );
 
     if (existing) {
@@ -89,7 +92,12 @@ const NewChatScreen = ({ navigation }) => {
 
       {/* Search */}
       <View style={styles.searchBar}>
-        <Icon name="search" size={moderateScale(18)} color="#999" style={{ marginRight: 8 }} />
+        <Icon
+          name="search"
+          size={moderateScale(18)}
+          color="#999"
+          style={{ marginRight: 8 }}
+        />
         <TextInput
           style={styles.searchInput}
           value={search}
@@ -121,64 +129,5 @@ const NewChatScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#fff' },
-
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: moderateScale(16),
-    paddingVertical: moderateScale(12),
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-    gap: moderateScale(12),
-  },
-  title: { fontSize: moderateScale(18), fontWeight: '600', color: '#111' },
-
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    margin: moderateScale(12),
-    paddingHorizontal: moderateScale(12),
-    backgroundColor: '#F5F5F5',
-    borderRadius: moderateScale(10),
-    height: moderateScale(40),
-  },
-  searchInput: { flex: 1, fontSize: moderateScale(14), color: '#333' },
-
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: moderateScale(16),
-    paddingVertical: moderateScale(12),
-  },
-  groupRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: moderateScale(16),
-    paddingVertical: moderateScale(12),
-    borderBottomWidth: 1,
-    borderColor: '#F0F0F0',
-    marginBottom: moderateScale(4),
-  },
-
-  avatar: {
-    width: moderateScale(44),
-    height: moderateScale(44),
-    borderRadius: moderateScale(22),
-    backgroundColor: '#E53935',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: moderateScale(12),
-  },
-  groupAvatar: { backgroundColor: '#7C3AED' },
-  avatarText: { color: '#fff', fontWeight: '700', fontSize: moderateScale(16) },
-
-  name: { flex: 1, fontSize: moderateScale(15), color: '#222' },
-  groupLabel: { flex: 1, fontSize: moderateScale(15), color: '#222', fontWeight: '500' },
-
-  separator: { height: 1, backgroundColor: '#F5F5F5', marginLeft: moderateScale(72) },
-});
 
 export default NewChatScreen;

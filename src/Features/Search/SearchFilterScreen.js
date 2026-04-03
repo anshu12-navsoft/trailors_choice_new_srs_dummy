@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StyleSheet,
-  ScrollView,
-  Pressable,
-} from 'react-native';
+import { View, StyleSheet, ScrollView, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, useTheme } from 'react-native-paper';
 import { moderateScale } from 'react-native-size-matters';
@@ -13,7 +8,7 @@ import CustomDropdown from '../../Components/Dropdown/CustomDropdown';
 import CustomButton from '../../Components/Buttons/CustomButton';
 import CustomIconButton from '../../Components/Buttons/CustomIconButton';
 import CustomSearchInput from '../../Components/TextInput/CustomSearchInput';
-
+import { styles } from './SearchFilter.style';
 /* ── Time options ────────────────────────────────────────────────────────── */
 
 const generateTimes = () => {
@@ -23,7 +18,10 @@ const generateTimes = () => {
       const period = h < 12 ? 'AM' : 'PM';
       const hour = h % 12 === 0 ? 12 : h % 12;
       const min = String(m).padStart(2, '0');
-      options.push({ label: `${hour}:${min} ${period}`, value: `${String(h).padStart(2, '0')}:${min}` });
+      options.push({
+        label: `${hour}:${min} ${period}`,
+        value: `${String(h).padStart(2, '0')}:${min}`,
+      });
     }
   }
   return options;
@@ -33,7 +31,11 @@ const TIME_OPTIONS = generateTimes();
 
 const formatDisplay = date =>
   date
-    ? new Date(date).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })
+    ? new Date(date).toLocaleDateString('en-US', {
+        month: 'numeric',
+        day: 'numeric',
+        year: 'numeric',
+      })
     : 'Select date';
 
 /* ── Date Trigger ────────────────────────────────────────────────────────── */
@@ -42,13 +44,22 @@ const DateTrigger = ({ label, value, onPress }) => {
   const { colors } = useTheme();
   return (
     <View style={styles.triggerWrapper}>
-      <Text variant="labelMedium" style={[styles.fieldLabel, { color: colors.onSurface }]}>
+      <Text
+        variant="labelMedium"
+        style={[styles.fieldLabel, { color: colors.onSurface }]}
+      >
         {label}
       </Text>
-      <Pressable style={[styles.trigger, { borderColor: colors.outline }]} onPress={onPress}>
+      <Pressable
+        style={[styles.trigger, { borderColor: colors.outline }]}
+        onPress={onPress}
+      >
         <Text
           variant="bodyMedium"
-          style={{ flex: 1, color: value ? colors.onSurface : colors.onSurfaceDisabled }}
+          style={{
+            flex: 1,
+            color: value ? colors.onSurface : colors.onSurfaceDisabled,
+          }}
         >
           {formatDisplay(value)}
         </Text>
@@ -84,21 +95,39 @@ const SearchFilterScreen = ({ navigation, route }) => {
   };
 
   const handleSearch = () => {
-    navigation.navigate('TrailerSearchResults', { location, fromDate, untilDate, fromTime, untilTime });
+    navigation.navigate('TrailerSearchResults', {
+      location,
+      fromDate,
+      untilDate,
+      fromTime,
+      untilTime,
+    });
   };
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top', 'bottom']}>
+    <SafeAreaView
+      style={[styles.safe, { backgroundColor: colors.background }]}
+      edges={['top', 'bottom']}
+    >
       {/* Close */}
       <View style={styles.closeRow}>
-        <CustomIconButton icon="close" variant="ghost" onPress={() => navigation.goBack()} />
+        <CustomIconButton
+          icon="close"
+          variant="ghost"
+          onPress={() => navigation.goBack()}
+        />
       </View>
 
-      <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-
+      <ScrollView
+        contentContainerStyle={styles.content}
+        keyboardShouldPersistTaps="handled"
+      >
         {/* Location */}
         <View>
-          <Text variant="labelLarge" style={[styles.fieldLabel, { color: colors.onSurface }]}>
+          <Text
+            variant="labelLarge"
+            style={[styles.fieldLabel, { color: colors.onSurface }]}
+          >
             Location
           </Text>
           <CustomSearchInput
@@ -111,7 +140,14 @@ const SearchFilterScreen = ({ navigation, route }) => {
 
         {/* From row */}
         <View style={styles.row}>
-          <DateTrigger label="From" value={fromDate} onPress={() => { setCalendarReadOnly(false); setCalendarVisible(true); }} />
+          <DateTrigger
+            label="From"
+            value={fromDate}
+            onPress={() => {
+              setCalendarReadOnly(false);
+              setCalendarVisible(true);
+            }}
+          />
           <CustomDropdown
             label="Time"
             value={fromTime}
@@ -124,7 +160,14 @@ const SearchFilterScreen = ({ navigation, route }) => {
 
         {/* Until row */}
         <View style={styles.row}>
-          <DateTrigger label="Until" value={untilDate} onPress={() => { setCalendarReadOnly(true); setCalendarVisible(true); }} />
+          <DateTrigger
+            label="Until"
+            value={untilDate}
+            onPress={() => {
+              setCalendarReadOnly(true);
+              setCalendarVisible(true);
+            }}
+          />
           <CustomDropdown
             label="Time"
             value={untilTime}
@@ -158,47 +201,5 @@ const SearchFilterScreen = ({ navigation, route }) => {
     </SafeAreaView>
   );
 };
-
-/* ── Styles ──────────────────────────────────────────────────────────────── */
-
-const styles = StyleSheet.create({
-  safe: { flex: 1 },
-  closeRow: {
-    alignItems: 'flex-end',
-    paddingHorizontal: moderateScale(8),
-    paddingTop: moderateScale(4),
-  },
-  content: {
-    paddingHorizontal: moderateScale(20),
-    paddingTop: moderateScale(8),
-    gap: moderateScale(20),
-  },
-  fieldLabel: {
-    fontWeight: '600',
-    marginBottom: moderateScale(6),
-  },
-  row: {
-    flexDirection: 'row',
-    gap: moderateScale(12),
-    alignItems: 'flex-end',
-  },
-  halfField: { flex: 1 },
-  triggerWrapper: { flex: 1 },
-  trigger: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderRadius: moderateScale(12),
-    paddingHorizontal: moderateScale(12),
-    height: moderateScale(48),
-    backgroundColor: '#fff',
-  },
-  footer: { padding: moderateScale(16) },
-  searchBtn: {
-    borderRadius: moderateScale(8),
-    backgroundColor: '#000',
-  },
-
-});
 
 export default SearchFilterScreen;

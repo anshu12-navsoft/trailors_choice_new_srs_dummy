@@ -22,7 +22,7 @@ import {
   appendMessage,
   setTyping,
 } from '../../App/Redux/Slices/chatSlice';
-
+import { styles } from './Message.style';
 /* ── TODO: remove once backend is live ── */
 const MOCK_CONVERSATIONS = [
   {
@@ -67,9 +67,12 @@ const MOCK_CONVERSATIONS = [
 const Messages = ({ navigation }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { conversations: liveConversations, connected } = useSelector(state => state.chat);
+  const { conversations: liveConversations, connected } = useSelector(
+    state => state.chat,
+  );
   /* TODO: remove MOCK_CONVERSATIONS fallback once backend is live */
-  const conversations = liveConversations.length > 0 ? liveConversations : MOCK_CONVERSATIONS;
+  const conversations =
+    liveConversations.length > 0 ? liveConversations : MOCK_CONVERSATIONS;
   const currentUserId = useSelector(state => state.auth.userId);
 
   /* ── socket lifecycle ── */
@@ -85,11 +88,13 @@ const Messages = ({ navigation }) => {
       /* a new message arrived (updates preview in list) */
       socketService.on('receive_message', ({ conversationId, message }) => {
         dispatch(appendMessage({ conversationId, message }));
-        dispatch(upsertConversation({
-          id: conversationId,
-          lastMessage: message.text,
-          lastMessageTime: message.createdAt,
-        }));
+        dispatch(
+          upsertConversation({
+            id: conversationId,
+            lastMessage: message.text,
+            lastMessageTime: message.createdAt,
+          }),
+        );
       });
 
       /* typing indicator */
@@ -120,7 +125,10 @@ const Messages = ({ navigation }) => {
     const now = new Date();
     const isToday = date.toDateString() === now.toDateString();
     if (isToday) {
-      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      return date.toLocaleTimeString([], {
+        hour: '2-digit',
+        minute: '2-digit',
+      });
     }
     return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
   }, []);
@@ -129,7 +137,7 @@ const Messages = ({ navigation }) => {
   const renderItem = ({ item }) => {
     const displayName = item.isGroup
       ? item.groupName
-      : (item.otherUser?.name ?? t('chat_unknown_user'));
+      : item.otherUser?.name ?? t('chat_unknown_user');
 
     return (
       <Pressable
@@ -146,16 +154,21 @@ const Messages = ({ navigation }) => {
       >
         {/* Avatar */}
         <View style={[styles.avatar, item.isGroup && styles.avatarGroup]}>
-          {item.isGroup
-            ? <Icon name="group" size={moderateScale(22)} color="#fff" />
-            : <Text style={styles.avatarText}>{displayName[0]?.toUpperCase() ?? '?'}</Text>
-          }
+          {item.isGroup ? (
+            <Icon name="group" size={moderateScale(22)} color="#fff" />
+          ) : (
+            <Text style={styles.avatarText}>
+              {displayName[0]?.toUpperCase() ?? '?'}
+            </Text>
+          )}
         </View>
 
         {/* Body */}
         <View style={styles.body}>
           <View style={styles.bodyTop}>
-            <Text style={styles.name} numberOfLines={1}>{displayName}</Text>
+            <Text style={styles.name} numberOfLines={1}>
+              {displayName}
+            </Text>
             <Text style={styles.time}>{formatTime(item.lastMessageTime)}</Text>
           </View>
           <View style={styles.bodyBottom}>
@@ -186,7 +199,9 @@ const Messages = ({ navigation }) => {
         data={conversations}
         renderItem={renderItem}
         keyExtractor={item => item.id}
-        contentContainerStyle={conversations.length === 0 && styles.emptyContainer}
+        contentContainerStyle={
+          conversations.length === 0 && styles.emptyContainer
+        }
         ListEmptyComponent={
           <Text style={styles.emptyText}>{t('chat_no_conversations')}</Text>
         }
@@ -194,98 +209,14 @@ const Messages = ({ navigation }) => {
       />
 
       {/* FAB – start new chat */}
-      <Pressable style={styles.fab} onPress={() => navigation.navigate('NewChat')}>
+      <Pressable
+        style={styles.fab}
+        onPress={() => navigation.navigate('NewChat')}
+      >
         <Icon name="edit" size={moderateScale(22)} color="#fff" />
       </Pressable>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: '#FFFFFF' },
-
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: moderateScale(16),
-    paddingVertical: moderateScale(12),
-    borderBottomWidth: 1,
-    borderColor: '#EEEEEE',
-  },
-  title: { fontSize: moderateScale(20), fontWeight: '600', flex: 1 },
-  onlineDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#22C55E',
-  },
-
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: moderateScale(16),
-    paddingVertical: moderateScale(12),
-    backgroundColor: '#fff',
-  },
-
-  avatar: {
-    width: moderateScale(48),
-    height: moderateScale(48),
-    borderRadius: moderateScale(24),
-    backgroundColor: '#E53935',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: moderateScale(12),
-  },
-  avatarText: { color: '#fff', fontWeight: '700', fontSize: moderateScale(16) },
-
-  body: { flex: 1 },
-  bodyTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 2,
-  },
-  bodyBottom: { flexDirection: 'row', alignItems: 'center' },
-
-  name: { fontWeight: '600', fontSize: moderateScale(14), flex: 1 },
-  time: { fontSize: moderateScale(11), color: '#999' },
-  preview: { fontSize: moderateScale(13), color: '#666', flex: 1 },
-
-  badge: {
-    backgroundColor: '#E53935',
-    borderRadius: 10,
-    minWidth: 18,
-    height: 18,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 4,
-    marginLeft: 4,
-  },
-  badgeText: { color: '#fff', fontSize: moderateScale(10), fontWeight: '700' },
-
-  separator: { height: 1, backgroundColor: '#F5F5F5', marginLeft: moderateScale(76) },
-
-  emptyContainer: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  emptyText: { color: '#999', fontSize: moderateScale(14) },
-
-  avatarGroup: { backgroundColor: '#7C3AED' },
-
-  fab: {
-    position: 'absolute',
-    bottom: moderateScale(24),
-    right: moderateScale(20),
-    width: moderateScale(52),
-    height: moderateScale(52),
-    borderRadius: moderateScale(26),
-    backgroundColor: '#E53935',
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-  },
-});
 
 export default Messages;

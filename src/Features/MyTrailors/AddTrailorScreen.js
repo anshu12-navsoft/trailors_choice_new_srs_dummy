@@ -21,8 +21,11 @@ import CustomTextInput from '../../Components/TextInput/CustomTextInput';
 import CustomButton from '../../Components/Buttons/CustomButton';
 import colors from '../../Constants/Colors';
 import Fonts from '../../Theme/Fonts';
-
-if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental) {
+import { styles } from './AddTrailor.style';
+if (
+  Platform.OS === 'android' &&
+  UIManager.setLayoutAnimationEnabledExperimental
+) {
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
@@ -82,15 +85,28 @@ const PhotoSlot = ({ uri, onPress, isMain = false, specsLabel }) => (
     style={({ pressed }) => [
       isMain ? photo.mainSlot : photo.thumbSlot,
       pressed && { opacity: 0.75 },
-    ]}>
+    ]}
+  >
     {uri ? (
-      <Image source={{ uri }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+      <Image
+        source={{ uri }}
+        style={StyleSheet.absoluteFill}
+        resizeMode="cover"
+      />
     ) : (
       <>
         <View style={photo.iconWrap}>
-          <Icon name="image" size={moderateScale(isMain ? 28 : 18)} color={colors.textDisabled} />
+          <Icon
+            name="image"
+            size={moderateScale(isMain ? 28 : 18)}
+            color={colors.textDisabled}
+          />
           <View style={photo.plusBadge}>
-            <Icon name="plus" size={moderateScale(10)} color={colors.textDisabled} />
+            <Icon
+              name="plus"
+              size={moderateScale(10)}
+              color={colors.textDisabled}
+            />
           </View>
         </View>
         {isMain && (
@@ -224,9 +240,16 @@ const StepOne = ({ form, setForm }) => {
 
         <View style={{ gap: moderateScale(10) }}>
           {[0, 3].map(offset => (
-            <View key={offset} style={{ flexDirection: 'row', gap: moderateScale(10) }}>
+            <View
+              key={offset}
+              style={{ flexDirection: 'row', gap: moderateScale(10) }}
+            >
               {thumbPhotos.slice(offset, offset + 3).map((uri, i) => (
-                <PhotoSlot key={offset + i} uri={uri} onPress={() => handlePickThumb(offset + i)} />
+                <PhotoSlot
+                  key={offset + i}
+                  uri={uri}
+                  onPress={() => handlePickThumb(offset + i)}
+                />
               ))}
             </View>
           ))}
@@ -265,7 +288,12 @@ const FEATURE_LIST = [
   { key: 'winch', labelKey: 'winch' },
 ];
 
-const TAG_OPTIONS = ['Ramp Included', 'Tool Box', 'Tarp Included', 'Side Rails'];
+const TAG_OPTIONS = [
+  'Ramp Included',
+  'Tool Box',
+  'Tarp Included',
+  'Side Rails',
+];
 
 const StepTwo = ({ form, setForm }) => {
   const { t } = useTranslation();
@@ -279,7 +307,10 @@ const StepTwo = ({ form, setForm }) => {
     setForm(f => ({ ...f, specs: { ...(f.specs || {}), [key]: val } }));
 
   const toggleFeature = key =>
-    setForm(f => ({ ...f, features: { ...(f.features || {}), [key]: !f.features?.[key] } }));
+    setForm(f => ({
+      ...f,
+      features: { ...(f.features || {}), [key]: !f.features?.[key] },
+    }));
 
   const toggleTag = tag =>
     setForm(f => {
@@ -292,7 +323,8 @@ const StepTwo = ({ form, setForm }) => {
 
   const addCustomTag = () => {
     const trimmed = customTag.trim();
-    if (trimmed && !tags.includes(trimmed)) setForm(f => ({ ...f, tags: [...(f.tags || []), trimmed] }));
+    if (trimmed && !tags.includes(trimmed))
+      setForm(f => ({ ...f, tags: [...(f.tags || []), trimmed] }));
     setCustomTag('');
     setShowCustomInput(false);
   };
@@ -310,9 +342,18 @@ const StepTwo = ({ form, setForm }) => {
 
       {/* Dimensions grid */}
       {[
-        [{ key: 'length', label: 'Length', ph: 'e.g. 126 ft' }, { key: 'width', label: 'Width', ph: 'e.g. 56 ft' }],
-        [{ key: 'heightGround', label: 'Height off Ground', ph: 'e.g. 7 ft' }, { key: 'totalHeight', label: 'Total Height', ph: 'e.g. 10 ft' }],
-        [{ key: 'weightCapacity', label: 'Weight Capacity', ph: 'e.g. 500lb' }, { key: 'tongueWeight', label: 'Tounge Weight', ph: 'e.g. 200lb' }],
+        [
+          { key: 'length', label: 'Length', ph: 'e.g. 126 ft' },
+          { key: 'width', label: 'Width', ph: 'e.g. 56 ft' },
+        ],
+        [
+          { key: 'heightGround', label: 'Height off Ground', ph: 'e.g. 7 ft' },
+          { key: 'totalHeight', label: 'Total Height', ph: 'e.g. 10 ft' },
+        ],
+        [
+          { key: 'weightCapacity', label: 'Weight Capacity', ph: 'e.g. 500lb' },
+          { key: 'tongueWeight', label: 'Tounge Weight', ph: 'e.g. 200lb' },
+        ],
       ].map((row, ri) => (
         <View key={ri} style={s2.row}>
           {row.map(({ key, label, ph }) => (
@@ -332,9 +373,13 @@ const StepTwo = ({ form, setForm }) => {
       {/* Included Features */}
       <Text style={s2.sectionLabel}>{t('included_features')}</Text>
       <View style={s2.featureList}>
-        {FEATURE_LIST.map((fItem) => (
+        {FEATURE_LIST.map(fItem => (
           <View key={fItem.key} style={s2.featureRow}>
-            <Icon name="anchor" size={moderateScale(18)} color={colors.textSecondary} />
+            <Icon
+              name="anchor"
+              size={moderateScale(18)}
+              color={colors.textSecondary}
+            />
             <Text style={s2.featureLabel}>{t(fItem.labelKey)}</Text>
             <Switch
               value={!!features[fItem.key]}
@@ -353,15 +398,24 @@ const StepTwo = ({ form, setForm }) => {
           <Pressable
             key={tag}
             onPress={() => toggleTag(tag)}
-            style={[s2.tag, tags.includes(tag) && s2.tagActive]}>
-            <Text style={[s2.tagText, tags.includes(tag) && s2.tagTextActive]}>{tag}</Text>
+            style={[s2.tag, tags.includes(tag) && s2.tagActive]}
+          >
+            <Text style={[s2.tagText, tags.includes(tag) && s2.tagTextActive]}>
+              {tag}
+            </Text>
           </Pressable>
         ))}
-        {tags.filter(tag => !TAG_OPTIONS.includes(tag)).map(tag => (
-          <Pressable key={tag} onPress={() => toggleTag(tag)} style={[s2.tag, s2.tagActive]}>
-            <Text style={[s2.tagText, s2.tagTextActive]}>{tag}</Text>
-          </Pressable>
-        ))}
+        {tags
+          .filter(tag => !TAG_OPTIONS.includes(tag))
+          .map(tag => (
+            <Pressable
+              key={tag}
+              onPress={() => toggleTag(tag)}
+              style={[s2.tag, s2.tagActive]}
+            >
+              <Text style={[s2.tagText, s2.tagTextActive]}>{tag}</Text>
+            </Pressable>
+          ))}
         {showCustomInput ? (
           <View style={s2.customInputRow}>
             <CustomTextInput
@@ -382,7 +436,12 @@ const StepTwo = ({ form, setForm }) => {
 
       {/* Upload Specs */}
       <Text style={s2.sectionLabel}>{t('upload_specs_label')}</Text>
-      <PhotoSlot uri={form.specsPhoto} onPress={handlePickSpecs} isMain specsLabel={t('add_trailer_specs_photo')} />
+      <PhotoSlot
+        uri={form.specsPhoto}
+        onPress={handlePickSpecs}
+        isMain
+        specsLabel={t('add_trailer_specs_photo')}
+      />
     </View>
   );
 };
@@ -462,7 +521,6 @@ const StepThree = ({ form, setForm }) => {
 
   return (
     <View style={step.container}>
-
       {/* Pricing */}
       <Text style={step.title}>{t('set_pricing_title')}</Text>
 
@@ -505,7 +563,9 @@ const StepThree = ({ form, setForm }) => {
       </View>
 
       {/* Pickup Location */}
-      <Text style={[step.title, { marginTop: moderateScale(10) }]}>{t('pickup_location_title')}</Text>
+      <Text style={[step.title, { marginTop: moderateScale(10) }]}>
+        {t('pickup_location_title')}
+      </Text>
 
       <CustomTextInput
         label={t('pickup_address_label')}
@@ -525,11 +585,19 @@ const StepThree = ({ form, setForm }) => {
         <View style={s3.mapRoadsH} />
         <View style={s3.mapRoadsV} />
         <View style={s3.pinWrapper}>
-          <Icon name="map-pin" size={moderateScale(30)} color={colors.textPrimary} />
+          <Icon
+            name="map-pin"
+            size={moderateScale(30)}
+            color={colors.textPrimary}
+          />
         </View>
         {!form.address && (
           <View style={s3.mapOverlay}>
-            <Icon name="map" size={moderateScale(20)} color={colors.textDisabled} />
+            <Icon
+              name="map"
+              size={moderateScale(20)}
+              color={colors.textDisabled}
+            />
             <Text style={s3.mapHint}>{t('enter_address_for_location')}</Text>
           </View>
         )}
@@ -546,7 +614,6 @@ const StepThree = ({ form, setForm }) => {
           inputStyle={s3.textArea}
         />
       </View>
-
     </View>
   );
 };
@@ -644,10 +711,22 @@ const AddTrailorScreen = ({ navigation }) => {
   });
 
   const validateStep1 = () => {
-    if (!form.category) { Alert.alert('Required', 'Please select a trailer category.'); return false; }
-    if (!form.makeModel.trim()) { Alert.alert('Required', 'Please enter Make & Model.'); return false; }
-    if (!form.year.trim()) { Alert.alert('Required', 'Please enter Year.'); return false; }
-    if (!form.licensePlate.trim()) { Alert.alert('Required', 'Please enter License Plate.'); return false; }
+    if (!form.category) {
+      Alert.alert('Required', 'Please select a trailer category.');
+      return false;
+    }
+    if (!form.makeModel.trim()) {
+      Alert.alert('Required', 'Please enter Make & Model.');
+      return false;
+    }
+    if (!form.year.trim()) {
+      Alert.alert('Required', 'Please enter Year.');
+      return false;
+    }
+    if (!form.licensePlate.trim()) {
+      Alert.alert('Required', 'Please enter License Plate.');
+      return false;
+    }
     return true;
   };
 
@@ -669,11 +748,14 @@ const AddTrailorScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={goBack} style={styles.headerSide} hitSlop={10}>
-          <Icon name="arrow-left" size={moderateScale(22)} color={colors.textPrimary} />
+          <Icon
+            name="arrow-left"
+            size={moderateScale(22)}
+            color={colors.textPrimary}
+          />
         </Pressable>
         <Text style={styles.headerTitle}>{t('post_your_trailer')}</Text>
         <View style={styles.headerSide} />
@@ -687,50 +769,22 @@ const AddTrailorScreen = ({ navigation }) => {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}>
+        showsVerticalScrollIndicator={false}
+      >
         <StepContent form={form} setForm={setForm} />
         <CustomButton
-          title={currentStep === TOTAL_STEPS ? t('submit_button') : t('continue_button')}
+          title={
+            currentStep === TOTAL_STEPS
+              ? t('submit_button')
+              : t('continue_button')
+          }
           onPress={goNext}
           size="large"
           style={styles.continueBtn}
         />
       </ScrollView>
-
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: moderateScale(16),
-    paddingVertical: moderateScale(14),
-  },
-  headerSide: {
-    width: moderateScale(36),
-  },
-  headerTitle: {
-    fontSize: Fonts.size.lg,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-  scroll: { flex: 1 },
-  scrollContent: {
-    paddingHorizontal: moderateScale(20),
-    paddingTop: moderateScale(24),
-    paddingBottom: moderateScale(16),
-  },
-  continueBtn: {
-    marginTop: moderateScale(4 ),
-   
-  },
-});
 
 export default AddTrailorScreen;

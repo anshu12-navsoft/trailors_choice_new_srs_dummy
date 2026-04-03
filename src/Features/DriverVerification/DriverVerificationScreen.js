@@ -21,7 +21,7 @@ import {
   openCamera,
   openGallery,
 } from '../../utils/helpers/mediaPicker.helper';
-
+import { styles } from './DriverVerification.style';
 // ── status config ──────────────────────────────────────────────────────────
 const STATUS = {
   not_submitted: {
@@ -64,14 +64,25 @@ const UploadCard = ({ label, sublabel, uri, onPickGallery, onPickCamera }) => {
   return (
     <Pressable
       style={({ pressed }) => [styles.uploadCard, pressed && { opacity: 0.85 }]}
-      onPress={showPicker}>
+      onPress={showPicker}
+    >
       {uri ? (
-        <Image source={{ uri }} style={styles.uploadPreview} resizeMode="cover" />
+        <Image
+          source={{ uri }}
+          style={styles.uploadPreview}
+          resizeMode="cover"
+        />
       ) : (
         <View style={styles.uploadPlaceholder}>
-          <Icon name="upload" size={moderateScale(28)} color={colors.textDisabled} />
+          <Icon
+            name="upload"
+            size={moderateScale(28)}
+            color={colors.textDisabled}
+          />
           <Text style={styles.uploadLabel}>{label}</Text>
-          {sublabel ? <Text style={styles.uploadSublabel}>{sublabel}</Text> : null}
+          {sublabel ? (
+            <Text style={styles.uploadSublabel}>{sublabel}</Text>
+          ) : null}
         </View>
       )}
 
@@ -94,13 +105,16 @@ const StatusBanner = ({ status }) => {
       <Icon name={cfg.icon} size={moderateScale(18)} color={cfg.color} />
       <View style={styles.statusTextWrap}>
         <Text style={[styles.statusLabel, { color: cfg.color }]}>
-          {t('verification_status_prefix')}{cfg.label}
+          {t('verification_status_prefix')}
+          {cfg.label}
         </Text>
         {status === 'pending' && (
           <Text style={styles.statusHint}>{t('under_review_message')}</Text>
         )}
         {status === 'rejected' && (
-          <Text style={styles.statusHint}>{t('rejected_documents_message')}</Text>
+          <Text style={styles.statusHint}>
+            {t('rejected_documents_message')}
+          </Text>
         )}
         {status === 'approved' && (
           <Text style={styles.statusHint}>{t('approved_message')}</Text>
@@ -115,8 +129,8 @@ const StatusBanner = ({ status }) => {
 
 // ── validation helpers ─────────────────────────────────────────────────────
 const validateLicense = (front, back, expiry) => {
-  if (!front) return 'Please upload the front of your driver\'s license.';
-  if (!back) return 'Please upload the back of your driver\'s license.';
+  if (!front) return "Please upload the front of your driver's license.";
+  if (!back) return "Please upload the back of your driver's license.";
   if (!expiry) return 'Please enter your license expiry date (MM/YYYY).';
 
   const [month, year] = expiry.split('/').map(Number);
@@ -148,7 +162,8 @@ const DriverVerificationScreen = ({ navigation }) => {
 
   const pick = async (setter, source) => {
     try {
-      const asset = source === 'camera' ? await openCamera() : await openGallery();
+      const asset =
+        source === 'camera' ? await openCamera() : await openGallery();
       if (asset?.uri) setter(asset.uri);
     } catch {
       Alert.alert(t('something_went_wrong'), 'Failed to pick image.');
@@ -175,8 +190,16 @@ const DriverVerificationScreen = ({ navigation }) => {
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       {/* header */}
       <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={10} style={styles.backBtn}>
-          <Icon name="arrow-left" size={moderateScale(22)} color={colors.textPrimary} />
+        <Pressable
+          onPress={() => navigation.goBack()}
+          hitSlop={10}
+          style={styles.backBtn}
+        >
+          <Icon
+            name="arrow-left"
+            size={moderateScale(22)}
+            color={colors.textPrimary}
+          />
         </Pressable>
         <Text style={styles.headerTitle}>{t('driver_verification_title')}</Text>
         <View style={styles.backBtn} />
@@ -185,14 +208,18 @@ const DriverVerificationScreen = ({ navigation }) => {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}>
-
+        showsVerticalScrollIndicator={false}
+      >
         {/* status banner */}
         <StatusBanner status={verificationStatus} />
 
         {/* steps */}
         <View style={styles.stepsRow}>
-          {[t('upload_drivers_license'), t('review_submit_title'), t('verified_chip')].map((s, i) => {
+          {[
+            t('upload_drivers_license'),
+            t('review_submit_title'),
+            t('verified_chip'),
+          ].map((s, i) => {
             const done =
               (i === 0 && (isPending || isApproved)) ||
               (i === 1 && isApproved) ||
@@ -209,11 +236,18 @@ const DriverVerificationScreen = ({ navigation }) => {
                       styles.stepDot,
                       done && styles.stepDotDone,
                       active && styles.stepDotActive,
-                    ]}>
+                    ]}
+                  >
                     {done ? (
-                      <Icon name="check" size={moderateScale(12)} color="#fff" />
+                      <Icon
+                        name="check"
+                        size={moderateScale(12)}
+                        color="#fff"
+                      />
                     ) : (
-                      <Text style={[styles.stepNum, active && { color: '#fff' }]}>
+                      <Text
+                        style={[styles.stepNum, active && { color: '#fff' }]}
+                      >
                         {i + 1}
                       </Text>
                     )}
@@ -222,12 +256,15 @@ const DriverVerificationScreen = ({ navigation }) => {
                     style={[
                       styles.stepLabel,
                       (done || active) && styles.stepLabelActive,
-                    ]}>
+                    ]}
+                  >
                     {s}
                   </Text>
                 </View>
                 {i < 2 && (
-                  <View style={[styles.stepLine, done && styles.stepLineDone]} />
+                  <View
+                    style={[styles.stepLine, done && styles.stepLineDone]}
+                  />
                 )}
               </React.Fragment>
             );
@@ -258,10 +295,23 @@ const DriverVerificationScreen = ({ navigation }) => {
         {/* expiry date */}
         <Text style={styles.fieldLabel}>{t('license_expiry_date_label')}</Text>
         <Pressable
-          style={({ pressed }) => [styles.expiryRow, pressed && { opacity: 0.75 }]}
-          onPress={() => setShowDatePicker(true)}>
-          <Icon name="calendar" size={moderateScale(16)} color={colors.textSecondary} />
-          <Text style={[styles.expiryInput, !expiry && { color: colors.textDisabled }]}>
+          style={({ pressed }) => [
+            styles.expiryRow,
+            pressed && { opacity: 0.75 },
+          ]}
+          onPress={() => setShowDatePicker(true)}
+        >
+          <Icon
+            name="calendar"
+            size={moderateScale(16)}
+            color={colors.textSecondary}
+          />
+          <Text
+            style={[
+              styles.expiryInput,
+              !expiry && { color: colors.textDisabled },
+            ]}
+          >
             {expiry || t('expiry_format')}
           </Text>
         </Pressable>
@@ -281,7 +331,9 @@ const DriverVerificationScreen = ({ navigation }) => {
 
         {/* requirements */}
         <View style={styles.requirementsBox}>
-          <Text style={styles.requirementsTitle}>{t('requirements_section')}</Text>
+          <Text style={styles.requirementsTitle}>
+            {t('requirements_section')}
+          </Text>
           {[
             t('license_valid_requirement'),
             t('text_legible_requirement'),
@@ -303,7 +355,9 @@ const DriverVerificationScreen = ({ navigation }) => {
         {!isApproved && (
           <View style={styles.restrictionBox}>
             <Icon name="lock" size={moderateScale(16)} color={colors.warning} />
-            <Text style={styles.restrictionText}>{t('booking_restricted')}</Text>
+            <Text style={styles.restrictionText}>
+              {t('booking_restricted')}
+            </Text>
           </View>
         )}
 
@@ -324,8 +378,14 @@ const DriverVerificationScreen = ({ navigation }) => {
 
         {isApproved && (
           <View style={styles.approvedFooter}>
-            <Icon name="shield" size={moderateScale(20)} color={colors.success} />
-            <Text style={styles.approvedText}>{t('verified_ready_to_book')}</Text>
+            <Icon
+              name="shield"
+              size={moderateScale(20)}
+              color={colors.success}
+            />
+            <Text style={styles.approvedText}>
+              {t('verified_ready_to_book')}
+            </Text>
           </View>
         )}
 
@@ -341,227 +401,5 @@ const DriverVerificationScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  safeArea: { flex: 1, backgroundColor: colors.background },
-
-  // header
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: moderateScale(16),
-    paddingVertical: moderateScale(12),
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-  },
-  backBtn: { width: moderateScale(36) },
-  headerTitle: {
-    fontSize: Fonts.size.lg,
-    fontWeight: '700',
-    color: colors.textPrimary,
-  },
-
-  scrollContent: {
-    padding: moderateScale(16),
-    paddingBottom: moderateScale(40),
-  },
-
-  // status banner
-  statusBanner: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: moderateScale(10),
-    padding: moderateScale(14),
-    borderRadius: moderateScale(12),
-    marginBottom: moderateScale(20),
-  },
-  statusTextWrap: { flex: 1 },
-  statusLabel: {
-    fontSize: Fonts.size.sm,
-    fontWeight: '700',
-    marginBottom: moderateScale(2),
-  },
-  statusHint: {
-    fontSize: Fonts.size.xs,
-    color: colors.textSecondary,
-    lineHeight: Fonts.lineHeight(12),
-  },
-
-  // steps
-  stepsRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: moderateScale(24),
-  },
-  stepItem: { alignItems: 'center', gap: moderateScale(4) },
-  stepDot: {
-    width: moderateScale(28),
-    height: moderateScale(28),
-    borderRadius: moderateScale(14),
-    backgroundColor: colors.surface,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  stepDotActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  stepDotDone: { backgroundColor: colors.success, borderColor: colors.success },
-  stepNum: { fontSize: Fonts.size.xs, fontWeight: '600', color: colors.textSecondary },
-  stepLabel: { fontSize: Fonts.size.xs, color: colors.textDisabled },
-  stepLabelActive: { color: colors.textPrimary, fontWeight: '600' },
-  stepLine: {
-    flex: 1,
-    height: 2,
-    backgroundColor: colors.border,
-    marginHorizontal: moderateScale(4),
-    marginBottom: moderateScale(14),
-  },
-  stepLineDone: { backgroundColor: colors.success },
-
-  // section
-  sectionTitle: {
-    fontSize: Fonts.size.md,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: moderateScale(4),
-  },
-  sectionSub: {
-    fontSize: Fonts.size.xs,
-    color: colors.textSecondary,
-    marginBottom: moderateScale(16),
-    lineHeight: Fonts.lineHeight(12),
-  },
-
-  // upload cards
-  uploadRow: {
-    flexDirection: 'row',
-    gap: moderateScale(12),
-    marginBottom: moderateScale(20),
-  },
-  uploadCard: {
-    flex: 1,
-    height: verticalScale(130),
-    borderRadius: moderateScale(12),
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    borderStyle: 'dashed',
-    overflow: 'hidden',
-    backgroundColor: colors.surface,
-  },
-  uploadPlaceholder: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: moderateScale(6),
-    padding: moderateScale(10),
-  },
-  uploadPreview: { width: '100%', height: '100%' },
-  uploadLabel: {
-    fontSize: Fonts.size.xs,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    textAlign: 'center',
-  },
-  uploadSublabel: {
-    fontSize: Fonts.size.xs,
-    color: colors.textDisabled,
-    textAlign: 'center',
-  },
-  uploadEditBadge: {
-    position: 'absolute',
-    bottom: moderateScale(6),
-    right: moderateScale(6),
-    width: moderateScale(24),
-    height: moderateScale(24),
-    borderRadius: moderateScale(12),
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  // expiry
-  fieldLabel: {
-    fontSize: Fonts.size.sm,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    marginBottom: moderateScale(8),
-  },
-  expiryRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: moderateScale(10),
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: moderateScale(10),
-    paddingHorizontal: moderateScale(14),
-    paddingVertical: moderateScale(12),
-    marginBottom: moderateScale(20),
-    backgroundColor: colors.surface,
-  },
-  expiryInput: {
-    flex: 1,
-    fontSize: Fonts.size.md,
-    color: colors.textPrimary,
-  },
-
-  // requirements
-  requirementsBox: {
-    backgroundColor: colors.surface,
-    borderRadius: moderateScale(12),
-    padding: moderateScale(14),
-    marginBottom: moderateScale(16),
-    gap: moderateScale(8),
-  },
-  requirementsTitle: {
-    fontSize: Fonts.size.sm,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: moderateScale(4),
-  },
-  requirementRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: moderateScale(8),
-  },
-  requirementText: {
-    fontSize: Fonts.size.xs,
-    color: colors.textSecondary,
-    flex: 1,
-  },
-
-  // restriction notice
-  restrictionBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: moderateScale(10),
-    backgroundColor: '#FEF3C7',
-    borderRadius: moderateScale(10),
-    padding: moderateScale(12),
-    marginBottom: moderateScale(20),
-  },
-  restrictionText: {
-    flex: 1,
-    fontSize: Fonts.size.xs,
-    color: '#92400E',
-    lineHeight: Fonts.lineHeight(12),
-  },
-
-  submitBtn: { marginBottom: moderateScale(12) },
-
-  // approved footer
-  approvedFooter: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: moderateScale(8),
-    padding: moderateScale(16),
-  },
-  approvedText: {
-    fontSize: Fonts.size.sm,
-    color: colors.success,
-    fontWeight: '600',
-  },
-});
 
 export default DriverVerificationScreen;
