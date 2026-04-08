@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next';
 
 import BottomNavigation from '../BottomTabs/BottomNavigation';
 import { useColors } from '../../../Theme/ThemeContext';
-import Payment from "../../../Features/Payment/PaymentScreen"
+import Payment from "../../../Features/Payment/screens/PaymentScreen"
 const Drawer = createDrawerNavigator();
 
 const DrawerNavigation = () => {

@@ -3,57 +3,57 @@ import { Platform } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Auth
-import WelcomeScreen from '../../../Features/Auth/WelcomeScreen';
-import Login from '../../../Features/Auth/Login';
-import Register from '../../../Features/Auth/Register';
-import ForgotPassword from '../../../Features/Auth/ForgotPassword';
-import ResetPassword from '../../../Features/Auth/ResetPassword';
-import OtpVerification from '../../../Features/Auth/OtpVerification';
-import EmailVerification from '../../../Features/Auth/EmailVerification';
-import AccountSettings from '../../../Features/Auth/AccountSettings';
+import WelcomeScreen from '../../../Features/Auth/screens/WelcomeScreen';
+import Login from '../../../Features/Auth/screens/Login';
+import Register from '../../../Features/Auth/screens/Register';
+import ForgotPassword from '../../../Features/Auth/screens/ForgotPassword';
+import ResetPassword from '../../../Features/Auth/screens/ResetPassword';
+import OtpVerification from '../../../Features/Auth/screens/OtpVerification';
+import EmailVerification from '../../../Features/Auth/screens/EmailVerification';
+import AccountSettings from '../../../Features/Auth/screens/AccountSettings';
 
 // Home & Discovery
-import Home from '../../../Features/Home/Home';
-import SearchFilterScreen from '../../../Features/Search/SearchFilterScreen';
-import LocationSearchScreen from '../../../Features/Search/LocationSearchScreen';
-import TrailerSearchResultsScreen from '../../../Features/Trailers/TrailerSearchResultsScreen';
-import RenterTrailerDetailScreen from '../../../Features/Trailers/RenterTrailerDetailScreen';
-import TowingCompatibilityScreen from '../../../Features/Trailers/TowingCompatibilityScreen';
+import Home from '../../../Features/Home/screens/Home';
+import SearchFilterScreen from '../../../Features/Search/screens/SearchFilterScreen';
+import LocationSearchScreen from '../../../Features/Search/screens/LocationSearchScreen';
+import TrailerSearchResultsScreen from '../../../Features/Trailers/screens/TrailerSearchResultsScreen';
+import RenterTrailerDetailScreen from '../../../Features/Trailers/screens/RenterTrailerDetailScreen';
+import TowingCompatibilityScreen from '../../../Features/Trailers/screens/TowingCompatibilityScreen';
 
 // Booking
-import BookingScreen from '../../../Features/Booking/BookingScreen';
-import BookingConfirmationScreen from '../../../Features/Booking/BookingConfirmationScreen';
-import BookingDetailScreen from '../../../Features/Booking/BookingDetailScreen';
+import BookingScreen from '../../../Features/Booking/screens/BookingScreen';
+import BookingConfirmationScreen from '../../../Features/Booking/screens/BookingConfirmationScreen';
+import BookingDetailScreen from '../../../Features/Booking/screens/BookingDetailScreen';
 
 // My Rentals
-import MyRentals from '../../../Features/MyRentals/MyRentals';
+import MyRentals from '../../../Features/MyRentals/screens/MyRentals';
 
 // Messages
-import Messages from '../../../Features/Messages/Messages';
-import ChatScreen from '../../../Features/Messages/ChatScreen';
-import NewChatScreen from '../../../Features/Messages/NewChatScreen';
-import NewGroupChatScreen from '../../../Features/Messages/NewGroupChatScreen';
+import Messages from '../../../Features/Messages/screens/Messages';
+import ChatScreen from '../../../Features/Messages/screens/ChatScreen';
+import NewChatScreen from '../../../Features/Messages/screens/NewChatScreen';
+import NewGroupChatScreen from '../../../Features/Messages/screens/NewGroupChatScreen';
 
 // Profile & Settings
-import Profile from '../../../Features/Profile/Profile';
-import EditProfileScreen from '../../../Features/Profile/EditProfileScreen';
-import DriverVerificationScreen from '../../../Features/DriverVerification/DriverVerificationScreen';
-import SettingsScreen from '../../../Features/Settings/SettingsScreen';
-import RenterDashboard from '../../../Features/Dashboard/RenterDashboard';
+import Profile from '../../../Features/Profile/screens/Profile';
+import EditProfileScreen from '../../../Features/Profile/screens/EditProfileScreen';
+import DriverVerificationScreen from '../../../Features/DriverVerification/screens/DriverVerificationScreen';
+import SettingsScreen from '../../../Features/Settings/screens/SettingsScreen';
+import RenterDashboard from '../../../Features/Dashboard/screens/RenterDashboard';
 
 // Owner
-import MyTrailorsScreen from '../../../Features/MyTrailors/MyTrailorsScreen';
-import AddTrailorScreen from '../../../Features/MyTrailors/AddTrailorScreen';
-import TrailerDetailScreen from '../../../Features/MyTrailors/TrailerDetailScreen';
-import OwnerDashboard from '../../../Features/Dashboard/OwnerDashboard';
-import BookingRequestsScreen from '../../../Features/BookingRequests/BookingRequestsScreen';
-import BookingRequestDetailScreen from '../../../Features/BookingRequests/BookingRequestDetailScreen';
-import OwnerBookingsScreen from '../../../Features/OwnerBookings/OwnerBookingsScreen';
-import AvailabilityCalendarScreen from '../../../Features/Availability/AvailabilityCalendarScreen';
-import EarningsDashboardScreen from '../../../Features/Earnings/EarningsDashboardScreen';
-import PayoutSettingsScreen from '../../../Features/Earnings/PayoutSettingsScreen';
-import OwnerVerificationScreen from '../../../Features/OwnerVerification/OwnerVerificationScreen';
-import OwnerReviewsScreen from '../../../Features/OwnerReviews/OwnerReviewsScreen';
+import MyTrailorsScreen from '../../../Features/MyTrailors/screens/MyTrailorsScreen';
+import AddTrailorScreen from '../../../Features/MyTrailors/screens/AddTrailorScreen';
+import TrailerDetailScreen from '../../../Features/MyTrailors/screens/TrailerDetailScreen';
+import OwnerDashboard from '../../../Features/Dashboard/screens/OwnerDashboard';
+import BookingRequestsScreen from '../../../Features/BookingRequests/screens/BookingRequestsScreen';
+import BookingRequestDetailScreen from '../../../Features/BookingRequests/screens/BookingRequestDetailScreen';
+import OwnerBookingsScreen from '../../../Features/OwnerBookings/screens/OwnerBookingsScreen';
+import AvailabilityCalendarScreen from '../../../Features/Availability/screens/AvailabilityCalendarScreen';
+import EarningsDashboardScreen from '../../../Features/Earnings/screens/EarningsDashboardScreen';
+import PayoutSettingsScreen from '../../../Features/Earnings/screens/PayoutSettingsScreen';
+import OwnerVerificationScreen from '../../../Features/OwnerVerification/screens/OwnerVerificationScreen';
+import OwnerReviewsScreen from '../../../Features/OwnerReviews/screens/OwnerReviewsScreen';
 
 import DrawerToggleButton from '../Drawer/DrawerToggleButton';
 

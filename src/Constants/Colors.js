@@ -1,3 +1,5 @@
+import { Appearance } from 'react-native';
+
 /**
  * Base palette — do NOT use directly in UI
  */
@@ -83,13 +85,22 @@ export const darkColors = {
 };
 
 /**
- * Returns the correct color set for a given dark-mode flag.
+ * Returns the correct color set for current system theme
  */
-export const getColors = (isDark = false) => isDark ? darkColors : lightColors;
+export const getColors = () => {
+  const scheme = Appearance.getColorScheme();
+  return scheme === 'dark' ? darkColors : lightColors;
+};
 
 /**
- * Static default export for backward compatibility.
- * Screens that haven't adopted useColors() yet will still compile.
- * They'll render in light mode until migrated.
+ * Default export (AUTO dynamic — no refactor needed anywhere)
+ * This ensures colors update whenever accessed
  */
-export default lightColors;
+const colors = new Proxy({}, {
+  get: (_, key) => {
+    const themeColors = getColors();
+    return themeColors[key];
+  }
+});
+
+export default colors;
