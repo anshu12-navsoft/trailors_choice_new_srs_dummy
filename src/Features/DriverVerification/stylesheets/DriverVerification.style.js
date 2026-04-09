@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import colors from '../../Constants/Colors';
+import colors from '../../../Constants/Colors';
 import { moderateScale, verticalScale } from 'react-native-size-matters';
 const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },

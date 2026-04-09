@@ -1,7 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { moderateScale, verticalScale } from 'react-native-size-matters';
 import colors from '../../../Constants/Colors';
-
+import Fonts from '../../../Theme/Fonts';
 export const styles = StyleSheet.create({
   safeArea: {
     flex: 1,

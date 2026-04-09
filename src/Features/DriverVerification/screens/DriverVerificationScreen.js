@@ -21,7 +21,7 @@ import {
   openCamera,
   openGallery,
 } from '../../../utils/helpers/mediaPicker.helper';
-import { styles } from './DriverVerification.style';
+import { styles } from '../stylesheets/DriverVerification.style';
 // ── status config ──────────────────────────────────────────────────────────
 const STATUS = {
   not_submitted: {

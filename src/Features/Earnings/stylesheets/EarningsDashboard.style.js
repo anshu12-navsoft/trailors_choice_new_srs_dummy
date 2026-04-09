@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { moderateScale } from 'react-native-size-matters';
-import colors from "../../Constants/Colors"
+import colors from "../../../Constants/Colors"
 export const styles =  StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
   header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: moderateScale(16), paddingVertical: moderateScale(12), gap: 12, borderBottomWidth: 1, borderColor: colors.border },

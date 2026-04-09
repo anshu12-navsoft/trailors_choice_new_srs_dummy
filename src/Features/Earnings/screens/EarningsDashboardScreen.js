@@ -13,7 +13,7 @@ import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
 import { useColors } from '../../../Theme/ThemeContext';
-import { styles } from './EarningsDashboard.style';
+import { styles } from '../stylesheets/EarningsDashboard.style';
 
 const MONTHLY_DATA = [
   { month: 'Nov', amount: 620 },

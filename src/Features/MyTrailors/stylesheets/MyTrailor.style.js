@@ -1,7 +1,8 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet,Dimensions } from 'react-native';
 import { moderateScale } from 'react-native-size-matters';
 import colors from "../../../Constants/Colors"
 import Fonts from '../../../Theme/Fonts';
+const THUMB_SIZE = Dimensions.get('window').width * 0.3;
 export const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
 

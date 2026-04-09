@@ -1,6 +1,12 @@
 import { StyleSheet, Dimensions } from 'react-native';
 import { moderateScale, verticalScale } from 'react-native-size-matters';
 import colors from '../../../Constants/Colors';
+import Fonts from '../../../Theme/Fonts';
+const { width: SCREEN_W } = Dimensions.get('window');
+const CARD_GAP = moderateScale(12);
+const CARD_PADDING = moderateScale(16);
+const CARD_WIDTH = SCREEN_W - CARD_PADDING * 2 - moderateScale(30);
+
 export const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: colors.background },
 
