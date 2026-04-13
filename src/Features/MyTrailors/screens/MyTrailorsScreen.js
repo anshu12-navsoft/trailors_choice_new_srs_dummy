@@ -1,50 +1,84 @@
 import React, { useState } from 'react';
-import {
-  View,
-  StyleSheet,
-  FlatList,
-  Pressable,
-  Image,
-} from 'react-native';
+import { View, StyleSheet, FlatList, Pressable, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 import { moderateScale } from 'react-native-size-matters';
-import { Dimensions } from 'react-native';
-import {styles} from "../stylesheets/MyTrailor.style"
-const THUMB_SIZE = Dimensions.get('window').width * 0.3;
+import { styles } from '../stylesheets/MyTrailor.style';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomButton from '../../../Components/Buttons/CustomButton';
 import colors from '../../../Constants/Colors';
 import Fonts from '../../../Theme/Fonts';
-
+import CustomHeader from '../../../Components/Header/CustomHeader';
 /* ── Mock data ──────────────────────────────────────────────────────────── */
 const MOCK_TRAILERS = [
-  { id: '1', name: 'Tandem Axel', earnings: 1236.00, status: 'pending', rating: null,  reviewCount: null, thumbnail: null },
-  { id: '2', name: 'Tandem Axel', earnings: 1236.00, status: 'active',  rating: 4.5,  reviewCount: 55,   thumbnail: null },
-  { id: '3', name: 'Tandem Axel', earnings: 1236.00, status: 'inactive',rating: null,  reviewCount: null, thumbnail: null },
-  { id: '4', name: 'Tandem Axel', earnings: 1236.00, status: 'active',  rating: 4.5,  reviewCount: 55,   thumbnail: null },
+  {
+    id: '1',
+    name: 'Tandem Axel',
+    earnings: 1236.0,
+    status: 'pending',
+    rating: null,
+    reviewCount: null,
+    thumbnail: null,
+  },
+  {
+    id: '2',
+    name: 'Tandem Axel',
+    earnings: 1236.0,
+    status: 'active',
+    rating: 4.5,
+    reviewCount: 55,
+    thumbnail: null,
+  },
+  {
+    id: '3',
+    name: 'Tandem Axel',
+    earnings: 1236.0,
+    status: 'inactive',
+    rating: null,
+    reviewCount: null,
+    thumbnail: null,
+  },
+  {
+    id: '4',
+    name: 'Tandem Axel',
+    earnings: 1236.0,
+    status: 'active',
+    rating: 4.5,
+    reviewCount: 55,
+    thumbnail: null,
+  },
 ];
 
 /* ── Status config ──────────────────────────────────────────────────────── */
 const STATUS_CFG = {
-  pending:  { label: 'PENDING',  bg: '#F3F4F6', text: '#6B7280', dot: '#F59E0B' },
-  active:   { label: 'ACTIVE',   bg: '#D1FAE5', text: '#065F46', dot: '#10B981' },
-  inactive: { label: 'INACTIVE', bg: '#F3F4F6', text: '#6B7280', dot: '#EF4444' },
+  pending: { label: 'PENDING', bg: '#F3F4F6', text: '#6B7280', dot: '#F59E0B' },
+  active: { label: 'ACTIVE', bg: '#D1FAE5', text: '#065F46', dot: '#10B981' },
+  inactive: {
+    label: 'INACTIVE',
+    bg: '#F3F4F6',
+    text: '#6B7280',
+    dot: '#EF4444',
+  },
 };
 
 /* ── Trailer row ────────────────────────────────────────────────────────── */
 const TrailerRow = ({ item, onPress, onSchedule, onActivate }) => {
   const cfg = STATUS_CFG[item.status] ?? STATUS_CFG.inactive;
-  const earningsLabel = `$${item.earnings.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
+  const earningsLabel = `$${item.earnings.toLocaleString('en-US', {
+    minimumFractionDigits: 2,
+  })}`;
 
   return (
     <Pressable style={styles.row} onPress={onPress}>
-
       {/* Thumbnail with status dot overlay */}
       <View style={styles.thumbWrapper}>
         <View style={styles.thumb}>
           {item.thumbnail ? (
-            <Image source={{ uri: item.thumbnail }} style={StyleSheet.absoluteFill} resizeMode="cover" />
+            <Image
+              source={{ uri: item.thumbnail }}
+              style={StyleSheet.absoluteFill}
+              resizeMode="cover"
+            />
           ) : (
             <Icon name="image" size={moderateScale(22)} color="#C4C4C4" />
           )}
@@ -54,19 +88,25 @@ const TrailerRow = ({ item, onPress, onSchedule, onActivate }) => {
 
       {/* Body — name, earnings, then badge + action on one row */}
       <View style={styles.body}>
-        <Text style={styles.trailerName} numberOfLines={1}>{item.name}</Text>
+        <Text style={styles.trailerName} numberOfLines={1}>
+          {item.name}
+        </Text>
         <Text style={styles.earnings}>Earnings: {earningsLabel}</Text>
 
         {/* Badge + right action on the same row */}
         <View style={styles.bottomRow}>
           <View style={[styles.badge, { backgroundColor: cfg.bg }]}>
-            <Text style={[styles.badgeText, { color: cfg.text }]}>{cfg.label}</Text>
+            <Text style={[styles.badgeText, { color: cfg.text }]}>
+              {cfg.label}
+            </Text>
           </View>
 
           {item.status === 'active' && item.rating !== null ? (
             <View style={styles.ratingRow}>
               <Icon name="star" size={moderateScale(13)} color="#111827" />
-              <Text style={styles.ratingText}>{item.rating} ({item.reviewCount})</Text>
+              <Text style={styles.ratingText}>
+                {item.rating} ({item.reviewCount})
+              </Text>
             </View>
           ) : item.status === 'pending' ? (
             <Pressable onPress={onSchedule} hitSlop={8}>
@@ -79,7 +119,6 @@ const TrailerRow = ({ item, onPress, onSchedule, onActivate }) => {
           ) : null}
         </View>
       </View>
-
     </Pressable>
   );
 };
@@ -92,16 +131,12 @@ const MyTrailorsScreen = ({ navigation }) => {
   const totalRevenue = '4,821.00';
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-
+    <SafeAreaView style={styles.safe} edges={['left', 'right']}>
       {/* Header */}
-      <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={10}>
-          <Icon name="arrow-left" size={moderateScale(22)} color={colors.textPrimary} />
-        </Pressable>
-        <Text style={styles.headerTitle}>Post Your Trailer</Text>
-        <View style={{ width: moderateScale(22) }} />
-      </View>
+      <CustomHeader
+        title="Post Your Trailer"
+        onBack={() => navigation.goBack()}
+      />
 
       <FlatList
         data={trailers}
@@ -112,16 +147,28 @@ const MyTrailorsScreen = ({ navigation }) => {
         renderItem={({ item }) => (
           <TrailerRow
             item={item}
-            onPress={() => navigation.navigate('TrailerDetail', { trailer: item })}
-            onSchedule={() => navigation.navigate('AvailabilityCalendar', { trailerId: item.id })}
+            onPress={() =>
+              navigation.navigate('TrailerDetail', { trailer: item })
+            }
+            onSchedule={() =>
+              navigation.navigate('AvailabilityCalendar', {
+                trailerId: item.id,
+              })
+            }
             onActivate={() => {}}
           />
         )}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Icon name="truck-outline" size={moderateScale(48)} color={colors.border} />
+            <Icon
+              name="truck-outline"
+              size={moderateScale(48)}
+              color={colors.border}
+            />
             <Text style={styles.emptyTitle}>No trailers yet</Text>
-            <Text style={styles.emptySubtitle}>Add your first trailer to start earning</Text>
+            <Text style={styles.emptySubtitle}>
+              Add your first trailer to start earning
+            </Text>
           </View>
         }
         ListHeaderComponent={
@@ -151,7 +198,9 @@ const MyTrailorsScreen = ({ navigation }) => {
             <View style={styles.inventoryRow}>
               <Text style={styles.inventoryTitle}>Your Inventory</Text>
               <View style={styles.countBadge}>
-                <Text style={styles.countBadgeText}>{trailers.length} TOTAL</Text>
+                <Text style={styles.countBadgeText}>
+                  {trailers.length} TOTAL
+                </Text>
               </View>
             </View>
             <View style={styles.divider} />
@@ -163,5 +212,3 @@ const MyTrailorsScreen = ({ navigation }) => {
 };
 
 export default MyTrailorsScreen;
-
-

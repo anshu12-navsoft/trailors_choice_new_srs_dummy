@@ -2,17 +2,18 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   Pressable,
   Alert,
-  FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomMapView from '../../../Components/Map/MapView';
 import { styles } from '../stylesheets/BookingDetail.style';
+import { Rating } from 'react-native-ratings';
+import colors from '../../../Constants/Colors';
+import CustomHeader from '../../../Components/Header/CustomHeader';
 
 const STATUS_CONFIG = {
   ongoing: { label: 'ONGOING', color: '#16A34A', bg: '#DCFCE7' },
@@ -46,41 +47,42 @@ const BookingDetailScreen = ({ navigation, route }) => {
   const [rating, setRating] = useState(0);
 
   const cfg = STATUS_CONFIG[booking.status] ?? STATUS_CONFIG.completed;
-  const rentalCost = booking.days * booking.pricePerDay;
-  const total = rentalCost + booking.taxes;
-
+  const rentalCost = (booking.days ?? 0) * (booking.pricePerDay ?? 0);
+  const total = rentalCost + (booking.taxes ?? 0);
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={10}>
-          <Icon name="arrow-left" size={moderateScale(22)} color="#111827" />
-        </Pressable>
-        <Text style={styles.headerTitle}>Rental Detail</Text>
-        <View style={{ width: moderateScale(22) }} />
-      </View>
+    <SafeAreaView style={styles.safe} edges={['left', 'right']}>
+      <CustomHeader
+        title="Rental Detail"
+        onBack={() => navigation.goBack()}
+        rightActions={[
+          {
+            icon: 'dots-horizontal',
+            onPress: () => Alert.alert('Options', ''),
+            accessibilityLabel: 'More options',
+          },
+        ]}
+      />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Horizontal image slider */}
-        <FlatList
-          data={MOCK_IMAGES}
+        <ScrollView
           horizontal
           pagingEnabled={false}
           showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item.id}
           contentContainerStyle={styles.imageList}
-          renderItem={() => (
-            <View style={styles.imagePlaceholder}>
+          snapToInterval={moderateScale(300) + moderateScale(10)}
+          decelerationRate="fast"
+        >
+          {MOCK_IMAGES.map(item => (
+            <View key={item.id} style={styles.imagePlaceholder}>
               <Icon
                 name="image-outline"
                 size={moderateScale(28)}
                 color="#9CA3AF"
               />
             </View>
-          )}
-          snapToInterval={moderateScale(300) + moderateScale(10)}
-          decelerationRate="fast"
-        />
+          ))}
+        </ScrollView>
 
         <View style={styles.content}>
           {/* Status + Receipt */}
@@ -97,7 +99,7 @@ const BookingDetailScreen = ({ navigation, route }) => {
               <Icon
                 name="download-outline"
                 size={moderateScale(15)}
-                color="#374151"
+                color={colors.bubbleMine}
               />
               <Text style={styles.receiptText}>Receipt</Text>
             </Pressable>
@@ -118,7 +120,6 @@ const BookingDetailScreen = ({ navigation, route }) => {
           </View>
 
           <View style={styles.divider} />
-
           {/* Review */}
           {booking.status === 'completed' && (
             <View style={styles.reviewBox}>
@@ -126,19 +127,14 @@ const BookingDetailScreen = ({ navigation, route }) => {
                 How was your experience?
               </Text>
               <View style={styles.starsRow}>
-                {[1, 2, 3, 4, 5].map(star => (
-                  <Pressable
-                    key={star}
-                    onPress={() => setRating(star)}
-                    hitSlop={6}
-                  >
-                    <Icon
-                      name={star <= rating ? 'star' : 'star-outline'}
-                      size={moderateScale(30)}
-                      color={star <= rating ? '#F59E0B' : '#9CA3AF'}
-                    />
-                  </Pressable>
-                ))}
+                <Rating
+                  onFinishRating={setRating}
+                  style={{ paddingVertical: 10 }}
+                  imageSize={25}
+                  selectedColor="#f1c40f"
+                  unSelectedColor="#BDC3C7"
+                  tintColor="#F3F4F6"
+                />
                 <Pressable
                   onPress={() => Alert.alert('Review', 'Write a review')}
                 >
@@ -198,7 +194,9 @@ const BookingDetailScreen = ({ navigation, route }) => {
             </View>
             <View style={styles.priceRow}>
               <Text style={styles.priceLabel}>Taxes/fees</Text>
-              <Text style={styles.priceValue}>${booking.taxes.toFixed(2)}</Text>
+              <Text style={styles.priceValue}>
+                ${(booking.taxes ?? 0).toFixed(2)}
+              </Text>
             </View>
             <View style={styles.priceDivider} />
             <View style={styles.priceRow}>

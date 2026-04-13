@@ -22,6 +22,7 @@ import {
   openGallery,
 } from '../../../utils/helpers/mediaPicker.helper';
 import { styles } from '../stylesheets/DriverVerification.style';
+import CustomHeader from '../../../Components/Header/CustomHeader';
 // ── status config ──────────────────────────────────────────────────────────
 const STATUS = {
   not_submitted: {
@@ -187,23 +188,12 @@ const DriverVerificationScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       {/* header */}
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => navigation.goBack()}
-          hitSlop={10}
-          style={styles.backBtn}
-        >
-          <Icon
-            name="arrow-left"
-            size={moderateScale(22)}
-            color={colors.textPrimary}
-          />
-        </Pressable>
-        <Text style={styles.headerTitle}>{t('driver_verification_title')}</Text>
-        <View style={styles.backBtn} />
-      </View>
+      <CustomHeader
+        title={t('driver_verification_title')}
+        onBack={() => navigation.goBack()}
+      />
 
       <ScrollView
         contentContainerStyle={styles.scrollContent}

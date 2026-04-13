@@ -24,6 +24,7 @@ import {
 } from '../../../utils/helpers/mediaPicker.helper';
 import colors from '../../../Constants/Colors';
 import { styles } from '../stylesheets/EditProfile.style';
+import CustomHeader from '../../../Components/Header/CustomHeader';
 const STATUS_CONFIG = {
   active: { labelKey: 'account_status_active', bg: '#D1FAE5', text: '#065F46' },
   restricted: {
@@ -128,29 +129,14 @@ const EditProfileScreen = ({ route, navigation }) => {
   const statusCfg = STATUS_CONFIG[accountStatus] ?? STATUS_CONFIG.active;
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       <KeyboardAvoidingView
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* ── top bar ── */}
-        <View style={styles.topBar}>
-          <Pressable
-            onPress={() => navigation.goBack()}
-            style={styles.backBtn}
-            hitSlop={8}
-          >
-            <Icon
-              name="arrow-left"
-              size={moderateScale(22)}
-              color={colors.textPrimary}
-            />
-          </Pressable>
-          <Text style={styles.topBarTitle}>
-            {t('edit_profile_screen_title')}
-          </Text>
-          <View style={styles.backBtn} />
-        </View>
+        {/* ── Header ── */}
+        <CustomHeader title={t('edit_profile_screen_title')} onBack={() => navigation.goBack()} />
+       
 
         <ScrollView
           contentContainerStyle={styles.scroll}

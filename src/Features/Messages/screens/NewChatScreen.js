@@ -14,7 +14,7 @@ import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { styles } from '../stylesheets/NewChat.style';
 import { upsertConversation } from '../../../App/Redux/Slices/chatSlice';
-
+import CustomHeader from '../../../Components/Header/CustomHeader';
 /* TODO: replace with real users fetched from API */
 export const MOCK_USERS = [
   { id: 'u2', name: 'Sarah Johnson' },
@@ -83,12 +83,10 @@ const NewChatScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
       {/* Header */}
-      <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
-          <Icon name="arrow-back" size={moderateScale(22)} color="#333" />
-        </Pressable>
-        <Text style={styles.title}>{t('new_chat_title')}</Text>
-      </View>
+      <CustomHeader
+        title={t('new_chat_title')}
+        onBack={() => navigation.goBack()}
+      />
 
       {/* Search */}
       <View style={styles.searchBar}>

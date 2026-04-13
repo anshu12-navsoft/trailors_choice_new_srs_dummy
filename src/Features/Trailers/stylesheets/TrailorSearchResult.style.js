@@ -4,6 +4,97 @@ import colors from '../../../Constants/Colors';
 
 export const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
+
+  // ── Map + Bottom Sheet layout ──
+  screenContainer: { flex: 1, backgroundColor: '#E8EFF5' },
+  mapContainer: {
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#DDE3EA',
+  },
+  mapPlaceholderText: {
+    fontSize: moderateScale(18),
+    fontWeight: '700',
+    color: '#78909C',
+    marginTop: moderateScale(10),
+  },
+  mapPlaceholderSub: {
+    fontSize: moderateScale(12),
+    color: '#90A4AE',
+    marginTop: moderateScale(4),
+  },
+  floatingSafeArea: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  floatingHeader: {
+    paddingHorizontal: moderateScale(12),
+    paddingVertical: moderateScale(8),
+  },
+  bottomSheet: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    borderTopLeftRadius: moderateScale(20),
+    borderTopRightRadius: moderateScale(20),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 16,
+    overflow: 'hidden',
+  },
+  sheetHandleArea: {
+    paddingTop: moderateScale(10),
+    paddingHorizontal: moderateScale(16),
+    paddingBottom: moderateScale(6),
+  },
+  sheetHandleBar: {
+    width: 40,
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: '#D1D5DB',
+    alignSelf: 'center',
+    marginBottom: moderateScale(10),
+  },
+  sheetTopRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  expandBtn: {
+    padding: moderateScale(4),
+    backgroundColor: '#F3F4F6',
+    borderRadius: moderateScale(8),
+  },
+
+  // ── Card updated layout ──
+  cardTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 3,
+  },
+  priceBold: {
+    fontSize: moderateScale(15),
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  priceWeek: {
+    fontSize: moderateScale(13),
+    color: colors.textSecondary,
+  },
+  priceWeekBold: {
+    fontSize: moderateScale(13),
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
   header: {
     paddingHorizontal: moderateScale(12),
     paddingVertical: moderateScale(10),
@@ -130,7 +221,7 @@ export const styles = StyleSheet.create({
     fontSize: moderateScale(16),
     fontWeight: '700',
     color: colors.textPrimary,
-    paddingHorizontal: moderateScale(16),
+    paddingHorizontal: moderateScale(4),
     paddingTop: moderateScale(8),
     paddingBottom: moderateScale(4),
   },

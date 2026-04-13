@@ -2,8 +2,6 @@ import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
-  StatusBar,
   ScrollView,
   TouchableOpacity,
   Modal,
@@ -16,7 +14,9 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
 import { Calendar } from 'react-native-calendars';
 import { useColors } from '../../../Theme/ThemeContext';
-import {styles} from "../stylesheets/AvailabilityCalender.style"
+import { styles } from '../stylesheets/AvailabilityCalender.style';
+import CustomHeader from '../../../Components/Header/CustomHeader';
+
 const today = new Date().toISOString().split('T')[0];
 
 const MOCK_TRAILERS = [
@@ -28,7 +28,6 @@ const MOCK_TRAILERS = [
 const AvailabilityCalendarScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const colors = useColors();
-  
 
   // Pre-marked: booked dates (blue) and blocked dates (red)
   const INITIAL_MARKED = useMemo(
@@ -157,26 +156,13 @@ const AvailabilityCalendarScreen = ({ navigation }) => {
   }
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
+    <SafeAreaView style={styles.safe} edges={['left', 'right']}>
+      {/* Header */}
 
-      <View style={styles.header}>
-        <CustomIconButton
-          onPress={() => navigation.goBack()}
-          icon={
-            <Icon
-              name="arrow-back"
-              size={moderateScale(22)}
-              color={colors.textPrimary}
-            />
-          }
-          style={styles.backBtn}
-        />
-
-        <Text style={styles.headerTitle}>
-          {t('availability_calendar_title')}
-        </Text>
-      </View>
+      <CustomHeader
+        title={t('availability_calendar_title')}
+        onBack={() => navigation.goBack()}
+      />
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* Trailer Selector */}
@@ -460,7 +446,5 @@ const AvailabilityCalendarScreen = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-
 
 export default AvailabilityCalendarScreen;

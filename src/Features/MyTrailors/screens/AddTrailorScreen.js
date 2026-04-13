@@ -22,6 +22,9 @@ import CustomButton from '../../../Components/Buttons/CustomButton';
 import colors from '../../../Constants/Colors';
 import Fonts from '../../../Theme/Fonts';
 import { styles } from '../stylesheets/AddTrailor.style';
+import CustomHeader from '../../../Components/Header/CustomHeader';
+
+
 if (
   Platform.OS === 'android' &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -747,19 +750,12 @@ const AddTrailorScreen = ({ navigation }) => {
   const StepContent = STEPS[currentStep - 1];
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       {/* Header */}
-      <View style={styles.header}>
-        <Pressable onPress={goBack} style={styles.headerSide} hitSlop={10}>
-          <Icon
-            name="arrow-left"
-            size={moderateScale(22)}
-            color={colors.textPrimary}
-          />
-        </Pressable>
-        <Text style={styles.headerTitle}>{t('post_your_trailer')}</Text>
-        <View style={styles.headerSide} />
-      </View>
+      <CustomHeader
+        title={t('post_your_trailer')}
+        onBack={() => navigation.goBack()}
+      />
 
       {/* Segmented tracker — flush under header */}
       <SegmentedTracker currentStep={currentStep} />

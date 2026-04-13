@@ -1,18 +1,13 @@
 import React, { useMemo } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  StatusBar,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
 import { useColors } from '../../../Theme/ThemeContext';
 import { styles } from '../stylesheets/OwnerDashboard.style';
+import CustomHeader from '../../../Components/Header/CustomHeader';
+
 
 const ACTIVE_LISTINGS = [
   {
@@ -145,23 +140,13 @@ const OwnerDashboard = ({ navigation }) => {
   ];
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-
+    <SafeAreaView style={styles.safe} edges={['left', 'right']}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backBtn}
-        >
-          <Icon
-            name="arrow-back"
-            size={moderateScale(22)}
-            color={colors.textPrimary}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('owner_dashboard_title')}</Text>
-      </View>
+
+      <CustomHeader
+        title={t('owner_dashboard_title')}
+        onBack={() => navigation.goBack()}
+      />
 
       <ScrollView
         contentContainerStyle={styles.content}

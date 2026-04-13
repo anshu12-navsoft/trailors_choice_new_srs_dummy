@@ -9,6 +9,7 @@ export const styles = StyleSheet.create({
     paddingTop: moderateScale(4),
   },
   searchWrapper: {
+    marginTop:moderateScale(20),
     paddingHorizontal: moderateScale(16),
     paddingBottom: moderateScale(8),
   },

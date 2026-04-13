@@ -19,13 +19,14 @@ import {
   enableBiometrics,
   isBiometricEnabled,
 } from '../../../Services/biometrics.service';
-import Fonts from '../../../Theme/Fonts';
 import { useTranslation } from 'react-i18next';
 import i18n from '../../../Services/bilingual_il8n/index';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleTheme } from '../../../App/Redux/Slices/themeSlice';
 import { useColors } from '../../../Theme/ThemeContext';
 import { styles } from '../stylesheets/Settings.style';
+import Fonts from '../../../Theme/Fonts';
+import CustomHeader from '../../../Components/Header/CustomHeader';
 const LANGUAGES = [
   { code: 'en', label: 'English', native: 'English' },
   { code: 'es', label: 'Spanish', native: 'Español' },
@@ -67,13 +68,13 @@ const SettingRow = ({ icon, label, sublabel, right, onPress, danger }) => {
 
 const SectionHeader = ({ title }) => {
   const colors = useColors();
-  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return <Text style={styles.sectionHeader}>{title}</Text>;
 };
 
 const Divider = () => {
   const colors = useColors();
-  const styles = useMemo(() => createStyles(colors), [colors]);
+
   return <View style={styles.divider} />;
 };
 
@@ -147,23 +148,14 @@ const SettingsScreen = ({ navigation }) => {
   //     : t('biometric_login_generic');
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={["left","right"]}>
       {/* header */}
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => navigation.goBack()}
-          hitSlop={10}
-          style={styles.backBtn}
-        >
-          <Icon
-            name="arrow-left"
-            size={moderateScale(22)}
-            color={colors.textPrimary}
-          />
-        </Pressable>
-        <Text style={styles.headerTitle}>{t('settings_title')}</Text>
-        <View style={styles.backBtn} />
-      </View>
+       <CustomHeader
+              title= {t('settings_title')}
+              onBack={() => navigation.goBack()}
+             
+            />
+  
 
       <ScrollView
         showsVerticalScrollIndicator={false}

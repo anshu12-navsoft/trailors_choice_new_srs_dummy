@@ -14,6 +14,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
 import { useColors } from '../../../Theme/ThemeContext';
 import { styles } from '../stylesheets/OwnerReview.style';
+import CustomHeader from '../../../Components/Header/CustomHeader';
 const REVIEWS = [
   {
     id: 'RV001',
@@ -138,22 +139,12 @@ const OwnerReviewsScreen = ({ navigation }) => {
   const totalReviews = REVIEWS.length;
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backBtn}
-        >
-          <Icon
-            name="arrow-back"
-            size={moderateScale(22)}
-            color={colors.textPrimary}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('my_reviews_title')}</Text>
-      </View>
+    <SafeAreaView style={styles.safe} edges={['left', 'right']}>
+      {/* Header */}
+      <CustomHeader
+        title="my_reviews_title"
+        onBack={() => navigation.goBack()}
+      />
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* Overall Rating */}

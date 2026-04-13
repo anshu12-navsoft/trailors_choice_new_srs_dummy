@@ -18,7 +18,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Calendar } from 'react-native-calendars';
 import colors from '../../../Constants/Colors';
 import { styles } from '../stylesheets/Booking.style';
-
+import CustomHeader from '../../../Components/Header/CustomHeader';
 const PICKUP_TIMES = [
   { label: '8:00 AM', value: '08:00' },
   { label: '10:00 AM', value: '10:00' },
@@ -138,23 +138,8 @@ const BookingScreen = ({ navigation, route }) => {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-
-      {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backBtn}
-        >
-          <Icon
-            name="arrow-back"
-            size={moderateScale(22)}
-            color={colors.textPrimary}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('book_trailer_title')}</Text>
-      </View>
+    <SafeAreaView style={styles.safe} edges={['left', 'right']}>
+      <CustomHeader title="Rental History" onBack={() => navigation.goBack()} />
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* Trailer Summary */}

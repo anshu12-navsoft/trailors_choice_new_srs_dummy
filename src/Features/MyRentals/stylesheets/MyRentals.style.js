@@ -18,6 +18,7 @@ export const styles = StyleSheet.create({
   },
 
   toggleWrapper: {
+    marginTop:moderateScale(20),
     paddingHorizontal: moderateScale(16),
     marginBottom: moderateScale(12),
   },

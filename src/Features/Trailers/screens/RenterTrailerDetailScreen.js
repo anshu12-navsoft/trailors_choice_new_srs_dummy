@@ -3,11 +3,13 @@ import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
-  StyleSheet,
   StatusBar,
   ScrollView,
   TouchableOpacity,
   Alert,
+  TextInput,
+  Modal,
+  FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { moderateScale } from 'react-native-size-matters';
@@ -16,6 +18,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toggleFavorite } from '../../../App/Redux/Slices/trailerSlice';
 import colors from '../../../Constants/Colors';
 import { styles } from '../stylesheets/RenterTrailorDetail.style';
+
 const PHOTO_COLORS = ['#DBEAFE', '#D1FAE5', '#FEF3C7', '#EDE9FE'];
 
 const SPECS = [
@@ -28,8 +31,10 @@ const SPECS = [
 const RenterTrailerDetailScreen = ({ navigation, route }) => {
   const { t } = useTranslation();
   const trailer = route.params?.trailer ?? {};
+  console.log('Trailor======>>>>>', trailer);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [expanded, setExpanded] = useState(false);
+  const [photoModalVisible, setPhotoModalVisible] = useState(false);
   const dispatch = useDispatch();
   const favorites = useSelector(state => state.trailer.favorites);
   const isFavorite = favorites.includes(trailer.id);
@@ -84,35 +89,97 @@ const RenterTrailerDetailScreen = ({ navigation, route }) => {
             </View>
           ))}
         </ScrollView>
-        {/* Dot indicators */}
-        <View style={styles.dotRow}>
-          {PHOTO_COLORS.map((_, i) => (
-            <View
-              key={i}
-              style={[styles.dot, i === photoIndex && styles.dotActive]}
-            />
-          ))}
-        </View>
-        {/* Back & Favorite */}
+
+        {/* Top overlay: white bar with back, search input, share, heart */}
         <SafeAreaView edges={['top']} style={styles.overlayControls}>
-          <TouchableOpacity
-            style={styles.overlayBtn}
-            onPress={() => navigation.goBack()}
-          >
-            <Icon name="arrow-back" size={moderateScale(20)} color="#fff" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.overlayBtn}
-            onPress={() => dispatch(toggleFavorite(trailer.id))}
-          >
-            <Icon
-              name={isFavorite ? 'favorite' : 'favorite-border'}
-              size={moderateScale(20)}
-              color={isFavorite ? '#EF4444' : '#fff'}
+          <View style={styles.overlayBar}>
+            <TouchableOpacity onPress={() => navigation.goBack()}>
+              <Icon
+                name="arrow-back"
+                size={moderateScale(20)}
+                color={colors.textPrimary}
+              />
+            </TouchableOpacity>
+
+            <TextInput
+              style={styles.overlaySearch}
+              placeholder="Search trailers..."
+              placeholderTextColor={colors.textSecondary}
             />
-          </TouchableOpacity>
+
+            <TouchableOpacity>
+              <Icon
+                name="share"
+                size={moderateScale(20)}
+                color={colors.textPrimary}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() => dispatch(toggleFavorite(trailer.id))}
+            >
+              <Icon
+                name={isFavorite ? 'favorite' : 'favorite-border'}
+                size={moderateScale(20)}
+                color={isFavorite ? '#EF4444' : colors.textPrimary}
+              />
+            </TouchableOpacity>
+          </View>
         </SafeAreaView>
+
+        {/* Bottom pill: photo count */}
+        <TouchableOpacity
+          style={styles.photoCountPill}
+          onPress={() => setPhotoModalVisible(true)}
+        >
+          <Text style={styles.photoCountText}>
+            {photoIndex + 1}/{PHOTO_COLORS.length} Photos
+          </Text>
+        </TouchableOpacity>
       </View>
+
+      {/* Photo list modal */}
+      <Modal
+        visible={photoModalVisible}
+        animationType="slide"
+        transparent={false}
+        onRequestClose={() => setPhotoModalVisible(false)}
+      >
+        <View style={styles.photoModalContainer}>
+          <SafeAreaView edges={['top', 'bottom']} style={{ flex: 1 }}>
+            <View style={styles.photoModalHeader}>
+              <Text style={styles.photoModalTitle}>
+                All Photos ({PHOTO_COLORS.length})
+              </Text>
+              <TouchableOpacity
+                style={styles.photoModalClose}
+                onPress={() => setPhotoModalVisible(false)}
+              >
+                <Icon
+                  name="close"
+                  size={moderateScale(22)}
+                  color={colors.textPrimary}
+                />
+              </TouchableOpacity>
+            </View>
+            <FlatList
+              data={PHOTO_COLORS}
+              keyExtractor={(_, i) => String(i)}
+              contentContainerStyle={styles.photoModalList}
+              showsVerticalScrollIndicator={false}
+              renderItem={({ item: bg, index }) => (
+                <View style={[styles.photoModalItem, { backgroundColor: bg }]}>
+                  <Icon
+                    name="local-shipping"
+                    size={moderateScale(50)}
+                    color="#9CA3AF"
+                  />
+                  <Text style={styles.photoModalIndex}>Photo {index + 1}</Text>
+                </View>
+              )}
+            />
+          </SafeAreaView>
+        </View>
+      </Modal>
 
       {/* Scrollable Content */}
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -120,38 +187,41 @@ const RenterTrailerDetailScreen = ({ navigation, route }) => {
         <View style={styles.titleBlock}>
           <View style={styles.titleRow}>
             <Text style={styles.trailerTitle}>
-              {trailer.title ?? '20ft Utility Trailer'}
+              {trailer.trailorTitle ?? '20ft Utility Trailer'}
             </Text>
-            {trailer.instantBook && (
+            <View style={styles.DescratingRow}>
+              <Icon name="star" size={moderateScale(14)} color="#F59E0B" />
+              <Text style={styles.ratingText}>
+                {trailer.rating ?? 4.8} ({trailer.reviewCount ?? 24})
+              </Text>
+            </View>
+            {/* {trailer.instantBook && (
               <View style={styles.instantChip}>
                 <Icon name="bolt" size={moderateScale(12)} color="#fff" />
                 <Text style={styles.instantText}>{t('instant_book')}</Text>
               </View>
-            )}
+            )} */}
           </View>
-          <View style={styles.categoryRow}>
-            <View style={styles.categoryBadge}>
-              <Text style={styles.categoryText}>
-                {trailer.category ?? 'Utility'}
-              </Text>
-            </View>
-            <View style={styles.ratingRow}>
-              <Icon name="star" size={moderateScale(14)} color="#F59E0B" />
-              <Text style={styles.ratingText}>{trailer.rating ?? 4.8}</Text>
-              <Text style={styles.reviewCount}>
-                ({trailer.reviewCount ?? 24} reviews)
-              </Text>
-            </View>
-            <View style={styles.distRow}>
-              <Icon
-                name="place"
-                size={moderateScale(14)}
-                color={colors.textSecondary}
-              />
-              <Text style={styles.distText}>
-                {trailer.distance ?? 2.3} mi away
-              </Text>
-            </View>
+
+          <View style={styles.categoryBadge}>
+            <Text style={styles.categoryText}>
+              {trailer.street} - {trailer.distanceCapacity}
+            </Text>
+            <Text style={styles.categoryText}>{trailer.specs}</Text>
+          </View>
+          <View style={styles.pricingRow}>
+            <Text>
+              <Text style={styles.pricingAmount}>$50</Text>
+              <Text style={styles.pricingUnit}>/Daily</Text>
+            </Text>
+            <Text>
+              <Text style={styles.pricingAmount}>$150</Text>
+              <Text style={styles.pricingUnit}>/Weekly</Text>
+            </Text>
+            <Text>
+              <Text style={styles.pricingAmount}>$450</Text>
+              <Text style={styles.pricingUnit}>/Monthly</Text>
+            </Text>
           </View>
         </View>
 

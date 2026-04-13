@@ -19,7 +19,7 @@ import {
   setMessages,
 } from '../../../App/Redux/Slices/chatSlice';
 import { MOCK_USERS } from './NewChatScreen';
-
+import CustomHeader from '../../../Components/Header/CustomHeader';
 const NewGroupChatScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
@@ -84,24 +84,13 @@ const NewGroupChatScreen = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       {/* Header */}
-      <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} hitSlop={8}>
-          <Icon name="arrow-back" size={moderateScale(22)} color="#333" />
-        </Pressable>
-        <Text style={styles.title}>{t('new_group_title')}</Text>
-        <Pressable
-          style={[
-            styles.createBtn,
-            selected.length < 2 && styles.createBtnDisabled,
-          ]}
-          onPress={handleCreate}
-          disabled={selected.length < 2}
-        >
-          <Text style={styles.createBtnText}>{t('create_button')}</Text>
-        </Pressable>
-      </View>
+
+      <CustomHeader
+        title={t('new_group_title')}
+        onBack={() => navigation.goBack()}
+      />
 
       {/* Group name input */}
       <View style={styles.nameInputWrap}>

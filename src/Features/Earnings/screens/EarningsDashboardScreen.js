@@ -14,7 +14,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
 import { useColors } from '../../../Theme/ThemeContext';
 import { styles } from '../stylesheets/EarningsDashboard.style';
-
+import CustomHeader from '../../../Components/Header/CustomHeader';
 const MONTHLY_DATA = [
   { month: 'Nov', amount: 620 },
   { month: 'Dec', amount: 890 },
@@ -153,29 +153,18 @@ const EarningsDashboardScreen = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backBtn}
-        >
-          <Icon
-            name="arrow-back"
-            size={moderateScale(22)}
-            color={colors.textPrimary}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>{t('earnings_dashboard_title')}</Text>
-        <TouchableOpacity onPress={() => navigation.navigate('PayoutSettings')}>
-          <Icon
-            name="settings"
-            size={moderateScale(22)}
-            color={colors.textPrimary}
-          />
-        </TouchableOpacity>
-      </View>
+    <SafeAreaView style={styles.safe} edges={['left', 'right']}>
+      <CustomHeader
+        title={t('earnings_dashboard_title')}
+        onBack={() => navigation.goBack()}
+        rightActions={[
+          {
+            icon: 'settings',
+            onPress: () => navigation.navigate('PayoutSettings'),
+            accessibilityLabel: 'More options',
+          },
+        ]}
+      />
 
       <ScrollView contentContainerStyle={styles.content}>
         {/* Summary Cards */}

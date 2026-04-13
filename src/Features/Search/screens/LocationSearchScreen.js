@@ -7,7 +7,10 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomIconButton from '../../../Components/Buttons/CustomIconButton';
 import CustomSearchInput from '../../../Components/TextInput/CustomSearchInput';
 import { styles } from '../stylesheets/LocationSearch.style';
+import CustomHeader from '../../../Components/Header/CustomHeader';
+import { useTranslation } from 'react-i18next';
 /* ── Static nearby suggestions ─────────────────────────────────────────── */
+
 const NEARBY_SUGGESTIONS = [
   { id: 'dallas', title: 'Dallas', subtitle: 'Texas, United States' },
   { id: 'texas', title: 'Texas', subtitle: 'United States' },
@@ -53,6 +56,7 @@ const SuggestionRow = ({ icon, title, subtitle, onPress, colors }) => (
 
 /* ── Screen ─────────────────────────────────────────────────────────────── */
 const LocationSearchScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const { colors } = useTheme();
   const [query, setQuery] = useState('');
 
@@ -71,16 +75,14 @@ const LocationSearchScreen = ({ navigation }) => {
   return (
     <SafeAreaView
       style={[styles.safe, { backgroundColor: colors.background }]}
-      edges={['top', 'bottom']}
+      edges={['left', 'right']}
     >
       {/* Header */}
-      <View style={styles.header}>
-        <CustomIconButton
-          icon="close"
-          variant="ghost"
-          onPress={() => navigation.goBack()}
-        />
-      </View>
+
+      <CustomHeader
+        title={t('Search destination')}
+        onBack={() => navigation.goBack()}
+      />
 
       {/* Search */}
       <View style={styles.searchWrapper}>

@@ -1,29 +1,18 @@
 import { moderateScale } from 'react-native-size-matters';
 import { StyleSheet } from 'react-native';
+import colors from '../../../Constants/Colors';
 export const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
 
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: moderateScale(16),
-    paddingVertical: moderateScale(14),
-  },
-  headerTitle: {
-    fontSize: moderateScale(17),
-    fontWeight: '700',
-    color: '#111827',
-  },
-
   /* Images */
   imageList: {
+    marginTop:20,
     paddingHorizontal: moderateScale(16),
     gap: moderateScale(10),
   },
   imagePlaceholder: {
     width: moderateScale(300),
-    height: moderateScale(200),
+    height: moderateScale(250),
     backgroundColor: '#E5E7EB',
     borderRadius: moderateScale(14),
     alignItems: 'center',
@@ -58,7 +47,7 @@ export const styles = StyleSheet.create({
   },
   receiptText: {
     fontSize: moderateScale(14),
-    color: '#374151',
+    color: colors.bubbleMine,
   },
 
   title: {
@@ -110,16 +99,21 @@ export const styles = StyleSheet.create({
     fontSize: moderateScale(14),
     fontWeight: '600',
     color: '#111827',
-    marginBottom: moderateScale(12),
+    marginBottom: moderateScale(5),
   },
   starsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: moderateScale(4),
+    justifyContent: 'space-between',
+  },
+  starsGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: moderateScale(2),
   },
   leaveReview: {
     fontSize: moderateScale(13),
-    color: '#6B7280',
+    color: colors.primaryDark,
     marginLeft: moderateScale(6),
   },
 

@@ -6,38 +6,39 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
+  scroll: {
+    paddingBottom: moderateScale(32),
+  },
 
-  // header / profile card
-  header: {
-    flexDirection: 'row',
+  /* Profile header */
+  profileSection: {
     alignItems: 'center',
-    padding: moderateScale(16),
-    borderBottomWidth: 1,
-    borderColor: '#eee',
-    marginBottom: moderateScale(12),
+    paddingTop: moderateScale(24),
+    paddingBottom: moderateScale(20),
+    paddingHorizontal: moderateScale(16),
   },
   avatarWrapper: {
     position: 'relative',
-    marginRight: 12,
+    marginBottom: moderateScale(12),
   },
   avatar: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: moderateScale(90),
+    height: moderateScale(90),
+    borderRadius: moderateScale(45),
     backgroundColor: '#D9D9D9',
   },
   avatarImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    width: moderateScale(90),
+    height: moderateScale(90),
+    borderRadius: moderateScale(45),
   },
   pencilBadge: {
     position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+    bottom: 2,
+    right: 2,
+    width: moderateScale(22),
+    height: moderateScale(22),
+    borderRadius: moderateScale(11),
     backgroundColor: '#2563EB',
     alignItems: 'center',
     justifyContent: 'center',
@@ -45,36 +46,68 @@ export const styles = StyleSheet.create({
     borderColor: '#fff',
   },
   name: {
-    fontSize: 16,
-    fontWeight: '600',
+    fontSize: moderateScale(18),
+    fontWeight: '700',
+    color: '#111827',
+    marginBottom: moderateScale(4),
   },
-  phone: {
-    fontSize: 13,
-    color: '#777',
+  memberSince: {
+    fontSize: moderateScale(13),
+    color: '#6B7280',
   },
 
-  // menu rows
+  /* Divider */
+  divider: {
+    height: 1,
+    backgroundColor: '#E5E7EB',
+    marginHorizontal: moderateScale(16),
+  },
+
+  /* Menu */
+  menuGroup: {
+    paddingVertical: moderateScale(8),
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: moderateScale(26),
-    paddingVertical: moderateScale(6),
-    backgroundColor: '#fff',
+    paddingHorizontal: moderateScale(20),
+    paddingVertical: moderateScale(13),
   },
-  left: {
+  rowLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+    gap: moderateScale(14),
   },
-  iconCircle: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#D9D9D9',
-    marginRight: 12,
+  iconBox: {
+    width: moderateScale(36),
+    height: moderateScale(36),
+    borderRadius: moderateScale(8),
+    backgroundColor: '#EFF6FF',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   rowTitle: {
-    fontSize: 15,
-    color: '#333',
+    fontSize: moderateScale(15),
+    color: '#111827',
+    fontWeight: '500',
+  },
+
+  /* Logout */
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: moderateScale(8),
+    marginHorizontal: moderateScale(16),
+    marginTop: moderateScale(24),
+    paddingVertical: moderateScale(14),
+    borderRadius: moderateScale(12),
+    backgroundColor: '#FEE2E2',
+  },
+  logoutText: {
+    fontSize: moderateScale(15),
+    fontWeight: '600',
+    color: '#E53935',
   },
 });

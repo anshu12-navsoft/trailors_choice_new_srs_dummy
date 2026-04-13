@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { Appbar, useTheme } from 'react-native-paper';
 import { moderateScale } from 'react-native-size-matters';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,13 +18,8 @@ const CustomHeader = ({ title, onBack, rightActions = [] }) => {
 
   return (
     <Appbar.Header
-      style={[
-        styles.header,
-        {
-          backgroundColor: colors.surface,
-          paddingTop: insets.top,
-        },
-      ]}
+      statusBarHeight={insets.top}
+      style={[styles.header, { backgroundColor: colors.surface }]}
     >
       {onBack && (
         <Appbar.BackAction onPress={onBack} color={colors.onSurface} />

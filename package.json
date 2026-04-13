@@ -28,6 +28,7 @@
     "react-native-localize": "^3.7.0",
     "react-native-modal-datetime-picker": "^18.0.0",
     "react-native-paper": "^5.15.0",
+    "react-native-ratings": "^8.1.0",
     "react-native-reanimated": "^4.3.0",
     "react-native-safe-area-context": "^5.5.2",
     "react-native-screens": "^4.24.0",

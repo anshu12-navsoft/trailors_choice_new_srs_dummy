@@ -21,7 +21,16 @@ const CustomSearchInput = ({
       placeholder={resolvedPlaceholder}
       onClearIconPress={onClear}
       onFocus={onFocus}
-      style={[{ borderRadius: moderateScale(12) }, style]}
+      style={[
+        {
+          borderRadius: moderateScale(12),
+          backgroundColor: '#FFFFFF', // 👈 add this
+          elevation: 0, 
+          borderColor:"#D1D5DB",
+          borderWidth:1// optional (removes shadow on Android)
+        },
+        style,
+      ]}
       inputStyle={[{ fontSize: moderateScale(15) }, inputStyle]}
       returnKeyType="search"
     />

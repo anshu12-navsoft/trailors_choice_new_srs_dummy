@@ -16,6 +16,7 @@ import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import colors from '../../../Constants/Colors';
 import { styles } from '../stylesheets/TowingCompatibility.style';
+import CustomHeader from '../../../Components/Header/CustomHeader';
 const MAKES = [
   'Ford',
   'Chevrolet',
@@ -192,25 +193,12 @@ const TowingCompatibilityScreen = ({ navigation, route }) => {
   };
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top', 'left', 'right']}>
-      <StatusBar barStyle="dark-content" backgroundColor="#fff" />
-
+    <SafeAreaView style={styles.safe} edges={['left', 'right']}>
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => navigation.goBack()}
-          style={styles.backBtn}
-        >
-          <Icon
-            name="arrow-back"
-            size={moderateScale(22)}
-            color={colors.textPrimary}
-          />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {t('towing_compatibility_title')}
-        </Text>
-      </View>
+      <CustomHeader
+        title={t('towing_compatibility_title')}
+        onBack={() => navigation.goBack()}
+      />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Trailer Specs */}

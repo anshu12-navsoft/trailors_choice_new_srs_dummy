@@ -96,6 +96,7 @@ const AccountSettings = ({ navigation }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Header */}
+        
         <View style={styles.header}>
           <Pressable onPress={() => navigation.goBack()} hitSlop={10}>
             <Icon name="arrow-left" size={moderateScale(22)} color="#111827" />
@@ -154,7 +155,7 @@ const AccountSettings = ({ navigation }) => {
             size="large"
             style={styles.saveBtn}
           />
-        </ScrollView>
+        </ScrollView>1
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

@@ -17,6 +17,7 @@ import Icon from 'react-native-vector-icons/Feather';
 import colors from '../../../Constants/Colors';
 import Fonts from '../../../Theme/Fonts';
 import { styles } from '../stylesheets/TrailorDetail.style';
+import CustomHeader from '../../../Components/Header/CustomHeader';
 const { width: SCREEN_W } = Dimensions.get('window');
 const CARD_GAP = moderateScale(12);
 const CARD_PADDING = moderateScale(16);
@@ -212,29 +213,9 @@ const TrailerDetailScreen = ({ navigation, route }) => {
     : trailer.specs.slice(0, PREVIEW_SPECS);
 
   return (
-    <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       {/* Header */}
-      <View style={styles.header}>
-        <Pressable
-          onPress={() => navigation.goBack()}
-          hitSlop={10}
-          style={styles.headerBtn}
-        >
-          <Icon
-            name="arrow-left"
-            size={moderateScale(22)}
-            color={colors.textPrimary}
-          />
-        </Pressable>
-        <Text style={styles.headerTitle}>Manage Trailer</Text>
-        <Pressable hitSlop={10} style={styles.headerBtn}>
-          <Icon
-            name="more-horizontal"
-            size={moderateScale(22)}
-            color={colors.textPrimary}
-          />
-        </Pressable>
-      </View>
+      <CustomHeader title="Manage Trailer" onBack={() => navigation.goBack()} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
