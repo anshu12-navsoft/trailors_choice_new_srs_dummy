@@ -100,6 +100,7 @@ const HomeStack = () => (
     <HomeStackNav.Screen name="TowingCompatibility" component={TowingCompatibilityScreen} options={{ headerShown: false }} />
     <HomeStackNav.Screen name="Booking" component={BookingScreen} options={{ headerShown: false }} />
     <HomeStackNav.Screen name="BookingConfirmation" component={BookingConfirmationScreen} options={{ headerShown: false, gestureEnabled: false }} />
+    <HomeStackNav.Screen name="AvailabilityCalendar" component={AvailabilityCalendarScreen} options={{ headerShown: false }} />
   </HomeStackNav.Navigator>
 );
 

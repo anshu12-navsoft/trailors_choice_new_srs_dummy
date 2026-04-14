@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import {
   View,
   Text,
@@ -10,6 +9,9 @@ import {
   TextInput,
   Modal,
   FlatList,
+  Pressable,
+  StyleSheet,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { moderateScale } from 'react-native-size-matters';
@@ -18,8 +20,55 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toggleFavorite } from '../../../App/Redux/Slices/trailerSlice';
 import colors from '../../../Constants/Colors';
 import { styles } from '../stylesheets/RenterTrailorDetail.style';
+import { Divider } from 'react-native-paper';
+import { useTranslation } from 'react-i18next';
+
+import CustomCalender from '../../../Components/Calender/CustomCalender';
+import Fonts from '../../../Theme/Fonts';
 
 const PHOTO_COLORS = ['#DBEAFE', '#D1FAE5', '#FEF3C7', '#EDE9FE'];
+
+const MONTHS = [
+  'jan',
+  'feb',
+  'mar',
+  'apr',
+  'may',
+  'jun',
+  'jul',
+  'aug',
+  'sep',
+  'oct',
+  'nov',
+  'dec',
+];
+
+const formatDateTime = (dateStr, time) => {
+  if (!dateStr) return '';
+  const [year, month, day] = dateStr.split('-');
+  return `${parseInt(day, 10)} ${
+    MONTHS[parseInt(month, 10) - 1]
+  } ${year}, ${time}`;
+};
+
+const RATING_CATEGORIES = [
+  { label: 'Cleanliness', value: 4.5 },
+  { label: 'Maintenance', value: 5.0 },
+  { label: 'Communication', value: 4.5 },
+  { label: 'Convenience', value: 4.7 },
+  { label: 'Accuracy', value: 4.0 },
+];
+
+const MOCK_REVIEWS = [
+  { id: '1', author: 'Michael Jordan', date: 'February 02, 2025', rating: 5, photo: { uri: 'https://randomuser.me/api/portraits/men/32.jpg' }, text: 'Vivamus sed rhoncus ipsum, id viverra est. Aliquam a ullamcorper tellus, sit amet interdum velit. Phasellus blandit, nibh vitae placerat condimentum,' },
+  { id: '2', author: 'Sarah Mitchell', date: 'January 28, 2025', rating: 5, photo: { uri: 'https://randomuser.me/api/portraits/women/44.jpg' }, text: 'Vivamus sed rhoncus ipsum, id viverra est. Aliquam a ullamcorper tellus, sit amet interdum velit. Phasellus blandit, nibh vitae placerat condimentum,' },
+  { id: '3', author: 'James Carter', date: 'January 15, 2025', rating: 5, photo: { uri: 'https://randomuser.me/api/portraits/men/47.jpg' }, text: 'Vivamus sed rhoncus ipsum, id viverra est. Aliquam a ullamcorper tellus, sit amet interdum velit. Phasellus blandit, nibh vitae placerat condimentum,' },
+  { id: '4', author: 'Carlos Vega', date: 'December 30, 2024', rating: 5, photo: { uri: 'https://randomuser.me/api/portraits/men/52.jpg' }, text: 'Vivamus sed rhoncus ipsum, id viverra est. Aliquam a ullamcorper tellus, sit amet interdum velit. Phasellus blandit, nibh vitae placerat condimentum,' },
+  { id: '5', author: 'Nina Williams', date: 'December 12, 2024', rating: 4, photo: { uri: 'https://randomuser.me/api/portraits/women/63.jpg' }, text: 'Great trailer, very clean and easy to hitch. Owner was super responsive and helpful throughout the whole process.' },
+  { id: '6', author: 'Mark Lewis', date: 'November 20, 2024', rating: 4, photo: { uri: 'https://randomuser.me/api/portraits/men/76.jpg' }, text: 'Solid trailer, worked perfectly for our move. Would definitely rent again next time.' },
+  { id: '7', author: 'Emily Roberts', date: 'November 05, 2024', rating: 5, photo: { uri: 'https://randomuser.me/api/portraits/women/21.jpg' }, text: 'Exactly as described. Pickup and drop-off were smooth. Trailer was in excellent condition.' },
+  { id: '8', author: 'Tyler Brooks', date: 'October 18, 2024', rating: 4, photo: { uri: 'https://randomuser.me/api/portraits/men/88.jpg' }, text: 'Great trailer for hauling furniture. Everything went smoothly from start to finish.' },
+];
 
 const SPECS = [
   { label: 'Length', value: '20 ft', icon: 'straighten' },
@@ -28,13 +77,66 @@ const SPECS = [
   { label: 'Axles', value: '2 axles', icon: 'settings' },
 ];
 
+const MOCK_TRAILER = {
+  id: '1',
+  name: 'Tandem Axel',
+  status: 'active',
+  address: '1500 Marilla St, Dallas, TX 75201',
+  dimensions: "5'x3', 2000 lbs",
+  pricing: { daily: 50, weekly: 150, monthly: 450 },
+  photos: [null, null],
+  listingVisible: true,
+  availability: '3 Mar - 31 Mar, 10 Apr - 20 Apr, 1 May - 21 May ...',
+  specs: [
+    { label: 'Length', value: "8'" },
+    { label: 'Width', value: "5'" },
+    { label: 'Height off the ground', value: "6'" },
+    { label: 'Total height', value: '100kg' },
+    { label: 'Weight Capacity', value: '500lb' },
+    { label: 'Tounge Weight', value: '200lb' },
+    { label: 'Make and Model', value: 'CAT 23658' },
+    { label: 'Hitch Type', value: 'Bumper Pull' },
+    { label: 'Hitch Class', value: 'Class I, II' },
+    { label: 'Ball Type', value: '1-7/8" Ball' },
+    { label: 'Ball size', value: '1-7/8" Ball' },
+  ],
+};
+
+const SpecRow = ({ label, value, dimmed }) => (
+  <View style={sp.row}>
+    <Text style={[sp.label, dimmed && sp.dimmed]}>{label}</Text>
+    <Text style={[sp.value, dimmed && sp.dimmed]}>{value}</Text>
+  </View>
+);
+
+const sp = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: moderateScale(6),
+  },
+  label: { fontSize: Fonts.size.sm, color: colors.textSecondary, flex: 1 },
+  value: {
+    fontSize: Fonts.size.sm,
+    color: colors.textPrimary,
+    fontWeight: '500',
+    flex: 1,
+  },
+  dimmed: { color: colors.textDisabled },
+});
+
 const RenterTrailerDetailScreen = ({ navigation, route }) => {
-  const { t } = useTranslation();
   const trailer = route.params?.trailer ?? {};
   console.log('Trailor======>>>>>', trailer);
   const [photoIndex, setPhotoIndex] = useState(0);
   const [expanded, setExpanded] = useState(false);
   const [photoModalVisible, setPhotoModalVisible] = useState(false);
+  const [calendarVisible, setCalendarVisible] = useState(false);
+  const [startDate, setStartDate] = useState(null);
+  const [endDate, setEndDate] = useState(null);
+  const [showAllSpecs, setShowAllSpecs] = useState(false);
+  const [showAllReviews, setShowAllReviews] = useState(false);
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const favorites = useSelector(state => state.trailer.favorites);
   const isFavorite = favorites.includes(trailer.id);
@@ -47,15 +149,14 @@ const RenterTrailerDetailScreen = ({ navigation, route }) => {
     navigation.navigate('Booking', { trailer });
   };
 
-  const handleTowingCheck = () => {
-    navigation.navigate('TowingCompatibility', {
-      trailer: { ...trailer, hitchType: 'Class III', weightCapacity: 7000 },
-    });
-  };
-
-  const handleMessage = () => {
-    Alert.alert('Message Owner', 'Messaging feature coming soon.');
-  };
+  const REVIEWS_PREVIEW = 5;
+  const displayedReviews = showAllReviews
+    ? MOCK_REVIEWS
+    : MOCK_REVIEWS.slice(0, REVIEWS_PREVIEW);
+  const PREVIEW_SPECS = 6;
+  const displayedSpecs = showAllSpecs
+    ? MOCK_TRAILER.specs
+    : MOCK_TRAILER.specs.slice(0, PREVIEW_SPECS);
 
   return (
     <View style={styles.container}>
@@ -235,150 +336,198 @@ const RenterTrailerDetailScreen = ({ navigation, route }) => {
             </View>
             <View style={styles.ownerInfo}>
               <Text style={styles.ownerName}>
-                {trailer.ownerName ?? 'John D.'}
+                Hosted by {trailer.ownerName ?? 'John D.'}
               </Text>
               <View style={styles.ratingRow}>
-                <Icon name="star" size={moderateScale(12)} color="#F59E0B" />
                 <Text style={styles.ownerRating}>
-                  {trailer.ownerRating ?? 4.9} · 127 reviews
+                  {trailer.ownerRating ?? 23} Trailors -{' '}
+                  {trailer.ownerRating ?? 'Joined Jul 2025'}
                 </Text>
               </View>
-              <Text style={styles.responseTime}>Responds within 1 hour</Text>
             </View>
-            <TouchableOpacity style={styles.msgBtn} onPress={handleMessage}>
-              <Icon
-                name="chat-bubble-outline"
-                size={moderateScale(16)}
-                color={colors.primary}
-              />
-              <Text style={styles.msgText}>{t('message_button')}</Text>
-            </TouchableOpacity>
           </View>
         </View>
-
-        {/* Pricing Card */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Pricing</Text>
-          <View style={styles.priceGrid}>
-            <View style={styles.priceItem}>
-              <Text style={styles.priceBig}>${pricePerDay}</Text>
-              <Text style={styles.priceLabel}>per day</Text>
-            </View>
-            <View style={styles.priceDivider} />
-            <View style={styles.priceItem}>
-              <Text style={styles.priceBig}>${pricePerDay * 6}</Text>
-              <Text style={styles.priceLabel}>per week</Text>
-            </View>
-            <View style={styles.priceDivider} />
-            <View style={styles.priceItem}>
-              <Text style={styles.priceBig}>${deposit}</Text>
-              <Text style={styles.priceLabel}>deposit</Text>
-            </View>
-          </View>
-          <View style={styles.feeRow}>
-            <Icon
-              name="info-outline"
-              size={moderateScale(14)}
-              color={colors.textSecondary}
-            />
-            <Text style={styles.feeText}>
-              Platform fee ~${platformFee}/day · Deposit refunded on return
-            </Text>
-          </View>
-        </View>
-
+        <Divider />
         {/* Specs */}
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>Specifications</Text>
+          <Text style={styles.cardTitle}>Rent Info</Text>
           <View style={styles.specsGrid}>
-            {SPECS.map(spec => (
-              <View key={spec.label} style={styles.specItem}>
-                <Icon
-                  name={spec.icon}
-                  size={moderateScale(20)}
-                  color={colors.primary}
-                />
-                <Text style={styles.specValue}>{spec.value}</Text>
-                <Text style={styles.specLabel}>{spec.label}</Text>
+            {/* ── Scheduled Availability ── */}
+            <Pressable
+              style={[styles.Rentercard, styles.RentercardRow]}
+              onPress={() => setCalendarVisible(true)}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={styles.RentercardTitle}>Start & End Date</Text>
+                <Text style={styles.RentercardSub} numberOfLines={1}>
+                  {startDate && endDate
+                    ? `${formatDateTime(
+                        startDate,
+                        '9:00 am',
+                      )} - ${formatDateTime(endDate, '9:00 pm')}`
+                    : trailer.availability ?? 'Select dates'}
+                </Text>
               </View>
-            ))}
+              <Icon
+                name="edit"
+                size={moderateScale(18)}
+                color={colors.textSecondary}
+              />
+            </Pressable>
           </View>
         </View>
 
-        {/* Description */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Description</Text>
-          <Text
-            style={styles.description}
-            numberOfLines={expanded ? undefined : 3}
-          >
-            This well-maintained utility trailer is perfect for hauling
-            equipment, furniture, or landscaping materials. Features a sturdy
-            steel frame, treated wood floor, and tie-down loops throughout. Easy
-            loading with the rear ramp gate. Lights and reflectors are fully
-            compliant with state regulations.
+        {/* Pickup & Return Location */}
+        <View style={styles.locationCard}>
+          <Text style={styles.locationCardTitle}>
+            Pickup &amp; Return Location
           </Text>
-          <TouchableOpacity onPress={() => setExpanded(!expanded)}>
-            <Text style={styles.expandText}>
-              {expanded ? 'Show less' : 'Read more'}
+          <View style={styles.locationAddressRow}>
+            <Text style={styles.locationAddress} numberOfLines={1}>
+              {trailer.address ?? '1500 Marilla St, Dallas, TX 75201'}
             </Text>
-          </TouchableOpacity>
+            <TouchableOpacity>
+              <Icon
+                name="edit"
+                size={moderateScale(18)}
+                color={colors.textSecondary}
+              />
+            </TouchableOpacity>
+          </View>
+          {/* Map placeholder */}
+          <View style={styles.mapPlaceholder}>
+            <View style={styles.mapStreetH1} />
+            <View style={styles.mapStreetH2} />
+            <View style={styles.mapStreetV1} />
+            <View style={styles.mapStreetV2} />
+            <View style={styles.mapPinWrapper}>
+              <Icon
+                name="location-on"
+                size={moderateScale(36)}
+                color="#E53935"
+              />
+            </View>
+          </View>
+        </View>
+        <Divider style={{ marginTop: moderateScale(16) }} />
+
+        {/* ── Trailer Specification ── */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t('trailer_specification')}</Text>
+          <View style={{ marginTop: moderateScale(14) }}>
+            {displayedSpecs.map((s, i) => (
+              <SpecRow
+                key={i}
+                label={s.label}
+                value={s.value}
+                dimmed={
+                  i === displayedSpecs.length - 1 &&
+                  !showAllSpecs &&
+                  trailer.specs.length > PREVIEW_SPECS
+                }
+              />
+            ))}
+          </View>
+          {trailer.specs.length > PREVIEW_SPECS && (
+            <Pressable
+              style={styles.viewAllBtn}
+              onPress={() => setShowAllSpecs(v => !v)}
+            >
+              <Text style={styles.viewAllText}>
+                {showAllSpecs ? t('view_less_specs') : t('view_all_specs')}
+              </Text>
+            </Pressable>
+          )}
+        </View> 
+
+        {/* Rating & Reviews */}
+        <View style={styles.Ratingcard}>
+          <Text style={styles.RatingcardTitle}>Rating & Reviews</Text>
+          <View style={styles.RatingReviewsRow}>
+            <Icon name="star" size={moderateScale(14)} color="#F59E0B" />
+            <Text style={styles.ratingText}>
+              {trailer.rating ?? 4.5} ({trailer.reviewCount ?? 55})
+            </Text>
+          </View>
         </View>
 
-        {/* Rental Rules */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Rental Rules</Text>
-          {[
-            'Maximum towing distance: 200 miles per day',
-            'No off-road use',
-            'Return clean or cleaning fee applies',
-            "Renter must have valid driver's license",
-            'No overloading beyond rated capacity',
-          ].map(rule => (
-            <View key={rule} style={styles.ruleRow}>
-              <Icon
-                name="check-circle-outline"
-                size={moderateScale(16)}
-                color={colors.success}
-              />
-              <Text style={styles.ruleText}>{rule}</Text>
+        {/* Rating Breakdown */}
+        <View style={styles.ratingBreakdownCard}>
+          {RATING_CATEGORIES.map(({ label, value }) => (
+            <View key={label} style={styles.ratingBreakdownRow}>
+              <Text style={styles.ratingBreakdownLabel}>{label}</Text>
+              <View style={styles.ratingBarTrack}>
+                <View
+                  style={[
+                    styles.ratingBarFill,
+                    { width: `${(value / 5) * 100}%` },
+                  ]}
+                />
+              </View>
+              <Text style={styles.ratingBreakdownValue}>
+                {value.toFixed(1)}
+              </Text>
             </View>
           ))}
         </View>
 
-        {/* Cancellation Policy */}
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Cancellation Policy</Text>
-          <Text style={styles.description}>
-            Free cancellation up to 48 hours before pickup. After that, a 50%
-            cancellation fee applies. No refund for no-shows.
-          </Text>
-        </View>
-
-        {/* Towing Compatibility */}
-        <TouchableOpacity style={styles.towingCard} onPress={handleTowingCheck}>
-          <View style={styles.towingLeft}>
-            <Icon
-              name="rv-hookup"
-              size={moderateScale(24)}
-              color={colors.primary}
-            />
-            <View>
-              <Text style={styles.towingTitle}>Towing Compatibility</Text>
-              <Text style={styles.towingSubtitle}>
-                Check if your vehicle can tow this trailer
-              </Text>
+        {/* Reviews List */}
+        <View style={styles.reviewsSection}>
+          {displayedReviews.map((review, index) => (
+            <View key={review.id}>
+              <View style={styles.reviewItem}>
+                <View style={styles.reviewHeader}>
+                  <Image source={review.photo} style={styles.reviewAvatar} />
+                  <View style={styles.reviewAuthorInfo}>
+                    <Text style={styles.reviewAuthorName}>{review.author}</Text>
+                    <Text style={styles.reviewDate}>{review.date}</Text>
+                  </View>
+                </View>
+                <View style={styles.reviewStarsRow}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Icon
+                      key={i}
+                      name={i < review.rating ? 'star' : 'star-border'}
+                      size={moderateScale(14)}
+                      color="#F59E0B"
+                    />
+                  ))}
+                </View>
+                <Text style={styles.reviewText}>{review.text}</Text>
+              </View>
+              {index < displayedReviews.length - 1 && (
+                <Divider style={styles.reviewDivider} />
+              )}
             </View>
-          </View>
-          <Icon
-            name="chevron-right"
-            size={moderateScale(22)}
-            color={colors.textSecondary}
-          />
-        </TouchableOpacity>
+          ))}
+          {MOCK_REVIEWS.length > REVIEWS_PREVIEW && (
+            <Pressable
+              style={styles.showAllReviewsBtn}
+              onPress={() => setShowAllReviews(v => !v)}
+            >
+              <Text style={styles.showAllReviewsText}>
+                {showAllReviews
+                  ? 'Show fewer reviews'
+                  : `Show all ${MOCK_REVIEWS.length} reviews`}
+              </Text>
+            </Pressable>
+          )}
+        </View>
 
         <View style={{ height: moderateScale(100) }} />
       </ScrollView>
+
+      {/* Availability Calendar */}
+      <CustomCalender
+        visible={calendarVisible}
+        startDate={startDate}
+        endDate={endDate}
+        onChange={({ startDate: s, endDate: e }) => {
+          setStartDate(s);
+          setEndDate(e);
+        }}
+        onClose={() => setCalendarVisible(false)}
+      />
 
       {/* Sticky Book Now */}
       <View style={styles.bookBar}>

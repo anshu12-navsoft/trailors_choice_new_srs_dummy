@@ -16,6 +16,7 @@ import { Calendar } from 'react-native-calendars';
 import { useColors } from '../../../Theme/ThemeContext';
 import { styles } from '../stylesheets/AvailabilityCalender.style';
 import CustomHeader from '../../../Components/Header/CustomHeader';
+import CustomButton from '../../../Components/Buttons/CustomButton';
 
 const today = new Date().toISOString().split('T')[0];
 
