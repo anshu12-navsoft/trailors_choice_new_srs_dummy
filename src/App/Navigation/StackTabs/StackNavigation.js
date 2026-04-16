@@ -6,10 +6,9 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WelcomeScreen from '../../../Features/Auth/screens/WelcomeScreen';
 import Login from '../../../Features/Auth/screens/Login';
 import Register from '../../../Features/Auth/screens/Register';
-import ForgotPassword from '../../../Features/Auth/screens/ForgotPassword';
-import ResetPassword from '../../../Features/Auth/screens/ResetPassword';
+
 import OtpVerification from '../../../Features/Auth/screens/OtpVerification';
-import EmailVerification from '../../../Features/Auth/screens/EmailVerification';
+
 import AccountSettings from '../../../Features/Auth/screens/AccountSettings';
 
 // Home & Discovery
@@ -70,10 +69,7 @@ const AuthStack = () => (
     <AuthStackNav.Screen name="Welcome" component={WelcomeScreen} />
     <AuthStackNav.Screen name="Login" component={Login} />
     <AuthStackNav.Screen name="Register" component={Register} />
-    <AuthStackNav.Screen name="ForgotPassword" component={ForgotPassword} />
-    <AuthStackNav.Screen name="ResetPassword" component={ResetPassword} />
     <AuthStackNav.Screen name="OtpVerification" component={OtpVerification} />
-    <AuthStackNav.Screen name="EmailVerification" component={EmailVerification} />
     <AuthStackNav.Screen name="AccountSettings" component={AccountSettings} />
   </AuthStackNav.Navigator>
 );
@@ -85,22 +81,61 @@ const HomeStack = () => (
       headerShown: true,
       headerTitle: '',
       headerShadowVisible: false,
-      headerStyle: { height: Platform.OS === 'android' ? 56 : 50, elevation: 0 },
+      headerStyle: {
+        height: Platform.OS === 'android' ? 56 : 50,
+        elevation: 0,
+      },
       headerTitleContainerStyle: { paddingVertical: 0 },
       headerLeftContainerStyle: { paddingLeft: 15 },
       headerStatusBarHeight: 0,
       headerLeft: () => <DrawerToggleButton />,
     }}
   >
-    <HomeStackNav.Screen name="Home" component={Home} options={{ headerShown: false }} />
-    <HomeStackNav.Screen name="SearchFilter" component={SearchFilterScreen} options={{ headerShown: false }} />
-    <HomeStackNav.Screen name="LocationSearch" component={LocationSearchScreen} options={{ headerShown: false }} />
-    <HomeStackNav.Screen name="TrailerSearchResults" component={TrailerSearchResultsScreen} options={{ headerShown: false }} />
-    <HomeStackNav.Screen name="RenterTrailerDetail" component={RenterTrailerDetailScreen} options={{ headerShown: false }} />
-    <HomeStackNav.Screen name="TowingCompatibility" component={TowingCompatibilityScreen} options={{ headerShown: false }} />
-    <HomeStackNav.Screen name="Booking" component={BookingScreen} options={{ headerShown: false }} />
-    <HomeStackNav.Screen name="BookingConfirmation" component={BookingConfirmationScreen} options={{ headerShown: false, gestureEnabled: false }} />
-    <HomeStackNav.Screen name="AvailabilityCalendar" component={AvailabilityCalendarScreen} options={{ headerShown: false }} />
+    <HomeStackNav.Screen
+      name="Home"
+      component={Home}
+      options={{ headerShown: false }}
+    />
+    <HomeStackNav.Screen
+      name="SearchFilter"
+      component={SearchFilterScreen}
+      options={{ headerShown: false }}
+    />
+    <HomeStackNav.Screen
+      name="LocationSearch"
+      component={LocationSearchScreen}
+      options={{ headerShown: false }}
+    />
+    <HomeStackNav.Screen
+      name="TrailerSearchResults"
+      component={TrailerSearchResultsScreen}
+      options={{ headerShown: false }}
+    />
+    <HomeStackNav.Screen
+      name="RenterTrailerDetail"
+      component={RenterTrailerDetailScreen}
+      options={{ headerShown: false }}
+    />
+    <HomeStackNav.Screen
+      name="TowingCompatibility"
+      component={TowingCompatibilityScreen}
+      options={{ headerShown: false }}
+    />
+    <HomeStackNav.Screen
+      name="Booking"
+      component={BookingScreen}
+      options={{ headerShown: false }}
+    />
+    <HomeStackNav.Screen
+      name="BookingConfirmation"
+      component={BookingConfirmationScreen}
+      options={{ headerShown: false, gestureEnabled: false }}
+    />
+    <HomeStackNav.Screen
+      name="AvailabilityCalendar"
+      component={AvailabilityCalendarScreen}
+      options={{ headerShown: false }}
+    />
   </HomeStackNav.Navigator>
 );
 
@@ -110,7 +145,10 @@ const MessageStack = () => (
     <MessageStackNav.Screen name="Messages" component={Messages} />
     <MessageStackNav.Screen name="Chat" component={ChatScreen} />
     <MessageStackNav.Screen name="NewChat" component={NewChatScreen} />
-    <MessageStackNav.Screen name="NewGroupChat" component={NewGroupChatScreen} />
+    <MessageStackNav.Screen
+      name="NewGroupChat"
+      component={NewGroupChatScreen}
+    />
   </MessageStackNav.Navigator>
 );
 
@@ -118,7 +156,10 @@ const MessageStack = () => (
 const MyRentalsStack = () => (
   <MyRentalsStackNav.Navigator screenOptions={{ headerShown: false }}>
     <MyRentalsStackNav.Screen name="MyRentals" component={MyRentals} />
-    <MyRentalsStackNav.Screen name="BookingDetail" component={BookingDetailScreen} />
+    <MyRentalsStackNav.Screen
+      name="BookingDetail"
+      component={BookingDetailScreen}
+    />
   </MyRentalsStackNav.Navigator>
 );
 
@@ -127,16 +168,46 @@ const MyTrailorsStack = () => (
   <MyTrailorsStackNav.Navigator screenOptions={{ headerShown: false }}>
     <MyTrailorsStackNav.Screen name="MyTrailors" component={MyTrailorsScreen} />
     <MyTrailorsStackNav.Screen name="AddTrailor" component={AddTrailorScreen} />
-    <MyTrailorsStackNav.Screen name="TrailerDetail" component={TrailerDetailScreen} />
-    <MyTrailorsStackNav.Screen name="OwnerDashboard" component={OwnerDashboard} />
-    <MyTrailorsStackNav.Screen name="BookingRequests" component={BookingRequestsScreen} />
-    <MyTrailorsStackNav.Screen name="BookingRequestDetail" component={BookingRequestDetailScreen} />
-    <MyTrailorsStackNav.Screen name="OwnerBookings" component={OwnerBookingsScreen} />
-    <MyTrailorsStackNav.Screen name="AvailabilityCalendar" component={AvailabilityCalendarScreen} />
-    <MyTrailorsStackNav.Screen name="EarningsDashboard" component={EarningsDashboardScreen} />
-    <MyTrailorsStackNav.Screen name="PayoutSettings" component={PayoutSettingsScreen} />
-    <MyTrailorsStackNav.Screen name="OwnerVerification" component={OwnerVerificationScreen} />
-    <MyTrailorsStackNav.Screen name="OwnerReviews" component={OwnerReviewsScreen} />
+    <MyTrailorsStackNav.Screen
+      name="TrailerDetail"
+      component={TrailerDetailScreen}
+    />
+    <MyTrailorsStackNav.Screen
+      name="OwnerDashboard"
+      component={OwnerDashboard}
+    />
+    <MyTrailorsStackNav.Screen
+      name="BookingRequests"
+      component={BookingRequestsScreen}
+    />
+    <MyTrailorsStackNav.Screen
+      name="BookingRequestDetail"
+      component={BookingRequestDetailScreen}
+    />
+    <MyTrailorsStackNav.Screen
+      name="OwnerBookings"
+      component={OwnerBookingsScreen}
+    />
+    <MyTrailorsStackNav.Screen
+      name="AvailabilityCalendar"
+      component={AvailabilityCalendarScreen}
+    />
+    <MyTrailorsStackNav.Screen
+      name="EarningsDashboard"
+      component={EarningsDashboardScreen}
+    />
+    <MyTrailorsStackNav.Screen
+      name="PayoutSettings"
+      component={PayoutSettingsScreen}
+    />
+    <MyTrailorsStackNav.Screen
+      name="OwnerVerification"
+      component={OwnerVerificationScreen}
+    />
+    <MyTrailorsStackNav.Screen
+      name="OwnerReviews"
+      component={OwnerReviewsScreen}
+    />
   </MyTrailorsStackNav.Navigator>
 );
 
@@ -147,28 +218,73 @@ const ProfileStack = () => (
     <ProfileStackNav.Screen name="EditProfile" component={EditProfileScreen} />
     {/* Renter */}
     <ProfileStackNav.Screen name="MyRentals" component={MyRentals} />
-    <ProfileStackNav.Screen name="DriverVerification" component={DriverVerificationScreen} />
-    <ProfileStackNav.Screen name="RenterDashboard" component={RenterDashboard} />
-    <ProfileStackNav.Screen name="BookingDetail" component={BookingDetailScreen} />
-    <ProfileStackNav.Screen name="RenterTrailerDetail" component={RenterTrailerDetailScreen} />
-    <ProfileStackNav.Screen name="TowingCompatibility" component={TowingCompatibilityScreen} />
+    <ProfileStackNav.Screen
+      name="DriverVerification"
+      component={DriverVerificationScreen}
+    />
+    <ProfileStackNav.Screen
+      name="RenterDashboard"
+      component={RenterDashboard}
+    />
+    <ProfileStackNav.Screen
+      name="BookingDetail"
+      component={BookingDetailScreen}
+    />
+    <ProfileStackNav.Screen
+      name="RenterTrailerDetail"
+      component={RenterTrailerDetailScreen}
+    />
+    <ProfileStackNav.Screen
+      name="TowingCompatibility"
+      component={TowingCompatibilityScreen}
+    />
     <ProfileStackNav.Screen name="Booking" component={BookingScreen} />
-    <ProfileStackNav.Screen name="BookingConfirmation" component={BookingConfirmationScreen} />
+    <ProfileStackNav.Screen
+      name="BookingConfirmation"
+      component={BookingConfirmationScreen}
+    />
     {/* Shared */}
     <ProfileStackNav.Screen name="Settings" component={SettingsScreen} />
     {/* Owner */}
     <ProfileStackNav.Screen name="OwnerDashboard" component={OwnerDashboard} />
-    <ProfileStackNav.Screen name="BookingRequests" component={BookingRequestsScreen} />
-    <ProfileStackNav.Screen name="BookingRequestDetail" component={BookingRequestDetailScreen} />
-    <ProfileStackNav.Screen name="OwnerBookings" component={OwnerBookingsScreen} />
-    <ProfileStackNav.Screen name="AvailabilityCalendar" component={AvailabilityCalendarScreen} />
-    <ProfileStackNav.Screen name="EarningsDashboard" component={EarningsDashboardScreen} />
-    <ProfileStackNav.Screen name="PayoutSettings" component={PayoutSettingsScreen} />
-    <ProfileStackNav.Screen name="OwnerVerification" component={OwnerVerificationScreen} />
-    <ProfileStackNav.Screen name="OwnerReviews" component={OwnerReviewsScreen} />
+    <ProfileStackNav.Screen
+      name="BookingRequests"
+      component={BookingRequestsScreen}
+    />
+    <ProfileStackNav.Screen
+      name="BookingRequestDetail"
+      component={BookingRequestDetailScreen}
+    />
+    <ProfileStackNav.Screen
+      name="OwnerBookings"
+      component={OwnerBookingsScreen}
+    />
+    <ProfileStackNav.Screen
+      name="AvailabilityCalendar"
+      component={AvailabilityCalendarScreen}
+    />
+    <ProfileStackNav.Screen
+      name="EarningsDashboard"
+      component={EarningsDashboardScreen}
+    />
+    <ProfileStackNav.Screen
+      name="PayoutSettings"
+      component={PayoutSettingsScreen}
+    />
+    <ProfileStackNav.Screen
+      name="OwnerVerification"
+      component={OwnerVerificationScreen}
+    />
+    <ProfileStackNav.Screen
+      name="OwnerReviews"
+      component={OwnerReviewsScreen}
+    />
     <ProfileStackNav.Screen name="MyTrailors" component={MyTrailorsScreen} />
     <ProfileStackNav.Screen name="AddTrailor" component={AddTrailorScreen} />
-    <ProfileStackNav.Screen name="TrailerDetail" component={TrailerDetailScreen} />
+    <ProfileStackNav.Screen
+      name="TrailerDetail"
+      component={TrailerDetailScreen}
+    />
   </ProfileStackNav.Navigator>
 );
 

@@ -139,8 +139,15 @@ const BookingScreen = ({ navigation, route }) => {
 
   return (
     <SafeAreaView style={styles.safe} edges={['left', 'right']}>
-      <CustomHeader title="Rental History" onBack={() => navigation.goBack()} />
-
+      <CustomHeader onBack={() => navigation.goBack()} />
+      <View
+        style={{
+          paddingHorizontal: moderateScale(20),
+          paddingVertical: moderateScale(10),
+        }}
+      >
+        <Text style={styles.footerTotal}>Confirm & Pay</Text>
+      </View>
       <ScrollView contentContainerStyle={styles.content}>
         {/* Trailer Summary */}
         <View style={styles.trailerCard}>

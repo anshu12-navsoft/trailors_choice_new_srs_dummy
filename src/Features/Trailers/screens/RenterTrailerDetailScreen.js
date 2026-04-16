@@ -22,9 +22,9 @@ import colors from '../../../Constants/Colors';
 import { styles } from '../stylesheets/RenterTrailorDetail.style';
 import { Divider } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
-
 import CustomCalender from '../../../Components/Calender/CustomCalender';
 import Fonts from '../../../Theme/Fonts';
+import CustomButton from '../../../Components/Buttons/CustomButton';
 
 const PHOTO_COLORS = ['#DBEAFE', '#D1FAE5', '#FEF3C7', '#EDE9FE'];
 
@@ -59,15 +59,158 @@ const RATING_CATEGORIES = [
   { label: 'Accuracy', value: 4.0 },
 ];
 
+const INFO_TABS = [
+  { key: 'cancellation', label: 'Cancellation Policy' },
+  { key: 'payment', label: 'Payment Option' },
+  { key: 'report', label: 'Report Listing' },
+];
+
+const CANCELLATION_RULES = [
+  {
+    icon: 'event-available',
+    text: 'Free cancellation up to 24 hours before pickup.',
+  },
+  {
+    icon: 'event-busy',
+    text: '50% refund if cancelled within 24 hours of pickup.',
+  },
+  { icon: 'money-off', text: 'No refund for cancellations after pickup time.' },
+  {
+    icon: 'info-outline',
+    text: 'Security deposit is fully refundable upon return.',
+  },
+];
+
+const PAYMENT_OPTIONS = [
+  {
+    icon: 'credit-card',
+    label: 'Credit / Debit Card',
+    sub: 'Visa, Mastercard, Amex accepted',
+  },
+  {
+    icon: 'account-balance',
+    label: 'Bank Transfer',
+    sub: 'ACH direct transfer available',
+  },
+  {
+    icon: 'phone-iphone',
+    label: 'Apple Pay / Google Pay',
+    sub: 'Tap-to-pay on checkout',
+  },
+];
+
+const REPORT_REASONS = [
+  'Inaccurate listing information',
+  'Fraudulent or scam listing',
+  'Inappropriate content',
+  'Prohibited item or trailer type',
+  'Other',
+];
+
+const SIMILAR_TRAILERS = [
+  {
+    id: 's1',
+    name: 'Tandem Axel',
+    distance: '2.4 miles · E 8th St.',
+    specs: "5'x3', 2000 lbs",
+    priceDay: 50,
+    priceWeek: 150,
+    bg: '#DBEAFE',
+  },
+  {
+    id: 's2',
+    name: 'Tandem Axel',
+    distance: '2.4 miles · E 8th St.',
+    specs: "5'x3', 2000 lbs",
+    priceDay: 50,
+    priceWeek: 150,
+    bg: '#D1FAE5',
+  },
+  {
+    id: 's3',
+    name: 'Tandem Axel',
+    distance: '2.4 miles · E 8th St.',
+    specs: "5'x3', 2000 lbs",
+    priceDay: 50,
+    priceWeek: 150,
+    bg: '#FEF3C7',
+  },
+  {
+    id: 's4',
+    name: 'Tandem Axel',
+    distance: '2.4 miles · E 8th St.',
+    specs: "5'x3', 2000 lbs",
+    priceDay: 50,
+    priceWeek: 150,
+    bg: '#EDE9FE',
+  },
+];
+
 const MOCK_REVIEWS = [
-  { id: '1', author: 'Michael Jordan', date: 'February 02, 2025', rating: 5, photo: { uri: 'https://randomuser.me/api/portraits/men/32.jpg' }, text: 'Vivamus sed rhoncus ipsum, id viverra est. Aliquam a ullamcorper tellus, sit amet interdum velit. Phasellus blandit, nibh vitae placerat condimentum,' },
-  { id: '2', author: 'Sarah Mitchell', date: 'January 28, 2025', rating: 5, photo: { uri: 'https://randomuser.me/api/portraits/women/44.jpg' }, text: 'Vivamus sed rhoncus ipsum, id viverra est. Aliquam a ullamcorper tellus, sit amet interdum velit. Phasellus blandit, nibh vitae placerat condimentum,' },
-  { id: '3', author: 'James Carter', date: 'January 15, 2025', rating: 5, photo: { uri: 'https://randomuser.me/api/portraits/men/47.jpg' }, text: 'Vivamus sed rhoncus ipsum, id viverra est. Aliquam a ullamcorper tellus, sit amet interdum velit. Phasellus blandit, nibh vitae placerat condimentum,' },
-  { id: '4', author: 'Carlos Vega', date: 'December 30, 2024', rating: 5, photo: { uri: 'https://randomuser.me/api/portraits/men/52.jpg' }, text: 'Vivamus sed rhoncus ipsum, id viverra est. Aliquam a ullamcorper tellus, sit amet interdum velit. Phasellus blandit, nibh vitae placerat condimentum,' },
-  { id: '5', author: 'Nina Williams', date: 'December 12, 2024', rating: 4, photo: { uri: 'https://randomuser.me/api/portraits/women/63.jpg' }, text: 'Great trailer, very clean and easy to hitch. Owner was super responsive and helpful throughout the whole process.' },
-  { id: '6', author: 'Mark Lewis', date: 'November 20, 2024', rating: 4, photo: { uri: 'https://randomuser.me/api/portraits/men/76.jpg' }, text: 'Solid trailer, worked perfectly for our move. Would definitely rent again next time.' },
-  { id: '7', author: 'Emily Roberts', date: 'November 05, 2024', rating: 5, photo: { uri: 'https://randomuser.me/api/portraits/women/21.jpg' }, text: 'Exactly as described. Pickup and drop-off were smooth. Trailer was in excellent condition.' },
-  { id: '8', author: 'Tyler Brooks', date: 'October 18, 2024', rating: 4, photo: { uri: 'https://randomuser.me/api/portraits/men/88.jpg' }, text: 'Great trailer for hauling furniture. Everything went smoothly from start to finish.' },
+  {
+    id: '1',
+    author: 'Michael Jordan',
+    date: 'February 02, 2025',
+    rating: 5,
+    photo: { uri: 'https://randomuser.me/api/portraits/men/32.jpg' },
+    text: 'Vivamus sed rhoncus ipsum, id viverra est. Aliquam a ullamcorper tellus, sit amet interdum velit. Phasellus blandit, nibh vitae placerat condimentum,',
+  },
+  {
+    id: '2',
+    author: 'Sarah Mitchell',
+    date: 'January 28, 2025',
+    rating: 5,
+    photo: { uri: 'https://randomuser.me/api/portraits/women/44.jpg' },
+    text: 'Vivamus sed rhoncus ipsum, id viverra est. Aliquam a ullamcorper tellus, sit amet interdum velit. Phasellus blandit, nibh vitae placerat condimentum,',
+  },
+  {
+    id: '3',
+    author: 'James Carter',
+    date: 'January 15, 2025',
+    rating: 5,
+    photo: { uri: 'https://randomuser.me/api/portraits/men/47.jpg' },
+    text: 'Vivamus sed rhoncus ipsum, id viverra est. Aliquam a ullamcorper tellus, sit amet interdum velit. Phasellus blandit, nibh vitae placerat condimentum,',
+  },
+  {
+    id: '4',
+    author: 'Carlos Vega',
+    date: 'December 30, 2024',
+    rating: 5,
+    photo: { uri: 'https://randomuser.me/api/portraits/men/52.jpg' },
+    text: 'Vivamus sed rhoncus ipsum, id viverra est. Aliquam a ullamcorper tellus, sit amet interdum velit. Phasellus blandit, nibh vitae placerat condimentum,',
+  },
+  {
+    id: '5',
+    author: 'Nina Williams',
+    date: 'December 12, 2024',
+    rating: 4,
+    photo: { uri: 'https://randomuser.me/api/portraits/women/63.jpg' },
+    text: 'Great trailer, very clean and easy to hitch. Owner was super responsive and helpful throughout the whole process.',
+  },
+  {
+    id: '6',
+    author: 'Mark Lewis',
+    date: 'November 20, 2024',
+    rating: 4,
+    photo: { uri: 'https://randomuser.me/api/portraits/men/76.jpg' },
+    text: 'Solid trailer, worked perfectly for our move. Would definitely rent again next time.',
+  },
+  {
+    id: '7',
+    author: 'Emily Roberts',
+    date: 'November 05, 2024',
+    rating: 5,
+    photo: { uri: 'https://randomuser.me/api/portraits/women/21.jpg' },
+    text: 'Exactly as described. Pickup and drop-off were smooth. Trailer was in excellent condition.',
+  },
+  {
+    id: '8',
+    author: 'Tyler Brooks',
+    date: 'October 18, 2024',
+    rating: 4,
+    photo: { uri: 'https://randomuser.me/api/portraits/men/88.jpg' },
+    text: 'Great trailer for hauling furniture. Everything went smoothly from start to finish.',
+  },
 ];
 
 const SPECS = [
@@ -136,6 +279,8 @@ const RenterTrailerDetailScreen = ({ navigation, route }) => {
   const [endDate, setEndDate] = useState(null);
   const [showAllSpecs, setShowAllSpecs] = useState(false);
   const [showAllReviews, setShowAllReviews] = useState(false);
+  const [activeInfoTab, setActiveInfoTab] = useState(null);
+  const [selectedReportReason, setSelectedReportReason] = useState(null);
   const { t } = useTranslation();
   const dispatch = useDispatch();
   const favorites = useSelector(state => state.trailer.favorites);
@@ -157,6 +302,54 @@ const RenterTrailerDetailScreen = ({ navigation, route }) => {
   const displayedSpecs = showAllSpecs
     ? MOCK_TRAILER.specs
     : MOCK_TRAILER.specs.slice(0, PREVIEW_SPECS);
+
+  const TrailerCard = ({ item, onPress }) => {
+    const { colors } = useTheme();
+    const { width } = useWindowDimensions();
+    const imageSize = (width - moderateScale(12) * 2 - moderateScale(8)) / 2;
+
+    return (
+      <CustomCards
+        variant="flat"
+        onPress={onPress}
+        style={styles.trailerCard}
+        contentStyle={{ padding: 0 }}
+      >
+        {/* Image */}
+        <View
+          style={[
+            styles.trailerImage,
+            { width: imageSize, height: imageSize * 0.8 },
+          ]}
+        >
+          <Icon name="image" size={moderateScale(32)} color="#C0C0C0" />
+        </View>
+
+        {/* Caption */}
+        <View style={styles.caption}>
+          <Text variant="titleSmall" style={styles.trailerTitle}>
+            {item.title}
+          </Text>
+          <Text variant="labelSmall" style={{ color: colors.onSurfaceVariant }}>
+            {item.distance} - {item.address}
+          </Text>
+          <Text variant="labelSmall" style={{ color: colors.onSurfaceVariant }}>
+            {item.dims}
+          </Text>
+          <View style={styles.priceRow}>
+            <Text variant="labelMedium">
+              <Text style={styles.priceBold}>${item.priceDay}</Text>
+              <Text style={{ color: colors.onSurfaceVariant }}>/day</Text>
+            </Text>
+            <Text variant="labelMedium">
+              <Text style={styles.priceBold}>${item.priceWeek}</Text>
+              <Text style={{ color: colors.onSurfaceVariant }}>/week</Text>
+            </Text>
+          </View>
+        </View>
+      </CustomCards>
+    );
+  };
 
   return (
     <View style={styles.container}>
@@ -438,7 +631,7 @@ const RenterTrailerDetailScreen = ({ navigation, route }) => {
               </Text>
             </Pressable>
           )}
-        </View> 
+        </View>
 
         {/* Rating & Reviews */}
         <View style={styles.Ratingcard}>
@@ -514,6 +707,136 @@ const RenterTrailerDetailScreen = ({ navigation, route }) => {
           )}
         </View>
 
+        {/* Info Tabs: Cancellation Policy / Payment Option / Report Listing */}
+        <View style={styles.infoTabsWrapper}>
+          {/* Tab Bar */}
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.infoTabBar}
+          >
+            {INFO_TABS.map(tab => (
+              <Pressable
+                key={tab.key}
+                style={styles.infoTabItem}
+                onPress={() =>
+                  setActiveInfoTab(prev => (prev === tab.key ? null : tab.key))
+                }
+              >
+                <Text
+                  style={[
+                    styles.infoTabLabel,
+                    activeInfoTab === tab.key && styles.infoTabLabelActive,
+                  ]}
+                >
+                  {tab.label}
+                </Text>
+                {activeInfoTab === tab.key && (
+                  <View style={styles.infoTabUnderline} />
+                )}
+              </Pressable>
+            ))}
+          </ScrollView>
+
+          {/* Tab Content — only visible when a tab is selected */}
+          {activeInfoTab === 'cancellation' && (
+            <View style={styles.infoTabContent}>
+              {CANCELLATION_RULES.map((rule, i) => (
+                <View key={i} style={styles.infoRuleRow}>
+                  <Icon
+                    name={rule.icon}
+                    size={moderateScale(20)}
+                    color={colors.primary}
+                  />
+                  <Text style={styles.infoRuleText}>{rule.text}</Text>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Payment Option Content */}
+          {activeInfoTab === 'payment' && (
+            <View style={styles.infoTabContent}>
+              {PAYMENT_OPTIONS.map((opt, i) => (
+                <View key={i} style={styles.infoPaymentRow}>
+                  <View style={styles.infoPaymentIcon}>
+                    <Icon
+                      name={opt.icon}
+                      size={moderateScale(20)}
+                      color={colors.primary}
+                    />
+                  </View>
+                  <View>
+                    <Text style={styles.infoPaymentLabel}>{opt.label}</Text>
+                    <Text style={styles.infoPaymentSub}>{opt.sub}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          )}
+
+          {/* Report Listing Content */}
+          {activeInfoTab === 'report' && (
+            <View style={styles.infoTabContent}>
+              <Text style={styles.infoReportHeading}>
+                Why are you reporting this listing?
+              </Text>
+              {REPORT_REASONS.map((reason, i) => (
+                <Pressable
+                  key={i}
+                  style={styles.infoReportRow}
+                  onPress={() => setSelectedReportReason(reason)}
+                >
+                  <View style={styles.infoReportRadio}>
+                    {selectedReportReason === reason && (
+                      <View style={styles.infoReportRadioFill} />
+                    )}
+                  </View>
+                  <Text style={styles.infoReportText}>{reason}</Text>
+                </Pressable>
+              ))}
+            </View>
+          )}
+
+          {activeInfoTab !== null && <Divider style={styles.infoTabDivider} />}
+        </View>
+
+        <Divider />
+        {/* Similar Trailers */}
+        <View style={styles.similarSection}>
+          <Text style={styles.similarTitle}>
+            Similar trailers for your dates
+          </Text>
+          <View style={styles.similarGrid}>
+            {SIMILAR_TRAILERS.map(item => (
+              <TouchableOpacity key={item.id} style={styles.similarCard}>
+                <View
+                  style={[styles.similarImageBox, { backgroundColor: item.bg }]}
+                >
+                  <Icon
+                    name="local-shipping"
+                    size={moderateScale(36)}
+                    color="#9CA3AF"
+                  />
+                </View>
+                <Text style={styles.similarName}>{item.name}</Text>
+                <Text style={styles.similarDistance}>{item.distance}</Text>
+                <Text style={styles.similarSpecs}>{item.specs}</Text>
+                <Text style={styles.similarPrice}>
+                  <Text style={styles.similarPriceAmount}>
+                    ${item.priceDay}
+                  </Text>
+                  <Text style={styles.similarPriceUnit}>/day </Text>
+                  <Text style={styles.similarPriceWeekAmount}>
+                    ${item.priceWeek}
+                  </Text>
+                  <Text style={styles.similarPriceUnit}>/week</Text>
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
         <View style={{ height: moderateScale(100) }} />
       </ScrollView>
 
@@ -532,18 +855,16 @@ const RenterTrailerDetailScreen = ({ navigation, route }) => {
       {/* Sticky Book Now */}
       <View style={styles.bookBar}>
         <View>
-          <Text style={styles.bookPrice}>
-            ${pricePerDay}
-            <Text style={styles.bookPerDay}>/day</Text>
-          </Text>
-          <Text style={styles.bookNote}>
-            + ${platformFee} fee · ${deposit} deposit
-          </Text>
+          <Text style={styles.bookPrice}>${pricePerDay} Total</Text>
+          <Text style={styles.bookNote}>Before Taxes</Text>
         </View>
-        <TouchableOpacity style={styles.bookBtn} onPress={handleBook}>
-          <Text style={styles.bookBtnText}>Book Now</Text>
-          <Icon name="arrow-forward" size={moderateScale(18)} color="#fff" />
-        </TouchableOpacity>
+        <CustomButton
+          title="Rent Now"
+          onPress={handleBook}
+          variant="primary"
+          size="small"
+          style={styles.bookBtn}
+        />
       </View>
     </View>
   );

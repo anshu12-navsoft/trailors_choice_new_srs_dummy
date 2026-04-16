@@ -18,7 +18,7 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.textPrimary,
   },
-  content: { padding: moderateScale(16),marginBottom:20 },
+  content: { marginBottom: 20, paddingLeft: moderateScale(10),paddingRight:moderateScale(10) },
   trailerCard: {
     flexDirection: 'row',
     alignItems: 'center',

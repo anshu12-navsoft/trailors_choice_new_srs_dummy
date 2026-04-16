@@ -82,5 +82,6 @@ export const styles = StyleSheet.create({
   continueBtn: {
     backgroundColor: '#000',
     borderRadius: moderateScale(10),
+    marginTop:moderateScale(20)
   },
 });

@@ -39,8 +39,8 @@ export const styles = StyleSheet.create({
   otpBox: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-evenly',
-    borderWidth: 1.5,
+    justifyContent: 'center',
+    borderWidth: 1,
     borderColor: '#D1D5DB',
     borderRadius: moderateScale(12),
     height: moderateScale(56),
@@ -51,9 +51,11 @@ export const styles = StyleSheet.create({
   },
 
   otpSlot: {
-    flex: 1,
+    // flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    width:moderateScale(15),
+      marginHorizontal: moderateScale(4),
   },
 
   otpChar: {

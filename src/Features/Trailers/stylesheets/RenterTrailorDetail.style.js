@@ -329,13 +329,14 @@ export const styles = StyleSheet.create({
     marginTop: 2,
   },
   bookBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    backgroundColor: colors.primary,
-    borderRadius: moderateScale(12),
+    // flexDirection: 'row',
+    // alignItems: 'center',
+    // gap: 2,
+    // backgroundColor: colors.primary,
+    // borderRadius: moderateScale(12),
     paddingHorizontal: moderateScale(20),
-    paddingVertical: moderateScale(13),
+    paddingVertical: moderateScale(3),
+ 
   },
   bookBtnText: {
     color: '#fff',
@@ -620,5 +621,182 @@ export const styles = StyleSheet.create({
     fontSize: Fonts.size.sm,
     fontWeight: '600',
     color: colors.textPrimary,
+  },
+
+  // Info Tabs
+  infoTabsWrapper: {
+    marginTop: moderateScale(8),
+  },
+  infoTabBar: {
+    flexDirection: 'row',
+    paddingHorizontal: moderateScale(16),
+    gap: moderateScale(24),
+    paddingBottom: moderateScale(2),
+  },
+  infoTabItem: {
+    alignItems: 'center',
+    paddingVertical: moderateScale(10),
+  },
+  infoTabLabel: {
+    fontSize: moderateScale(13),
+    fontWeight: '500',
+    color: colors.textSecondary,
+  },
+  infoTabLabelActive: {
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  infoTabUnderline: {
+    marginTop: moderateScale(4),
+    height: moderateScale(2),
+    width: '100%',
+    backgroundColor: colors.textPrimary,
+    borderRadius: moderateScale(2),
+  },
+  infoTabContent: {
+    paddingHorizontal: moderateScale(16),
+    paddingTop: moderateScale(14),
+    paddingBottom: moderateScale(8),
+    gap: moderateScale(14),
+  },
+  infoTabDivider: {
+    marginTop: moderateScale(8),
+  },
+  // Cancellation rules
+  infoRuleRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: moderateScale(10),
+  },
+  infoRuleText: {
+    flex: 1,
+    fontSize: moderateScale(13),
+    color: colors.textSecondary,
+    lineHeight: moderateScale(19),
+  },
+  // Payment options
+  infoPaymentRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: moderateScale(12),
+    paddingVertical: moderateScale(4),
+  },
+  infoPaymentIcon: {
+    width: moderateScale(40),
+    height: moderateScale(40),
+    borderRadius: moderateScale(10),
+    backgroundColor: '#EFF6FF',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  infoPaymentLabel: {
+    fontSize: moderateScale(13),
+    fontWeight: '600',
+    color: colors.textPrimary,
+  },
+  infoPaymentSub: {
+    fontSize: moderateScale(11),
+    color: colors.textSecondary,
+    marginTop: moderateScale(2),
+  },
+  // Report listing
+  infoReportHeading: {
+    fontSize: moderateScale(13),
+    fontWeight: '600',
+    color: colors.textPrimary,
+    marginBottom: moderateScale(4),
+  },
+  infoReportRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: moderateScale(10),
+    paddingVertical: moderateScale(6),
+  },
+  infoReportRadio: {
+    width: moderateScale(18),
+    height: moderateScale(18),
+    borderRadius: moderateScale(9),
+    borderWidth: 2,
+    borderColor: colors.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  infoReportRadioFill: {
+    width: moderateScale(9),
+    height: moderateScale(9),
+    borderRadius: moderateScale(5),
+    backgroundColor: colors.primary,
+  },
+  infoReportText: {
+    fontSize: moderateScale(13),
+    color: colors.textSecondary,
+  },
+
+  // Similar Trailers
+  similarSection: {
+    paddingHorizontal: moderateScale(16),
+    paddingTop: moderateScale(20),
+  },
+  similarTitle: {
+    fontSize: moderateScale(15),
+    fontWeight: '700',
+    color: colors.textPrimary,
+    marginBottom: moderateScale(14),
+  },
+  similarGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: moderateScale(12),
+  },
+  similarCard: {
+    width: '47%',
+    borderRadius: moderateScale(12),
+    borderWidth: 1,
+    borderColor: colors.border,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+  },
+  similarImageBox: {
+    height: moderateScale(100),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  similarName: {
+    fontSize: moderateScale(13),
+    fontWeight: '700',
+    color: colors.textPrimary,
+    marginTop: moderateScale(8),
+    paddingHorizontal: moderateScale(8),
+  },
+  similarDistance: {
+    fontSize: moderateScale(11),
+    color: colors.textSecondary,
+    marginTop: moderateScale(2),
+    paddingHorizontal: moderateScale(8),
+  },
+  similarSpecs: {
+    fontSize: moderateScale(11),
+    color: colors.textSecondary,
+    paddingHorizontal: moderateScale(8),
+  },
+  similarPrice: {
+    paddingHorizontal: moderateScale(8),
+    paddingBottom: moderateScale(10),
+    marginTop: moderateScale(4),
+  },
+  similarPriceAmount: {
+    fontSize: moderateScale(13),
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  similarPriceUnit: {
+    fontSize: moderateScale(11),
+    color: colors.textSecondary,
+    fontWeight: '400',
+  },
+  similarPriceWeekAmount: {
+    fontSize: moderateScale(13),
+    fontWeight: '700',
+    color: colors.primaryDark,
   },
 });
