@@ -11,6 +11,7 @@ import {
   Modal,
   Alert,
   ActivityIndicator,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { moderateScale } from 'react-native-size-matters';
@@ -19,6 +20,10 @@ import { Calendar } from 'react-native-calendars';
 import colors from '../../../Constants/Colors';
 import { styles } from '../stylesheets/Booking.style';
 import CustomHeader from '../../../Components/Header/CustomHeader';
+
+import { Divider } from 'react-native-paper';
+import CustomCalender from '../../../Components/Calender/CustomCalender';
+import CustomButton from '../../../Components/Buttons/CustomButton';
 const PICKUP_TIMES = [
   { label: '8:00 AM', value: '08:00' },
   { label: '10:00 AM', value: '10:00' },
@@ -32,15 +37,26 @@ const daysBetween = (d1, d2) => {
   const diff = new Date(d2) - new Date(d1);
   return Math.max(1, Math.round(diff / (1000 * 60 * 60 * 24)));
 };
-
-const formatDate = dateStr => {
+const MONTHS = [
+  'jan',
+  'feb',
+  'mar',
+  'apr',
+  'may',
+  'jun',
+  'jul',
+  'aug',
+  'sep',
+  'oct',
+  'nov',
+  'dec',
+];
+const formatDateTime = (dateStr, time) => {
   if (!dateStr) return '';
-  const d = new Date(dateStr);
-  return d.toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  });
+  const [year, month, day] = dateStr.split('-');
+  return `${parseInt(day, 10)} ${
+    MONTHS[parseInt(month, 10) - 1]
+  } ${year}, ${time}`;
 };
 
 const BookingScreen = ({ navigation, route }) => {
@@ -116,7 +132,7 @@ const BookingScreen = ({ navigation, route }) => {
     setLoading(true);
     setTimeout(() => {
       setLoading(false);
-      navigation.navigate('BookingConfirmation', {
+      navigation.navigate('PaymentMethod', {
         booking: {
           id: `TRL-2025-${Math.floor(100000 + Math.random() * 900000)}`,
           trailer,
@@ -151,271 +167,148 @@ const BookingScreen = ({ navigation, route }) => {
       <ScrollView contentContainerStyle={styles.content}>
         {/* Trailer Summary */}
         <View style={styles.trailerCard}>
-          <View
-            style={[
-              styles.trailerThumb,
-              { backgroundColor: trailer.cardColor ?? '#DBEAFE' },
-            ]}
-          >
-            <Icon
-              name="local-shipping"
-              size={moderateScale(28)}
-              color="#9CA3AF"
-            />
-          </View>
-          <View style={styles.trailerInfo}>
-            <Text style={styles.trailerTitle} numberOfLines={1}>
-              {trailer.title ?? '20ft Utility Trailer'}
-            </Text>
-            <Text style={styles.trailerCategory}>
-              {trailer.category ?? 'Utility'}
-            </Text>
-            <View style={styles.ownerRow}>
-              <Icon
-                name="person"
-                size={moderateScale(13)}
-                color={colors.textSecondary}
-              />
-              <Text style={styles.ownerText}>
-                {trailer.ownerName ?? 'John D.'}
-              </Text>
-              <Icon name="star" size={moderateScale(13)} color="#F59E0B" />
-              <Text style={styles.ownerText}>{trailer.ownerRating ?? 4.9}</Text>
-            </View>
-          </View>
-          <View style={styles.pricePill}>
-            <Text style={styles.pricePillText}>${pricePerDay}/day</Text>
-          </View>
-        </View>
-
-        {/* Rental Period */}
-        <Text style={styles.sectionTitle}>{t('rental_period_section')}</Text>
-        <View style={styles.dateRow}>
-          <TouchableOpacity
-            style={styles.dateBtn}
-            onPress={() => {
-              setSelectingDate('start');
-              setCalendarVisible(true);
-            }}
-          >
-            <Icon
-              name="today"
-              size={moderateScale(18)}
-              color={colors.primary}
-            />
-            <View>
-              <Text style={styles.dateBtnLabel}>{t('pickup_date_label')}</Text>
-              <Text style={styles.dateBtnValue}>
-                {startDate
-                  ? formatDate(startDate)
-                  : t('pickup_date_placeholder')}
-              </Text>
-            </View>
-          </TouchableOpacity>
-          <Icon
-            name="arrow-forward"
-            size={moderateScale(18)}
-            color={colors.textSecondary}
-          />
-          <TouchableOpacity
-            style={styles.dateBtn}
-            onPress={() => {
-              setSelectingDate('end');
-              setCalendarVisible(true);
-            }}
-          >
-            <Icon
-              name="event"
-              size={moderateScale(18)}
-              color={colors.primary}
-            />
-            <View>
-              <Text style={styles.dateBtnLabel}>{t('return_date_label')}</Text>
-              <Text style={styles.dateBtnValue}>
-                {endDate ? formatDate(endDate) : t('return_date_placeholder')}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
-
-        {days > 0 && (
-          <View style={styles.durationChip}>
-            <Icon
-              name="access-time"
-              size={moderateScale(14)}
-              color={colors.primary}
-            />
-            <Text style={styles.durationText}>
-              {t('days_rental', { days })}
-            </Text>
-          </View>
-        )}
-
-        {/* Pickup Time */}
-        <Text style={styles.fieldLabel}>{t('pickup_time_section')}</Text>
-        <View style={styles.timeOptions}>
-          {PICKUP_TIMES.map(t => (
-            <TouchableOpacity
-              key={t.value}
+          <View style={styles.InfoTrailor}>
+            <View
               style={[
-                styles.timeChip,
-                pickupTime === t.value && styles.timeChipActive,
+                styles.trailerThumb,
+                { backgroundColor: trailer.cardColor ?? '#DBEAFE' },
               ]}
-              onPress={() => setPickupTime(t.value)}
             >
-              <Text
-                style={[
-                  styles.timeChipText,
-                  pickupTime === t.value && styles.timeChipTextActive,
-                ]}
-              >
-                {t.label}
+              <Icon
+                name="local-shipping"
+                size={moderateScale(48)}
+                color="#9CA3AF"
+              />
+            </View>
+            <View style={styles.trailerInfo}>
+              <Text style={styles.trailerTitle} numberOfLines={1}>
+                {trailer.title ?? '20ft Utility Trailer'}
               </Text>
-            </TouchableOpacity>
-          ))}
+              <Text style={styles.trailerCategory}>
+                {trailer.ownerName ?? '2.4 miles away - E 8th St.'}
+              </Text>
+              <Text style={styles.ownerCapacityText}>
+                {trailer.ownerName ?? '5`* 3`,2000 lbs '}
+              </Text>
+              <View style={styles.ownerRow}>
+                <Icon name="star" size={moderateScale(13)} color="#F59E0B" />
+                <Text style={styles.ownerRatingText}>
+                  {trailer.ownerRating ?? 4.5}(55)
+                </Text>
+              </View>
+            </View>
+          </View>
+          <Divider
+            style={{
+              marginTop: moderateScale(10),
+              marginBottom: moderateScale(10),
+            }}
+          />
+
+          <Pressable
+            style={[styles.Rentercard, styles.RentercardRow]}
+            onPress={() => setCalendarVisible(true)}
+          >
+            <View style={{ flex: 1 }}>
+              <Text style={styles.RentercardTitle}>Start & End Date</Text>
+              <Text style={styles.RentercardSub} numberOfLines={1}>
+                {startDate && endDate
+                  ? `${formatDateTime(startDate, '9:00 am')} - ${formatDateTime(
+                      endDate,
+                      '9:00 pm',
+                    )}`
+                  : trailer.availability ?? 'Select dates'}
+              </Text>
+            </View>
+            <Icon
+              name="edit"
+              size={moderateScale(18)}
+              color={colors.textSecondary}
+            />
+          </Pressable>
+          <Divider
+            style={{
+              marginTop: moderateScale(10),
+              marginBottom: moderateScale(10),
+            }}
+          />
+          <View>
+            <Text style={styles.locationCardTitle}>
+              Pickup &amp; Return Location
+            </Text>
+            <View style={styles.locationAddressRow}>
+              <Text style={styles.locationAddress} numberOfLines={1}>
+                {trailer.address ?? '1500 Marilla St, Dallas, TX 75201'}
+              </Text>
+              <TouchableOpacity>
+                <Icon
+                  name="edit"
+                  size={moderateScale(18)}
+                  color={colors.textSecondary}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
         </View>
 
         {/* Price Breakdown */}
         <Text style={styles.sectionTitle}>{t('price_breakdown_section')}</Text>
         <View style={styles.priceCard}>
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>
-              ${pricePerDay} × {days || 1} day{(days || 1) !== 1 ? 's' : ''}
-            </Text>
-            <Text style={styles.priceValue}>${rentalCost}</Text>
+            <Text style={styles.priceLabel}>4 days * $50</Text>
+            <Text style={styles.priceValue}>$200</Text>
           </View>
           <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>{t('platform_fee')}</Text>
-            <Text style={styles.priceValue}>${platformFee}</Text>
+            <Text style={styles.priceLabel}>Taxes/fees</Text>
+            <Text style={styles.priceValue}>$150.12</Text>
           </View>
-          <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>{t('refundable_deposit')}</Text>
-            <Text style={styles.priceValue}>${deposit}</Text>
-          </View>
+          <Divider />
           <View style={[styles.priceRow, styles.totalRow]}>
             <Text style={styles.totalLabel}>{t('total_label')}</Text>
             <Text style={styles.totalValue}>${total}</Text>
           </View>
+          <Divider />
           <View style={styles.depositNote}>
-            <Icon
-              name="info-outline"
-              size={moderateScale(13)}
-              color={colors.textSecondary}
-            />
-            <Text style={styles.depositNoteText}>
-              {t('deposit_refunded_message')}
+            <Text style={styles.CancellationPolicyLabel}>
+              Cancellation Policy
+            </Text>
+            <Text style={styles.CancellationPolicyText}>
+              Cancel before 28 Feb for a free refund
+            </Text>
+          </View>
+          <View style={styles.depositNote}>
+            <Text style={styles.terms}>
+              By select the continue, I agree to the{' '}
+              <Text style={styles.termsBold}>terms of use </Text>and
+              <Text style={styles.termsBold}> privacy policy</Text>
             </Text>
           </View>
         </View>
-
-        {/* Payment Method */}
-        <Text style={styles.sectionTitle}>{t('payment_method_section')}</Text>
-        <TouchableOpacity style={styles.paymentOption}>
-          <Icon
-            name="credit-card"
-            size={moderateScale(20)}
-            color={colors.primary}
-          />
-          <Text style={styles.paymentText}>{t('visa_card')}</Text>
-          <View style={styles.selectedDot} />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.addCardBtn}>
-          <Icon
-            name="add-circle-outline"
-            size={moderateScale(18)}
-            color={colors.primary}
-          />
-          <Text style={styles.addCardText}>{t('add_new_card')}</Text>
-        </TouchableOpacity>
-
-        {/* Driver Verification Status */}
-        <View style={styles.verificationCard}>
-          <Icon
-            name="verified-user"
-            size={moderateScale(20)}
-            color={colors.success}
-          />
-          <View style={styles.verificationInfo}>
-            <Text style={styles.verificationTitle}>
-              {t('drivers_license_verification')}
-            </Text>
-            <Text style={styles.verificationStatus}>
-              {t('drivers_license_verified')}
-            </Text>
-          </View>
-        </View>
-
-        {/* Notes */}
-        <Text style={styles.fieldLabel}>{t('special_instructions_label')}</Text>
-        <TextInput
-          style={styles.notesInput}
-          value={notes}
-          onChangeText={setNotes}
-          placeholder={t('special_instructions_placeholder')}
-          placeholderTextColor="#9CA3AF"
-          multiline
-          numberOfLines={3}
-        />
 
         <View style={{ height: moderateScale(20) }} />
       </ScrollView>
 
       {/* Confirm Button */}
       <View style={styles.footer}>
-        <View>
-          <Text style={styles.footerTotal}>${total} total</Text>
-          <Text style={styles.footerNote}>Includes deposit</Text>
-        </View>
-        <TouchableOpacity
-          style={[styles.confirmBtn, loading && styles.confirmBtnDisabled]}
+        <CustomButton
           onPress={handleConfirm}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <>
-              <Text style={styles.confirmBtnText}>
-                {t('confirm_booking_button')}
-              </Text>
-              <Icon name="check" size={moderateScale(18)} color="#fff" />
-            </>
-          )}
-        </TouchableOpacity>
+          title={'Continue to Payment'}
+          size="medium"
+          style={{ width: '100%' }}
+        />
       </View>
 
       {/* Calendar Modal */}
-      <Modal visible={calendarVisible} animationType="slide" transparent>
-        <View style={styles.calendarOverlay}>
-          <View style={styles.calendarSheet}>
-            <View style={styles.calendarHeader}>
-              <Text style={styles.calendarTitle}>
-                {selectingDate === 'start'
-                  ? 'Select Pickup Date'
-                  : 'Select Return Date'}
-              </Text>
-              <TouchableOpacity onPress={() => setCalendarVisible(false)}>
-                <Icon
-                  name="close"
-                  size={moderateScale(22)}
-                  color={colors.textPrimary}
-                />
-              </TouchableOpacity>
-            </View>
-            <Calendar
-              onDayPress={handleDateSelect}
-              markingType="period"
-              markedDates={markedDates}
-              minDate={new Date().toISOString().split('T')[0]}
-              theme={{
-                selectedDayBackgroundColor: colors.primary,
-                todayTextColor: colors.primary,
-                arrowColor: colors.primary,
-              }}
-            />
-          </View>
-        </View>
-      </Modal>
+      <CustomCalender
+        visible={calendarVisible}
+        startDate={startDate}
+        endDate={endDate}
+        onChange={({ startDate: s, endDate: e }) => {
+          setStartDate(s);
+          setEndDate(e);
+        }}
+        onClose={() => setCalendarVisible(false)}
+      />
     </SafeAreaView>
   );
 };

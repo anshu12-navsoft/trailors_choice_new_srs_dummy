@@ -23,7 +23,7 @@ import TowingCompatibilityScreen from '../../../Features/Trailers/screens/Towing
 import BookingScreen from '../../../Features/Booking/screens/BookingScreen';
 import BookingConfirmationScreen from '../../../Features/Booking/screens/BookingConfirmationScreen';
 import BookingDetailScreen from '../../../Features/Booking/screens/BookingDetailScreen';
-
+import PaymentMethodScreen from '../../../Features/Booking/screens/PaymentMethodScreen';
 // My Rentals
 import MyRentals from '../../../Features/MyRentals/screens/MyRentals';
 
@@ -124,6 +124,11 @@ const HomeStack = () => (
     <HomeStackNav.Screen
       name="Booking"
       component={BookingScreen}
+      options={{ headerShown: false }}
+    />
+    <HomeStackNav.Screen
+      name="PaymentMethod"
+      component={PaymentMethodScreen}
       options={{ headerShown: false }}
     />
     <HomeStackNav.Screen

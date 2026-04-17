@@ -18,21 +18,29 @@ export const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.textPrimary,
   },
-  content: { marginBottom: 20, paddingLeft: moderateScale(10),paddingRight:moderateScale(10) },
+  content: {
+    marginBottom: 20,
+    paddingLeft: moderateScale(10),
+    paddingRight: moderateScale(10),
+  },
   trailerCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    backgroundColor: colors.surface,
+    // alignItems: 'center',
+    // gap: 12,
+    // // backgroundColor: colors.surface,
     borderRadius: moderateScale(14),
     padding: moderateScale(12),
     marginBottom: moderateScale(20),
     borderWidth: 1,
     borderColor: colors.border,
   },
+  InfoTrailor: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
   trailerThumb: {
-    width: moderateScale(60),
-    height: moderateScale(60),
+    width: moderateScale(100),
+    height: moderateScale(100),
     borderRadius: moderateScale(10),
     alignItems: 'center',
     justifyContent: 'center',
@@ -54,7 +62,16 @@ export const styles = StyleSheet.create({
     gap: 4,
     marginTop: 4,
   },
-  ownerText: { fontSize: moderateScale(12), color: colors.textSecondary },
+  ownerCapacityText: {
+    fontSize: moderateScale(12),
+    fontWeight: '400',
+    color: colors.textSecondary,
+  },
+  ownerRatingText: {
+    fontSize: moderateScale(13),
+    color: '#F59E0B',
+    fontWeight: '400',
+  },
   pricePill: {
     backgroundColor: '#EFF6FF',
     borderRadius: 20,
@@ -140,19 +157,12 @@ export const styles = StyleSheet.create({
   timeChipText: { fontSize: moderateScale(13), color: colors.textSecondary },
   timeChipTextActive: { color: '#fff', fontWeight: '600' },
   priceCard: {
-    backgroundColor: colors.surface,
-    borderRadius: moderateScale(14),
-    padding: moderateScale(16),
     marginBottom: moderateScale(20),
-    borderWidth: 1,
-    borderColor: colors.border,
   },
   priceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderColor: colors.border,
   },
   priceLabel: { fontSize: moderateScale(14), color: colors.textSecondary },
   priceValue: {
@@ -171,18 +181,11 @@ export const styles = StyleSheet.create({
     fontWeight: '800',
     color: colors.primary,
   },
-  depositNote: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    marginTop: 8,
-    backgroundColor: '#F0FDF4',
-    borderRadius: 8,
-    padding: 8,
-  },
+  depositNote: { paddingTop: moderateScale(20) },
   depositNoteText: {
     flex: 1,
     fontSize: moderateScale(12),
+    lineHeight:10,
     color: colors.textSecondary,
   },
   paymentOption: {
@@ -254,13 +257,9 @@ export const styles = StyleSheet.create({
     textAlignVertical: 'top',
   },
   footer: {
-    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
+    justifyContent: 'center',
     padding: moderateScale(16),
-    borderTopWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: '#fff',
   },
   footerTotal: {
     fontSize: moderateScale(18),
@@ -278,7 +277,7 @@ export const styles = StyleSheet.create({
     gap: 6,
     backgroundColor: colors.primary,
     borderRadius: moderateScale(12),
-    paddingHorizontal: moderateScale(20),
+    paddingHorizontal: moderateScale(0),
     paddingVertical: moderateScale(13),
   },
   confirmBtnDisabled: { opacity: 0.7 },
@@ -309,5 +308,65 @@ export const styles = StyleSheet.create({
     fontSize: moderateScale(17),
     fontWeight: '700',
     color: colors.textPrimary,
+  },
+  Rentercard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: moderateScale(4),
+
+    marginBottom: moderateScale(0),
+  },
+  RentercardRow: { gap: moderateScale(12) },
+  RentercardTitle: {
+    fontSize: moderateScale(14),
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  RentercardSub: {
+    fontSize: moderateScale(12),
+    color: colors.textSecondary,
+    marginTop: moderateScale(3),
+  },
+  locationCard: {},
+  locationCardTitle: {
+    fontSize: moderateScale(13),
+    fontWeight: '700',
+    color: colors.textPrimary,
+  },
+  locationAddressRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+
+    gap: moderateScale(8),
+  },
+  locationAddress: {
+    flex: 1,
+    fontSize: moderateScale(12),
+    color: colors.textSecondary,
+  },
+  CancellationPolicyLabel: {
+    fontSize: moderateScale(14),
+    color: colors.black,
+    fontWeight: '600',
+  },
+  CancellationPolicyText: {
+    fontSize: moderateScale(12),
+    color: colors.textPrimary,
+    fontWeight: '400',
+   paddingTop:moderateScale(10)
+  },
+  terms: {
+    fontSize: moderateScale(12),
+    color: '#6B7280',
+    lineHeight: moderateScale(18),
+    marginTop: moderateScale(2),
+    marginBottom: moderateScale(20),
+  },
+
+  termsBold: {
+    fontWeight: '700',
+    color: colors.primary,
   },
 });

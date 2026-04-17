@@ -265,7 +265,7 @@
   "return_date_placeholder": "Select date",
   "days_rental": "{{days}} day rental",
   "pickup_time_section": "Pickup Time",
-  "price_breakdown_section": "Price Breakdown",
+  "price_breakdown_section": "Price Details",
   "platform_fee": "Platform fee (11%)",
   "refundable_deposit": "Refundable deposit",
   "total_label": "Total",
