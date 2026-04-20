@@ -6,7 +6,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WelcomeScreen from '../../../Features/Auth/screens/WelcomeScreen';
 import Login from '../../../Features/Auth/screens/Login';
 import Register from '../../../Features/Auth/screens/Register';
-
+import LanguageSelect from "../../../Features/Auth/screens/LanguageSelectScreen"
 import OtpVerification from '../../../Features/Auth/screens/OtpVerification';
 
 import AccountSettings from '../../../Features/Auth/screens/AccountSettings';
@@ -18,6 +18,7 @@ import LocationSearchScreen from '../../../Features/Search/screens/LocationSearc
 import TrailerSearchResultsScreen from '../../../Features/Trailers/screens/TrailerSearchResultsScreen';
 import RenterTrailerDetailScreen from '../../../Features/Trailers/screens/RenterTrailerDetailScreen';
 import TowingCompatibilityScreen from '../../../Features/Trailers/screens/TowingCompatibilityScreen';
+import Notification from "../../../Features/Notification/screens/Notification"
 
 // Booking
 import BookingScreen from '../../../Features/Booking/screens/BookingScreen';
@@ -66,7 +67,9 @@ const AuthStackNav = createNativeStackNavigator();
 /* -------- Auth -------- */
 const AuthStack = () => (
   <AuthStackNav.Navigator screenOptions={{ headerShown: false }}>
+     <AuthStackNav.Screen name="LanguageSelect" component={LanguageSelect} />
     <AuthStackNav.Screen name="Welcome" component={WelcomeScreen} />
+   
     <AuthStackNav.Screen name="Login" component={Login} />
     <AuthStackNav.Screen name="Register" component={Register} />
     <AuthStackNav.Screen name="OtpVerification" component={OtpVerification} />
@@ -104,6 +107,11 @@ const HomeStack = () => (
     <HomeStackNav.Screen
       name="LocationSearch"
       component={LocationSearchScreen}
+      options={{ headerShown: false }}
+    />
+    <HomeStackNav.Screen
+      name="Notification"
+      component={Notification}
       options={{ headerShown: false }}
     />
     <HomeStackNav.Screen

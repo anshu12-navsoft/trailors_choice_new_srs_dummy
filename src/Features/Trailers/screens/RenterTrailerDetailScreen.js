@@ -12,7 +12,9 @@ import {
   Pressable,
   StyleSheet,
   Image,
+  useWindowDimensions
 } from 'react-native';
+import {  useTheme } from 'react-native-paper';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -23,8 +25,10 @@ import { styles } from '../stylesheets/RenterTrailorDetail.style';
 import { Divider } from 'react-native-paper';
 import { useTranslation } from 'react-i18next';
 import CustomCalender from '../../../Components/Calender/CustomCalender';
+import CustomCards from '../../../Components/Card/CustomCards';
 import Fonts from '../../../Theme/Fonts';
 import CustomButton from '../../../Components/Buttons/CustomButton';
+import TrailerCard from '../../Home/components/TrailerCard';
 
 const PHOTO_COLORS = ['#DBEAFE', '#D1FAE5', '#FEF3C7', '#EDE9FE'];
 
@@ -108,41 +112,77 @@ const REPORT_REASONS = [
 ];
 
 const SIMILAR_TRAILERS = [
-  {
-    id: 's1',
-    name: 'Tandem Axel',
-    distance: '2.4 miles · E 8th St.',
-    specs: "5'x3', 2000 lbs",
+{
+    id: '1',
+    title: 'Tandem Axel',
+    distance: '2.4 miles',
+    address: 'E 8th St.',
+    dims: "5'x3', 2000 lbs",
     priceDay: 50,
     priceWeek: 150,
-    bg: '#DBEAFE',
   },
   {
-    id: 's2',
-    name: 'Tandem Axel',
-    distance: '2.4 miles · E 8th St.',
-    specs: "5'x3', 2000 lbs",
+    id: '2',
+    title: 'Tandem Axel',
+    distance: '2.4 miles',
+    address: 'E 8th St.',
+    dims: "5'x3', 2000 lbs",
     priceDay: 50,
     priceWeek: 150,
-    bg: '#D1FAE5',
   },
   {
-    id: 's3',
-    name: 'Tandem Axel',
-    distance: '2.4 miles · E 8th St.',
-    specs: "5'x3', 2000 lbs",
+    id: '3',
+    title: 'Tandem Axel',
+    distance: '2.4 miles',
+    address: 'E 8th St.',
+    dims: "5'x3', 2000 lbs",
     priceDay: 50,
     priceWeek: 150,
-    bg: '#FEF3C7',
   },
   {
-    id: 's4',
-    name: 'Tandem Axel',
-    distance: '2.4 miles · E 8th St.',
-    specs: "5'x3', 2000 lbs",
+    id: '4',
+    title: 'Tandem Axel',
+    distance: '2.4 miles',
+    address: 'E 8th St.',
+    dims: "5'x3', 2000 lbs",
     priceDay: 50,
     priceWeek: 150,
-    bg: '#EDE9FE',
+  },
+   {
+    id: '5',
+    title: 'Tandem Axel',
+    distance: '2.4 miles',
+    address: 'E 8th St.',
+    dims: "5'x3', 2000 lbs",
+    priceDay: 50,
+    priceWeek: 150,
+  },
+  {
+    id: '6',
+    title: 'Tandem Axel',
+    distance: '2.4 miles',
+    address: 'E 8th St.',
+    dims: "5'x3', 2000 lbs",
+    priceDay: 50,
+    priceWeek: 150,
+  },
+  {
+    id: '7',
+    title: 'Tandem Axel',
+    distance: '2.4 miles',
+    address: 'E 8th St.',
+    dims: "5'x3', 2000 lbs",
+    priceDay: 50,
+    priceWeek: 150,
+  },
+  {
+    id: '8',
+    title: 'Tandem Axel',
+    distance: '2.4 miles',
+    address: 'E 8th St.',
+    dims: "5'x3', 2000 lbs",
+    priceDay: 50,
+    priceWeek: 150,
   },
 ];
 
@@ -808,32 +848,23 @@ const RenterTrailerDetailScreen = ({ navigation, route }) => {
             Similar trailers for your dates
           </Text>
           <View style={styles.similarGrid}>
-            {SIMILAR_TRAILERS.map(item => (
-              <TouchableOpacity key={item.id} style={styles.similarCard}>
-                <View
-                  style={[styles.similarImageBox, { backgroundColor: item.bg }]}
-                >
-                  <Icon
-                    name="local-shipping"
-                    size={moderateScale(36)}
-                    color="#9CA3AF"
-                  />
-                </View>
-                <Text style={styles.similarName}>{item.name}</Text>
-                <Text style={styles.similarDistance}>{item.distance}</Text>
-                <Text style={styles.similarSpecs}>{item.specs}</Text>
-                <Text style={styles.similarPrice}>
-                  <Text style={styles.similarPriceAmount}>
-                    ${item.priceDay}
-                  </Text>
-                  <Text style={styles.similarPriceUnit}>/day </Text>
-                  <Text style={styles.similarPriceWeekAmount}>
-                    ${item.priceWeek}
-                  </Text>
-                  <Text style={styles.similarPriceUnit}>/week</Text>
-                </Text>
-              </TouchableOpacity>
-            ))}
+            
+             <FlatList
+          data={SIMILAR_TRAILERS}
+          keyExtractor={item => item.id}
+          numColumns={2}
+          scrollEnabled={false}
+          columnWrapperStyle={styles.gridRow}
+          contentContainerStyle={styles.gridContainer}
+          renderItem={({ item }) => (
+            <TrailerCard
+              item={item}
+              
+              isFavorite={favorites?.includes(item.id)}
+              onFavorite={() => dispatch(toggleFavorite(item.id))}
+            />
+          )}
+        />
           </View>
         </View>
 
