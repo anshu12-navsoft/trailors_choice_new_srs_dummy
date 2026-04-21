@@ -7,12 +7,12 @@
  * creation to your server before going live.
  */
 
-import { STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY } from '../config/env';
+// import { STRIPE_PUBLISHABLE_KEY, STRIPE_SECRET_KEY } from '../config/env';
 
-const PUBLISHABLE_KEY = STRIPE_PUBLISHABLE_KEY;
+// const PUBLISHABLE_KEY = STRIPE_PUBLISHABLE_KEY;
 
 // ⚠️ MOVE THIS TO YOUR BACKEND BEFORE GOING LIVE
-const SECRET_KEY = STRIPE_SECRET_KEY;
+// const SECRET_KEY = STRIPE_SECRET_KEY;
 
 const BASE_URL = 'https://api.stripe.com/v1';
 

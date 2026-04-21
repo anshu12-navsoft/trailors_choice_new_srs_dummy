@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import {
   View,
   KeyboardAvoidingView,
@@ -6,6 +6,8 @@ import {
   Pressable,
   Alert,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { loginUser } from '../../../redux/slices/authSlice';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, TextInput } from 'react-native-paper';
 import { moderateScale } from 'react-native-size-matters';
@@ -32,6 +34,12 @@ const getMaxLength = cca2 => PHONE_LENGTH[cca2] ?? DEFAULT_LENGTH;
 const Login = ({ navigation }) => {
   const [country] = useState({ cca2: 'US', callingCode: ['1'] });
   const [phone, setPhone] = useState('');
+
+const dispatch = useDispatch();
+
+const { loading, error, isLoggedIn } = useSelector(
+  state => state.auth
+);
 
   const callingCode = `+${country.callingCode?.[0] ?? '1'}`;
   const maxLength = getMaxLength(country.cca2);
