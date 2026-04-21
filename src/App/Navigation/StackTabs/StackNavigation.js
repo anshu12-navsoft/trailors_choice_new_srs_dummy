@@ -10,6 +10,7 @@ import LanguageSelect from "../../../Features/Auth/screens/LanguageSelectScreen"
 import OtpVerification from '../../../Features/Auth/screens/OtpVerification';
 
 import AccountSettings from '../../../Features/Auth/screens/AccountSettings';
+import VerificationScreen from '../../../Features/Auth/screens/VerificationScreen';
 
 // Home & Discovery
 import Home from '../../../Features/Home/screens/Home';
@@ -74,6 +75,7 @@ const AuthStack = () => (
     <AuthStackNav.Screen name="Register" component={Register} />
     <AuthStackNav.Screen name="OtpVerification" component={OtpVerification} />
     <AuthStackNav.Screen name="AccountSettings" component={AccountSettings} />
+    <AuthStackNav.Screen name="Verification" component={VerificationScreen} />
   </AuthStackNav.Navigator>
 );
 

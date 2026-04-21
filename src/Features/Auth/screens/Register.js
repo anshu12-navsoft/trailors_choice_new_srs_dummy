@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
@@ -15,10 +14,14 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import DateTimePicker from '@react-native-community/datetimepicker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../../../Components/Buttons/CustomButton';
-import {styles} from "../stylesheets/Register.styles"
+import { styles } from '../stylesheets/Register.styles';
+
+// ─── REDUX WIRING (uncomment when backend is ready) ──────────────────────────
+// import { useDispatch, useSelector } from 'react-redux';
+// import { registerUser } from '../../../App/Redux/Slices/registerSlice';
+// ─────────────────────────────────────────────────────────────────────────────
 
 const US_STATES = [
   'Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut',
@@ -31,15 +34,8 @@ const US_STATES = [
   'Virginia','Washington','West Virginia','Wisconsin','Wyoming',
 ];
 
-const formatDob = date => {
-  if (!date) return '';
-  const d = String(date.getDate()).padStart(2, '0');
-  const m = String(date.getMonth() + 1).padStart(2, '0');
-  const y = date.getFullYear();
-  return `${d} - ${m} - ${y}`;
-};
+const OWNER_TYPES = ['Business', 'Individual'];
 
-/* ── Reusable field wrapper ── */
 const Field = ({ label, children }) => (
   <View style={styles.field}>
     <Text style={styles.label}>{label}</Text>
@@ -47,37 +43,269 @@ const Field = ({ label, children }) => (
   </View>
 );
 
+/* ── Renter Form ── */
+const RenterForm = ({ form, setForm, onStatePress }) => (
+  <>
+    <Field label="Your Name">
+      <View style={styles.row}>
+        <TextInput
+          style={[styles.input, styles.halfInput]}
+          placeholder="First Name"
+          placeholderTextColor="#9CA3AF"
+          value={form.firstName}
+          onChangeText={v => setForm(f => ({ ...f, firstName: v }))}
+        />
+        <TextInput
+          style={[styles.input, styles.halfInput]}
+          placeholder="Last Name"
+          placeholderTextColor="#9CA3AF"
+          value={form.lastName}
+          onChangeText={v => setForm(f => ({ ...f, lastName: v }))}
+        />
+      </View>
+    </Field>
+
+    <Field label="Email">
+      <TextInput
+        style={styles.input}
+        placeholder="Enter email"
+        placeholderTextColor="#9CA3AF"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        value={form.email}
+        onChangeText={v => setForm(f => ({ ...f, email: v }))}
+      />
+    </Field>
+
+    <Field label="Address">
+      <TextInput
+        style={styles.input}
+        placeholder="Address"
+        placeholderTextColor="#9CA3AF"
+        value={form.address}
+        onChangeText={v => setForm(f => ({ ...f, address: v }))}
+      />
+    </Field>
+
+    <Field label="City">
+      <TextInput
+        style={styles.input}
+        placeholder="City"
+        placeholderTextColor="#9CA3AF"
+        value={form.city}
+        onChangeText={v => setForm(f => ({ ...f, city: v }))}
+      />
+    </Field>
+
+    <View style={styles.row}>
+      <View style={styles.fieldHalf}>
+        <Text style={styles.label}>State</Text>
+        <Pressable style={[styles.iconInput, styles.halfInput]} onPress={onStatePress}>
+          <Text style={[styles.inputText, !form.state && styles.placeholder]}>
+            {form.state || 'State'}
+          </Text>
+          <Icon name="chevron-down" size={moderateScale(18)} color="#6B7280" />
+        </Pressable>
+      </View>
+      <View style={styles.fieldHalf}>
+        <Text style={styles.label}>Zipcode</Text>
+        <TextInput
+          style={[styles.input, styles.halfInput]}
+          placeholder="Zipcode"
+          placeholderTextColor="#9CA3AF"
+          keyboardType="number-pad"
+          value={form.zipcode}
+          onChangeText={v => setForm(f => ({ ...f, zipcode: v }))}
+        />
+      </View>
+    </View>
+  </>
+);
+
+/* ── Owner Form ── */
+const OwnerForm = ({ form, setForm, onStatePress, onOwnerTypePress, onLogoPress }) => (
+  <>
+    <Field label="Your Name">
+      <View style={styles.row}>
+        <TextInput
+          style={[styles.input, styles.halfInput]}
+          placeholder="First Name"
+          placeholderTextColor="#9CA3AF"
+          value={form.firstName}
+          onChangeText={v => setForm(f => ({ ...f, firstName: v }))}
+        />
+        <TextInput
+          style={[styles.input, styles.halfInput]}
+          placeholder="Last Name"
+          placeholderTextColor="#9CA3AF"
+          value={form.lastName}
+          onChangeText={v => setForm(f => ({ ...f, lastName: v }))}
+        />
+      </View>
+    </Field>
+
+    <Field label="Email">
+      <TextInput
+        style={styles.input}
+        placeholder="Enter email"
+        placeholderTextColor="#9CA3AF"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        value={form.email}
+        onChangeText={v => setForm(f => ({ ...f, email: v }))}
+      />
+    </Field>
+
+    <Field label="Owner Type">
+      <Pressable style={styles.iconInput} onPress={onOwnerTypePress}>
+        <Text style={[styles.inputText, !form.ownerType && styles.placeholder]}>
+          {form.ownerType || 'Select type'}
+        </Text>
+        <Icon name="chevron-down" size={moderateScale(18)} color="#6B7280" />
+      </Pressable>
+    </Field>
+
+    {form.ownerType === 'Business' && (
+      <Field label="Business Name">
+        <TextInput
+          style={styles.input}
+          placeholder="Business name"
+          placeholderTextColor="#9CA3AF"
+          value={form.businessName}
+          onChangeText={v => setForm(f => ({ ...f, businessName: v }))}
+        />
+      </Field>
+    )}
+
+    <Field label="Business Address">
+      <TextInput
+        style={styles.input}
+        placeholder="Address"
+        placeholderTextColor="#9CA3AF"
+        value={form.address}
+        onChangeText={v => setForm(f => ({ ...f, address: v }))}
+      />
+    </Field>
+
+    <Field label="City">
+      <TextInput
+        style={styles.input}
+        placeholder="City"
+        placeholderTextColor="#9CA3AF"
+        value={form.city}
+        onChangeText={v => setForm(f => ({ ...f, city: v }))}
+      />
+    </Field>
+
+    <View style={styles.row}>
+      <View style={styles.fieldHalf}>
+        <Text style={styles.label}>State</Text>
+        <Pressable style={[styles.iconInput, styles.halfInput]} onPress={onStatePress}>
+          <Text style={[styles.inputText, !form.state && styles.placeholder]}>
+            {form.state || 'State'}
+          </Text>
+          <Icon name="chevron-down" size={moderateScale(18)} color="#6B7280" />
+        </Pressable>
+      </View>
+      <View style={styles.fieldHalf}>
+        <Text style={styles.label}>Zipcode</Text>
+        <TextInput
+          style={[styles.input, styles.halfInput]}
+          placeholder="Zipcode"
+          placeholderTextColor="#9CA3AF"
+          keyboardType="number-pad"
+          value={form.zipcode}
+          onChangeText={v => setForm(f => ({ ...f, zipcode: v }))}
+        />
+      </View>
+    </View>
+
+    <Field label="Company Logo">
+      <Pressable style={styles.uploadBox} onPress={onLogoPress}>
+        {form.logoUri ? (
+          <Text style={styles.uploadedText} numberOfLines={1}>{form.logoUri.split('/').pop()}</Text>
+        ) : (
+          <View style={styles.uploadPlaceholder}>
+            <Icon name="image-plus" size={moderateScale(22)} color="#3B5BDB" />
+            <Text style={styles.uploadLabel}>Upload logo</Text>
+          </View>
+        )}
+      </Pressable>
+    </Field>
+  </>
+);
+
+/* ── Main Screen ── */
 const Register = ({ navigation, route }) => {
   const { phoneNumber } = route.params || {};
 
-  const [firstName, setFirstName] = useState('');
-  const [lastName, setLastName]   = useState('');
-  const [dob, setDob]             = useState(null);
-  const [showDate, setShowDate]   = useState(false);
-  const [phone, setPhone]         = useState(phoneNumber || '');
-  const [address, setAddress]     = useState('');
-  const [city, setCity]           = useState('');
-  const [state, setState]         = useState('');
-  const [zipcode, setZipcode]     = useState('');
-  const [showState, setShowState] = useState(false);
+  const [activeTab, setActiveTab] = useState('renter');
+
+  const defaultForm = { firstName: '', lastName: '', email: '', address: '', city: '', state: '', zipcode: '' };
+
+  const [renterForm, setRenterForm] = useState({ ...defaultForm });
+  const [ownerForm, setOwnerForm]   = useState({ ...defaultForm, ownerType: 'Business', businessName: '', logoUri: null });
+
+  const [showStatePicker, setShowStatePicker]     = useState(false);
+  const [showOwnerTypePicker, setShowOwnerTypePicker] = useState(false);
+
+  // ── REDUX HOOKS (uncomment when backend is ready) ─────────────────────────
+  // const dispatch = useDispatch();
+  // const { loading } = useSelector(state => state.register);
+  // ─────────────────────────────────────────────────────────────────────────
+
+  const currentForm   = activeTab === 'renter' ? renterForm : ownerForm;
+  const setCurrentForm = activeTab === 'renter' ? setRenterForm : setOwnerForm;
 
   const handleContinue = async () => {
-    if (!firstName.trim() || !lastName.trim()) {
-      Alert.alert('Required', 'Please enter your full name.');
-      return;
+    if (!currentForm.firstName.trim() || !currentForm.lastName.trim()) {
+      Alert.alert('Required', 'Please enter your full name.'); return;
     }
-    if (!dob) {
-      Alert.alert('Required', 'Please select your date of birth.');
-      return;
+    if (!currentForm.email.trim()) {
+      Alert.alert('Required', 'Please enter your email.'); return;
     }
+
+    // ── CURRENT FLOW (local AsyncStorage, no backend) ─────────────────────
     try {
-      await AsyncStorage.setItem(`USER_${phoneNumber}`, 'registered');
-      await AsyncStorage.setItem('LAST_USER_ID', 'user_123');
-      navigation.navigate('AccountSettings');
+      await AsyncStorage.setItem(`USER_${phoneNumber}`, JSON.stringify({
+        role: activeTab,
+        ...currentForm,
+      }));
+      navigation.navigate('Verification', { role: activeTab, phoneNumber });
     } catch {
       Alert.alert('Error', 'Something went wrong. Please try again.');
     }
+    // ─────────────────────────────────────────────────────────────────────
+
+    // ── REDUX FLOW (uncomment when backend is ready, remove block above) ──
+    // const formData = new FormData();
+    // formData.append('role', activeTab);
+    // formData.append('firstName', currentForm.firstName);
+    // formData.append('lastName', currentForm.lastName);
+    // formData.append('email', currentForm.email);
+    // formData.append('phone', phoneNumber);
+    // formData.append('address', currentForm.address);
+    // formData.append('city', currentForm.city);
+    // formData.append('state', currentForm.state);
+    // formData.append('zipcode', currentForm.zipcode);
+    // if (activeTab === 'owner') {
+    //   formData.append('ownerType', ownerForm.ownerType);
+    //   formData.append('businessName', ownerForm.businessName);
+    //   if (ownerForm.logoUri) {
+    //     formData.append('logo', { uri: ownerForm.logoUri, name: 'logo.jpg', type: 'image/jpeg' });
+    //   }
+    // }
+    // const result = await dispatch(registerUser(formData));
+    // if (registerUser.fulfilled.match(result)) {
+    //   navigation.navigate('Verification', { role: activeTab, phoneNumber });
+    // } else {
+    //   Alert.alert('Error', result.payload || 'Registration failed.');
+    // }
+    // ─────────────────────────────────────────────────────────────────────
   };
+
+  const activeState   = currentForm.state;
+  const setActiveState = v => setCurrentForm(f => ({ ...f, state: v }));
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
@@ -97,111 +325,51 @@ const Register = ({ navigation, route }) => {
         >
           <Text style={styles.title}>Create account</Text>
 
-          {/* Legal Name */}
-          <Field label="Legal Name">
-            <View style={styles.row}>
-              <TextInput
-                style={[styles.input, styles.halfInput]}
-                placeholder="First Name"
-                placeholderTextColor="#9CA3AF"
-                value={firstName}
-                onChangeText={setFirstName}
-              />
-              <TextInput
-                style={[styles.input, styles.halfInput]}
-                placeholder="Last Name"
-                placeholderTextColor="#9CA3AF"
-                value={lastName}
-                onChangeText={setLastName}
-              />
-            </View>
-          </Field>
-
-          {/* Date of Birth */}
-          <Field label="Date of Birth">
-            <Pressable style={styles.iconInput} onPress={() => setShowDate(true)}>
-              <Text style={[styles.inputText, !dob && styles.placeholder]}>
-                {dob ? formatDob(dob) : 'DD - MM - YYYY'}
+          {/* Tab switcher */}
+          <View style={styles.tabRow}>
+            <Pressable
+              style={[styles.tab, activeTab === 'renter' && styles.tabActive]}
+              onPress={() => setActiveTab('renter')}
+            >
+              <Text style={[styles.tabText, activeTab === 'renter' && styles.tabTextActive]}>
+                I'm a Renter
               </Text>
-              <Icon name="calendar-month-outline" size={moderateScale(20)} color="#6B7280" />
             </Pressable>
-          </Field>
+            <Pressable
+              style={[styles.tab, activeTab === 'owner' && styles.tabActive]}
+              onPress={() => setActiveTab('owner')}
+            >
+              <Text style={[styles.tabText, activeTab === 'owner' && styles.tabTextActive]}>
+                I'm an Owner
+              </Text>
+            </Pressable>
+          </View>
 
-          {showDate && (
-            <DateTimePicker
-              value={dob || new Date()}
-              mode="date"
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-              maximumDate={new Date()}
-              onChange={(_, selected) => {
-                setShowDate(false);
-                if (selected) setDob(selected);
+          {/* Form */}
+          {activeTab === 'renter' ? (
+            <RenterForm
+              form={renterForm}
+              setForm={setRenterForm}
+              onStatePress={() => setShowStatePicker(true)}
+            />
+          ) : (
+            <OwnerForm
+              form={ownerForm}
+              setForm={setOwnerForm}
+              onStatePress={() => setShowStatePicker(true)}
+              onOwnerTypePress={() => setShowOwnerTypePicker(true)}
+              onLogoPress={() => {
+                // TODO: wire react-native-image-picker here
+                Alert.alert('Upload', 'Image picker not wired yet.');
               }}
             />
           )}
 
-          {/* Phone Number */}
-          <Field label="Phone Number">
-            <TextInput
-              style={styles.input}
-              placeholder="Phone Number"
-              placeholderTextColor="#9CA3AF"
-              keyboardType="phone-pad"
-              value={phone}
-              onChangeText={setPhone}
-            />
-          </Field>
-
-          {/* Address */}
-          <Field label="Address">
-            <TextInput
-              style={styles.input}
-              placeholder="Address"
-              placeholderTextColor="#9CA3AF"
-              value={address}
-              onChangeText={setAddress}
-            />
-          </Field>
-
-          {/* City */}
-          <Field label="City">
-            <TextInput
-              style={styles.input}
-              placeholder="City"
-              placeholderTextColor="#9CA3AF"
-              value={city}
-              onChangeText={setCity}
-            />
-          </Field>
-
-          {/* State + Zipcode */}
-          <View style={styles.row}>
-            <View style={[styles.fieldHalf]}>
-              <Text style={styles.label}>State</Text>
-              <Pressable style={[styles.iconInput, styles.halfInput]} onPress={() => setShowState(true)}>
-                <Text style={[styles.inputText, !state && styles.placeholder]}>
-                  {state || 'State'}
-                </Text>
-                <Icon name="chevron-down" size={moderateScale(18)} color="#6B7280" />
-              </Pressable>
-            </View>
-            <View style={styles.fieldHalf}>
-              <Text style={styles.label}>Zipcode</Text>
-              <TextInput
-                style={[styles.input, styles.halfInput]}
-                placeholder="Zipcode"
-                placeholderTextColor="#9CA3AF"
-                keyboardType="number-pad"
-                value={zipcode}
-                onChangeText={setZipcode}
-              />
-            </View>
-          </View>
-
           {/* Terms */}
           <Text style={styles.terms}>
-            By clicking <Text style={styles.termsBold}>Agree and Continue</Text>, I agree to the terms
-            of service and privacy policy
+            By clicking{' '}
+            <Text style={styles.termsBold}>Agree and Continue</Text>
+            , I agree to the terms of service and privacy policy
           </Text>
 
           <CustomButton
@@ -210,13 +378,14 @@ const Register = ({ navigation, route }) => {
             variant="primary"
             size="large"
             style={styles.continueBtn}
+            // loading={loading}   // ← uncomment with Redux flow
           />
         </ScrollView>
       </KeyboardAvoidingView>
 
       {/* State picker modal */}
-      <Modal visible={showState} animationType="slide" transparent>
-        <Pressable style={styles.modalOverlay} onPress={() => setShowState(false)} />
+      <Modal visible={showStatePicker} animationType="slide" transparent>
+        <Pressable style={styles.modalOverlay} onPress={() => setShowStatePicker(false)} />
         <View style={styles.modalSheet}>
           <Text style={styles.modalTitle}>Select State</Text>
           <FlatList
@@ -225,9 +394,9 @@ const Register = ({ navigation, route }) => {
             renderItem={({ item }) => (
               <Pressable
                 style={styles.stateItem}
-                onPress={() => { setState(item); setShowState(false); }}
+                onPress={() => { setActiveState(item); setShowStatePicker(false); }}
               >
-                <Text style={[styles.stateItemText, state === item && styles.stateItemActive]}>
+                <Text style={[styles.stateItemText, activeState === item && styles.stateItemActive]}>
                   {item}
                 </Text>
               </Pressable>
@@ -235,10 +404,30 @@ const Register = ({ navigation, route }) => {
           />
         </View>
       </Modal>
+
+      {/* Owner type picker modal */}
+      <Modal visible={showOwnerTypePicker} animationType="slide" transparent>
+        <Pressable style={styles.modalOverlay} onPress={() => setShowOwnerTypePicker(false)} />
+        <View style={styles.modalSheet}>
+          <Text style={styles.modalTitle}>Owner Type</Text>
+          {OWNER_TYPES.map(item => (
+            <Pressable
+              key={item}
+              style={styles.stateItem}
+              onPress={() => {
+                setOwnerForm(f => ({ ...f, ownerType: item }));
+                setShowOwnerTypePicker(false);
+              }}
+            >
+              <Text style={[styles.stateItemText, ownerForm.ownerType === item && styles.stateItemActive]}>
+                {item}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
 
 export default Register;
-
-

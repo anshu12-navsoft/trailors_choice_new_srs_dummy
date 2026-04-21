@@ -12,11 +12,17 @@ const api = axios.create({
 /* -------- Request Interceptor -------- */
 api.interceptors.request.use(
   async config => {
-    const token = await AsyncStorage.getItem('ACCESS_TOKEN');
+    const [token, language] = await Promise.all([
+      AsyncStorage.getItem('ACCESS_TOKEN'),
+      AsyncStorage.getItem('APP_LANGUAGE'),
+    ]);
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+
+    // tells the backend which language to use for translatable fields
+    config.headers['Accept-Language'] = language ?? 'en';
 
     console.log('➡️ API REQUEST:', config.method?.toUpperCase(), config.url);
     return config;

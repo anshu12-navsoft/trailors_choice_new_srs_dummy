@@ -15,9 +15,7 @@ export const registerApi = async (formData) => {
   return response.data;
 };
 
-export const profileApi = () => {
-  return api.get('/profile');
-};
+
 
 
 

@@ -24,7 +24,6 @@ import Fonts from '../../../Theme/Fonts';
 import { styles } from '../stylesheets/AddTrailor.style';
 import CustomHeader from '../../../Components/Header/CustomHeader';
 
-
 if (
   Platform.OS === 'android' &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -167,6 +166,8 @@ const photo = StyleSheet.create({
 // ── Step 1 — Trailer Detail ───────────────────────────────────────────────
 const StepOne = ({ form, setForm }) => {
   const { t } = useTranslation();
+  const specs = form.specs || {};
+  const features = form.features || {};
   const handlePickMain = () => {
     launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, res => {
       if (res.assets?.[0]?.uri) {
@@ -187,7 +188,21 @@ const StepOne = ({ form, setForm }) => {
     });
   };
 
+  const handlePickSpecs = () => {
+    launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, res => {
+      if (res.assets?.[0]?.uri)
+        setForm(f => ({ ...f, specsPhoto: res.assets[0].uri }));
+    });
+  };
+
   const thumbPhotos = form.thumbPhotos || [null, null, null, null, null, null];
+
+  const FEATURE_LIST = [
+    { key: 'ramp', labelKey: 'ramp_included' },
+    { key: 'spareTire', labelKey: 'spare_tire' },
+    { key: 'tieDown', labelKey: 'tie_down_points' },
+    { key: 'winch', labelKey: 'winch' },
+  ];
 
   return (
     <View style={step.container}>
@@ -203,23 +218,24 @@ const StepOne = ({ form, setForm }) => {
         />
       </View>
 
-      <View style={step.fieldGap}>
-        <CustomTextInput
-          label={t('make_model_label')}
-          placeholder={t('make_model_placeholder')}
-          value={form.makeModel}
-          onChangeText={v => setForm(f => ({ ...f, makeModel: v }))}
-        />
-      </View>
-
-      <View style={step.fieldGap}>
-        <CustomTextInput
-          label={t('year_label')}
-          placeholder={t('year_placeholder')}
-          value={form.year}
-          onChangeText={v => setForm(f => ({ ...f, year: v }))}
-          keyboardType="number-pad"
-        />
+      <View style={step.fieldGapRow}>
+        <View style={{ flex: 1 }}>
+          <CustomTextInput
+            label={t('make_model_label')}
+            placeholder={t('make_model_placeholder')}
+            value={form.makeModel}
+            onChangeText={v => setForm(f => ({ ...f, makeModel: v }))}
+          />
+        </View>
+        <View style={{ flex: 1 }}>
+          <CustomTextInput
+            label={t('year_label')}
+            placeholder={t('year_placeholder')}
+            value={form.year}
+            onChangeText={v => setForm(f => ({ ...f, year: v }))}
+            keyboardType="number-pad"
+          />
+        </View>
       </View>
 
       <View style={step.fieldGap}>
@@ -233,7 +249,7 @@ const StepOne = ({ form, setForm }) => {
       </View>
 
       {/* Photo upload */}
-      <View style={[step.fieldGap, { marginTop: moderateScale(4) }]}>
+      {/* <View style={[step.fieldGap, { marginTop: moderateScale(4) }]}>
         <Text style={step.photoLabel}>
           {t('upload_photo_label')}{' '}
           <Text style={step.photoHint}>{t('upload_photo_hint')}</Text>
@@ -257,90 +273,7 @@ const StepOne = ({ form, setForm }) => {
             </View>
           ))}
         </View>
-      </View>
-    </View>
-  );
-};
-
-const step = StyleSheet.create({
-  container: { paddingBottom: moderateScale(20) },
-  title: {
-    fontSize: Fonts.size.xxl,
-    fontWeight: '700',
-    color: colors.textPrimary,
-    marginBottom: moderateScale(20),
-  },
-  fieldGap: { marginBottom: moderateScale(16) },
-  photoLabel: {
-    fontSize: Fonts.size.sm,
-    fontWeight: '600',
-    color: colors.textPrimary,
-    marginBottom: moderateScale(10),
-  },
-  photoHint: {
-    fontWeight: '400',
-    color: colors.textSecondary,
-  },
-});
-
-// ── Step 2 — Specs & Features ─────────────────────────────────────────────
-const FEATURE_LIST = [
-  { key: 'ramp', labelKey: 'ramp_included' },
-  { key: 'spareTire', labelKey: 'spare_tire' },
-  { key: 'tieDown', labelKey: 'tie_down_points' },
-  { key: 'winch', labelKey: 'winch' },
-];
-
-const TAG_OPTIONS = [
-  'Ramp Included',
-  'Tool Box',
-  'Tarp Included',
-  'Side Rails',
-];
-
-const StepTwo = ({ form, setForm }) => {
-  const { t } = useTranslation();
-  const specs = form.specs || {};
-  const features = form.features || {};
-  const tags = form.tags || [];
-  const [customTag, setCustomTag] = useState('');
-  const [showCustomInput, setShowCustomInput] = useState(false);
-
-  const setSpec = (key, val) =>
-    setForm(f => ({ ...f, specs: { ...(f.specs || {}), [key]: val } }));
-
-  const toggleFeature = key =>
-    setForm(f => ({
-      ...f,
-      features: { ...(f.features || {}), [key]: !f.features?.[key] },
-    }));
-
-  const toggleTag = tag =>
-    setForm(f => {
-      const cur = f.tags || [];
-      return {
-        ...f,
-        tags: cur.includes(tag) ? cur.filter(t => t !== tag) : [...cur, tag],
-      };
-    });
-
-  const addCustomTag = () => {
-    const trimmed = customTag.trim();
-    if (trimmed && !tags.includes(trimmed))
-      setForm(f => ({ ...f, tags: [...(f.tags || []), trimmed] }));
-    setCustomTag('');
-    setShowCustomInput(false);
-  };
-
-  const handlePickSpecs = () => {
-    launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, res => {
-      if (res.assets?.[0]?.uri)
-        setForm(f => ({ ...f, specsPhoto: res.assets[0].uri }));
-    });
-  };
-
-  return (
-    <View style={step.container}>
+      </View> */}
       <Text style={step.title}>{t('specs_features_section')}</Text>
 
       {/* Dimensions grid */}
@@ -394,6 +327,220 @@ const StepTwo = ({ form, setForm }) => {
         ))}
       </View>
 
+      {/* Upload Specs */}
+      <Text style={s2.sectionLabel}>{t('upload_specs_label')}</Text>
+      <PhotoSlot
+        uri={form.specsPhoto}
+        onPress={handlePickSpecs}
+        isMain
+        specsLabel={t('add_trailer_specs_photo')}
+      />
+    </View>
+  );
+};
+
+const step = StyleSheet.create({
+  container: { paddingBottom: moderateScale(20) },
+  title: {
+    fontSize: Fonts.size.xxl,
+    fontWeight: '700',
+    color: colors.textPrimary,
+    marginBottom: moderateScale(20),
+  },
+  fieldGapRow: {
+    marginBottom: moderateScale(16),
+    flexDirection: 'row',
+    gap: 10,
+  },
+  fieldGap: { marginBottom: moderateScale(16) },
+  photoLabel: {
+    fontSize: Fonts.size.sm,
+    fontWeight: '600',
+    color: colors.textPrimary,
+    marginBottom: moderateScale(10),
+  },
+  photoHint: {
+    fontWeight: '400',
+    color: colors.textSecondary,
+  },
+});
+
+// ── Media Upload Slot ─────────────────────────────────────────────────────
+const MediaSlot = ({ uri, onPress, iconName, iconOverlay, label }) => (
+  <Pressable
+    onPress={onPress}
+    style={({ pressed }) => [media.slot, pressed && { opacity: 0.75 }]}
+  >
+    {uri ? (
+      <Image
+        source={{ uri }}
+        style={StyleSheet.absoluteFill}
+        resizeMode="cover"
+      />
+    ) : (
+      <>
+        <View style={media.iconWrap}>
+          <Icon
+            name={iconName}
+            size={moderateScale(28)}
+            color={colors.textPrimary}
+          />
+          {iconOverlay && (
+            <View style={media.overlayBadge}>
+              <Icon
+                name={iconOverlay}
+                size={moderateScale(12)}
+                color={colors.textPrimary}
+              />
+            </View>
+          )}
+        </View>
+        <Text style={media.label}>{label}</Text>
+      </>
+    )}
+  </Pressable>
+);
+
+const media = StyleSheet.create({
+  slot: {
+    height: verticalScale(120),
+    borderRadius: moderateScale(12),
+    borderWidth: 1.5,
+    borderStyle: 'dashed',
+    borderColor: colors.textDisabled,
+    backgroundColor: colors.surface,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    marginBottom: moderateScale(16),
+  },
+  iconWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
+  },
+  overlayBadge: {
+    position: 'absolute',
+    bottom: -moderateScale(6),
+    right: -moderateScale(10),
+  },
+  label: {
+    marginTop: moderateScale(10),
+    fontSize: Fonts.size.sm,
+    color: colors.textPrimary,
+    fontWeight: '500',
+  },
+});
+
+// ── Step 2 — Media & Documentation ───────────────────────────────────────
+const TAG_OPTIONS = [
+  'Ramp Included',
+  'Tool Box',
+  'Tarp Included',
+  'Side Rails',
+];
+
+const StepTwo = ({ form, setForm }) => {
+  const { t } = useTranslation();
+  const tags = form.tags || [];
+  const [customTag, setCustomTag] = useState('');
+  const [showCustomInput, setShowCustomInput] = useState(false);
+
+  const toggleTag = tag =>
+    setForm(f => {
+      const cur = f.tags || [];
+      return {
+        ...f,
+        tags: cur.includes(tag) ? cur.filter(tg => tg !== tag) : [...cur, tag],
+      };
+    });
+
+  const addCustomTag = () => {
+    const trimmed = customTag.trim();
+    if (trimmed && !tags.includes(trimmed))
+      setForm(f => ({ ...f, tags: [...(f.tags || []), trimmed] }));
+    setCustomTag('');
+    setShowCustomInput(false);
+  };
+
+  const handlePickPhoto = () => {
+    launchImageLibrary(
+      { mediaType: 'photo', quality: 0.8, selectionLimit: 0 },
+      res => {
+        if (res.assets?.length) {
+          setForm(f => ({
+            ...f,
+            mediaPhotos: [
+              ...(f.mediaPhotos || []),
+              ...res.assets.map(a => a.uri),
+            ],
+          }));
+        }
+      },
+    );
+  };
+
+  const handlePickVideo = () => {
+    launchImageLibrary({ mediaType: 'video', selectionLimit: 0 }, res => {
+      if (res.assets?.length) {
+        setForm(f => ({
+          ...f,
+          mediaVideos: [
+            ...(f.mediaVideos || []),
+            ...res.assets.map(a => a.uri),
+          ],
+        }));
+      }
+    });
+  };
+
+  const handlePickDocument = () => {
+    launchImageLibrary({ mediaType: 'mixed', selectionLimit: 0 }, res => {
+      if (res.assets?.length) {
+        setForm(f => ({
+          ...f,
+          mediaDocuments: [
+            ...(f.mediaDocuments || []),
+            ...res.assets.map(a => a.uri),
+          ],
+        }));
+      }
+    });
+  };
+
+  return (
+    <View style={step.container}>
+      <Text style={step.title}>{t('media_documentation_title')}</Text>
+
+      {/* Upload Photos */}
+      <Text style={s2.sectionLabel}>{t('upload_photos_label')}</Text>
+      <MediaSlot
+        uri={form.mediaPhotos?.[0]}
+        onPress={handlePickPhoto}
+        iconName="image"
+        iconOverlay="plus"
+        label={t('add_main_trailer_photo')}
+      />
+
+      {/* Upload Videos */}
+      <Text style={s2.sectionLabel}>{t('upload_videos_label')}</Text>
+      <MediaSlot
+        uri={null}
+        onPress={handlePickVideo}
+        iconName="film"
+        iconOverlay="video"
+        label={t('add_trailer_videos')}
+      />
+
+      {/* Upload Documents */}
+      <Text style={s2.sectionLabel}>{t('upload_documents_label')}</Text>
+      <MediaSlot
+        uri={null}
+        onPress={handlePickDocument}
+        iconName="file-plus"
+        label={t('add_trailer_documents')}
+      />
+
       {/* Tags */}
       <Text style={s2.sectionLabel}>{t('add_tags_label')}</Text>
       <View style={s2.tagsWrap}>
@@ -431,20 +578,16 @@ const StepTwo = ({ form, setForm }) => {
             />
           </View>
         ) : (
-          <Pressable onPress={() => setShowCustomInput(true)} style={s2.tag}>
-            <Text style={s2.tagText}>{t('custom_tag')}</Text>
+          <Pressable
+            onPress={() => setShowCustomInput(true)}
+            style={[s2.tag, s2.tagCustom]}
+          >
+            <Text style={[s2.tagText, s2.tagCustomText]}>
+              {t('custom_tag')}
+            </Text>
           </Pressable>
         )}
       </View>
-
-      {/* Upload Specs */}
-      <Text style={s2.sectionLabel}>{t('upload_specs_label')}</Text>
-      <PhotoSlot
-        uri={form.specsPhoto}
-        onPress={handlePickSpecs}
-        isMain
-        specsLabel={t('add_trailer_specs_photo')}
-      />
     </View>
   );
 };
@@ -505,6 +648,13 @@ const s2 = StyleSheet.create({
     fontWeight: '500',
   },
   tagTextActive: {
+    color: '#fff',
+  },
+  tagCustom: {
+    backgroundColor: colors.textPrimary,
+    borderColor: colors.textPrimary,
+  },
+  tagCustomText: {
     color: '#fff',
   },
   customInputRow: {
@@ -615,6 +765,8 @@ const StepThree = ({ form, setForm }) => {
           onChangeText={v => setForm(f => ({ ...f, safety: v }))}
           style={{ marginBottom: 0 }}
           inputStyle={s3.textArea}
+          multiline
+          numberOfLines={4}
         />
       </View>
     </View>
@@ -692,7 +844,7 @@ const s3 = StyleSheet.create({
     marginBottom: moderateScale(8),
   },
   textArea: {
-    minHeight: verticalScale(100),
+    height: verticalScale(120),
     textAlignVertical: 'top',
     paddingTop: moderateScale(10),
   },
