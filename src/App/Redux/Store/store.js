@@ -9,6 +9,7 @@ import otpReducer from "../Slices/otpSlice"
 import addTrailerReducer from "../Slices/addTrailerSlice"
 import profileReducer from "../Slices/profileSlice"
 import languageReducer from "../Slices/languageSlice"
+import notificationReducer from "../Slices/notificationSlice"
 
 export const store = configureStore({
   reducer: {
@@ -22,5 +23,6 @@ export const store = configureStore({
     addTrailer: addTrailerReducer,
     profile: profileReducer,
     language: languageReducer,
+    notification:notificationReducer
   },
 });
