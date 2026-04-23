@@ -37,6 +37,7 @@ const CustomButton = ({
   style,
   textStyle,
   leftIcon,
+  buttonColor,
   children,
 }) => {
   const sizeStyle = SIZE_STYLES[size] ?? SIZE_STYLES.medium;
@@ -49,6 +50,7 @@ const CustomButton = ({
       loading={loading}
       disabled={disabled || loading}
       icon={leftIcon ? () => leftIcon : undefined}
+      buttonColor={buttonColor}
       contentStyle={[
         styles.content,
         { paddingVertical: moderateScale(sizeStyle.paddingVertical) },
