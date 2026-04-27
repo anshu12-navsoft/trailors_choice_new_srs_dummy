@@ -72,7 +72,7 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: moderateScale(20),
-    paddingVertical: moderateScale(13),
+    paddingVertical: moderateScale(6),
   },
   rowLeft: {
     flexDirection: 'row',

@@ -11,34 +11,25 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
 import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { verifyOtp, resendOtp, resetOtp } from '../../../App/Redux/Slices/otpSlice';
 import { loginSuccess } from '../../../App/Redux/Slices/authSlice';
 import CustomButton from '../../../Components/Buttons/CustomButton';
 import { styles } from '../stylesheets/OtpVerification.styles';
-
-// ─── REDUX WIRING (uncomment when backend is ready) ──────────────────────────
-// import { useSelector } from 'react-redux';
-// import { verifyOtp, sendOtp, resetOtp } from '../../../App/Redux/Slices/otpSlice';
-// ─────────────────────────────────────────────────────────────────────────────
 
 const OTP_LENGTH = 6;
 const RESEND_SECONDS = 30;
 
 const OtpVerification = ({ navigation, route }) => {
-  const { phoneNumber, isNewUser } = route.params || {};
+  const { phoneNumber, mobile, cc } = route.params || {};
 
   const inputRef = useRef(null);
   const [otp, setOtp] = useState('');
-  const [loading, setLoading] = useState(false);
   const [timer, setTimer] = useState(RESEND_SECONDS);
   const [canResend, setCanResend] = useState(false);
 
   const dispatch = useDispatch();
-
-  // ── REDUX HOOKS (uncomment when backend is ready) ─────────────────────────
-  // const { loading: otpLoading, error: otpError } = useSelector(state => state.otp);
-  // ─────────────────────────────────────────────────────────────────────────
+  const { loading } = useSelector(state => state.otp);
 
   useEffect(() => {
     if (timer === 0) {
@@ -49,42 +40,27 @@ const OtpVerification = ({ navigation, route }) => {
     return () => clearInterval(id);
   }, [timer]);
 
-  const handleVerify = async () => {
+  const handleVerify = () => {
     if (otp.length !== OTP_LENGTH) {
       Alert.alert('Invalid code', 'Please enter the 6-digit code.');
       return;
     }
 
-    // ── CURRENT FLOW (local AsyncStorage, no backend) ─────────────────────
-    try {
-      setLoading(true);
-      if (isNewUser) {
-        await AsyncStorage.setItem(`USER_${phoneNumber}`, 'pending');
-        navigation.navigate('Register', { phoneNumber });
+    dispatch(verifyOtp({ mobile, otp: parseInt(otp, 10), cc })).then(result => {
+      console.log('verifyOtp result:', JSON.stringify(result, null, 2));
+      if (verifyOtp.fulfilled.match(result)) {
+        console.log('OTP verified ✅ | isNewUser:', result.payload.isNewUser, '| token:', result.payload.token);
+        dispatch(resetOtp());
+        if (result.payload.isNewUser) {
+          navigation.navigate('Register', { phoneNumber, userId: result.payload.userId });
+        } else {
+          dispatch(loginSuccess());
+        }
       } else {
-        await AsyncStorage.setItem('LAST_USER_ID', phoneNumber);
-        dispatch(loginSuccess());
+        console.log('OTP verify failed ❌:', result.payload);
+        Alert.alert('Error', result.payload || 'Invalid OTP. Please try again.');
       }
-    } catch {
-      setLoading(false);
-      Alert.alert('Error', 'Something went wrong. Please try again.');
-    }
-    // ─────────────────────────────────────────────────────────────────────
-
-    // ── REDUX FLOW (uncomment when backend is ready, remove block above) ──
-    // const result = await dispatch(verifyOtp({ phoneNumber, otp }));
-    // if (verifyOtp.fulfilled.match(result)) {
-    //   dispatch(resetOtp());
-    //   if (result.payload.isNewUser) {
-    //     navigation.navigate('Register', { phoneNumber });
-    //   } else {
-    //     // token is stored inside authSlice via loginUser or verifyOtp response
-    //     navigation.reset({ index: 0, routes: [{ name: 'DrawerNavigation' }] });
-    //   }
-    // } else {
-    //   Alert.alert('Error', result.payload || 'Invalid OTP. Please try again.');
-    // }
-    // ─────────────────────────────────────────────────────────────────────
+    });
   };
 
   const handleResend = () => {
@@ -92,10 +68,7 @@ const OtpVerification = ({ navigation, route }) => {
     setTimer(RESEND_SECONDS);
     setCanResend(false);
     setOtp('');
-
-    // ── REDUX RESEND (uncomment when backend is ready) ────────────────────
-    // dispatch(sendOtp({ phoneNumber }));
-    // ─────────────────────────────────────────────────────────────────────
+    dispatch(resendOtp({ mobile, cc }));
   };
 
   return (
@@ -104,7 +77,6 @@ const OtpVerification = ({ navigation, route }) => {
         style={styles.flex}
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        {/* Back button */}
         <Pressable
           testID="back-btn"
           style={styles.backBtn}
@@ -121,7 +93,6 @@ const OtpVerification = ({ navigation, route }) => {
             <Text style={styles.phone}>{phoneNumber}</Text>
           </Text>
 
-          {/* OTP input box */}
           <Pressable
             style={styles.otpBox}
             onPress={() => inputRef.current?.focus()}
@@ -131,7 +102,6 @@ const OtpVerification = ({ navigation, route }) => {
                 <Text style={styles.otpChar}>{otp[i] ?? '-'}</Text>
               </View>
             ))}
-            {/* Hidden real input */}
             <TextInput
               testID="otp-input"
               ref={inputRef}
@@ -147,7 +117,6 @@ const OtpVerification = ({ navigation, route }) => {
             />
           </Pressable>
 
-          {/* Resend row */}
           <View style={styles.resendRow}>
             <Text style={styles.resendLabel}>Haven't received a code? </Text>
             <Pressable onPress={handleResend} disabled={!canResend}>
@@ -161,13 +130,12 @@ const OtpVerification = ({ navigation, route }) => {
 
           <CustomButton
             testID="continue-btn"
-            title={loading ? 'Verifying…' : 'Continue'}
+            title="Continue"
             onPress={handleVerify}
             variant="primary"
             size="large"
-            disabled={loading}
+            loading={loading}
             style={styles.continueBtn}
-            // loading={otpLoading}   // ← uncomment with Redux flow
           />
         </View>
       </KeyboardAvoidingView>

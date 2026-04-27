@@ -58,7 +58,6 @@ import OwnerVerificationScreen from '../../../Features/OwnerVerification/screens
 import OwnerReviewsScreen from '../../../Features/OwnerReviews/screens/OwnerReviewsScreen';
 
 import DrawerToggleButton from '../Drawer/DrawerToggleButton';
-import MyTrailorsListScreen from '../../../Features/MyTrailors/screens/MyTrailersListScreen';
 
 /* -------- Stack Instances -------- */
 const HomeStackNav = createNativeStackNavigator();
@@ -68,8 +67,8 @@ const MyTrailorsStackNav = createNativeStackNavigator();
 const ProfileStackNav = createNativeStackNavigator();
 const AuthStackNav = createNativeStackNavigator();
 /* -------- Auth -------- */
-const AuthStack = () => (
-  <AuthStackNav.Navigator screenOptions={{ headerShown: false }}>
+const AuthStack = ({ initialRouteName = 'LanguageSelect' }) => (
+  <AuthStackNav.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRouteName}>
     <AuthStackNav.Screen name="LanguageSelect" component={LanguageSelect} />
     <AuthStackNav.Screen name="Welcome" component={WelcomeScreen} />
 

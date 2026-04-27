@@ -14,13 +14,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { TextInput } from 'react-native-paper';
 import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { loginSuccess } from '../../../App/Redux/Slices/authSlice';
+import { registerUser } from '../../../App/Redux/Slices/registerSlice';
 import { openCamera, openGallery } from '../../../utils/helpers/mediaPicker.helper';
 import CustomButton from '../../../Components/Buttons/CustomButton';
 
-const AccountSettings = ({ navigation }) => {
+const AccountSettings = ({ route }) => {
+  const { userId, formPayload } = route.params || {};
   const dispatch = useDispatch();
+  const { loading } = useSelector(state => state.register);
   const [selfie, setSelfie] = useState(null);
   const [license, setLicense] = useState(null);
   const [about, setAbout] = useState('');
@@ -81,12 +84,34 @@ const AccountSettings = ({ navigation }) => {
     ]);
   };
 
-  const handleSave = () => {
-    dispatch(loginSuccess());
+  const submitRegistration = (payload) => {
+    dispatch(registerUser({ userId, payload })).then(result => {
+      console.log('registerUser result:', JSON.stringify(result, null, 2));
+      if (registerUser.fulfilled.match(result)) {
+        dispatch(loginSuccess());
+      } else {
+        Alert.alert('Error', result.payload || 'Registration failed.');
+      }
+    });
   };
 
   const handleSkip = () => {
-    dispatch(loginSuccess());
+    submitRegistration(formPayload);
+  };
+
+  const handleSave = () => {
+    const formData = new FormData();
+    Object.entries(formPayload).forEach(([key, value]) => formData.append(key, value));
+    if (selfie?.uri) {
+      formData.append('selfie', { uri: selfie.uri, name: 'selfie.jpg', type: selfie.type || 'image/jpeg' });
+    }
+    if (license?.uri) {
+      formData.append('driving_license', { uri: license.uri, name: 'license.jpg', type: license.type || 'image/jpeg' });
+    }
+    if (about.trim()) {
+      formData.append('about', about.trim());
+    }
+    submitRegistration(formData);
   };
 
   return (
@@ -101,7 +126,7 @@ const AccountSettings = ({ navigation }) => {
           <Pressable onPress={() => navigation.goBack()} hitSlop={10}>
             <Icon name="arrow-left" size={moderateScale(22)} color="#111827" />
           </Pressable>
-          <Pressable onPress={handleSkip} hitSlop={10}>
+          <Pressable onPress={handleSkip} hitSlop={10} disabled={loading}>
             <Text style={styles.skip}>SKIP</Text>
           </Pressable>
         </View>
@@ -154,8 +179,9 @@ const AccountSettings = ({ navigation }) => {
             variant="primary"
             size="large"
             style={styles.saveBtn}
+            loading={loading}
           />
-        </ScrollView>1
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

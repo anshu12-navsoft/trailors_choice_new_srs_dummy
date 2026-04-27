@@ -1,38 +1,59 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { sendOtpApi, verifyOtpApi } from '../../services/auth.api';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { sendOtpApi, verifyOtpApi, resendOtpApi } from '../../../Services/ApiList/auth.api';
 
 /* ------------------ THUNKS ------------------ */
 
 // 📤 SEND OTP
 export const sendOtp = createAsyncThunk(
   'otp/sendOtp',
-  async ({ phoneNumber }, { rejectWithValue }) => {
+  async ({ mobile, cc }, { rejectWithValue }) => {
+    console.log('Country Code===>>', cc);
     try {
-      const res = await sendOtpApi({ phoneNumber });
-      // expected response: { data: { message: 'OTP sent', isNewUser: true/false } }
-      return { phoneNumber, isNewUser: res.data.isNewUser };
+      const res = await sendOtpApi({ mobile, cc });
+      console.log('Response for making login while sending otp===>>', res);
+      return { mobile, cc, isNewUser: res?.data?.isNewUser ?? false };
     } catch (error) {
-      return rejectWithValue(
-        error?.response?.data?.message || error.message
-      );
+      return rejectWithValue(error?.response?.data?.message || error.message);
     }
-  }
+  },
 );
 
 // ✅ VERIFY OTP
 export const verifyOtp = createAsyncThunk(
   'otp/verifyOtp',
-  async ({ phoneNumber, otp }, { rejectWithValue }) => {
+  async ({ mobile, otp, cc }, { rejectWithValue }) => {
     try {
-      const res = await verifyOtpApi({ phoneNumber, otp });
-      // expected response: { data: { isNewUser: true/false, token: '...' (only for existing users) } }
-      return { isNewUser: res.data.isNewUser, token: res.data.token ?? null };
+      const res = await verifyOtpApi({ mobile, otp, cc });
+      console.log('verifyOtpApi raw response:', JSON.stringify(res, null, 2));
+      const token        = res?.access  ?? null;
+      const refreshToken = res?.refresh ?? null;
+      const userId       = res?.user_id ?? null;
+      const isNewUser    = !(res?.profile_status?.basic_info ?? true);
+      await Promise.all([
+        token        ? AsyncStorage.setItem('ACCESS_TOKEN',  token)        : null,
+        refreshToken ? AsyncStorage.setItem('REFRESH_TOKEN', refreshToken) : null,
+      ].filter(Boolean));
+      console.log('Stored → access:', token, '| refresh:', refreshToken, '| userId:', userId);
+      return { isNewUser, token, refreshToken, userId };
     } catch (error) {
-      return rejectWithValue(
-        error?.response?.data?.message || error.message
-      );
+      return rejectWithValue(error?.response?.data?.message || error.message);
     }
-  }
+  },
+);
+
+// 🔁 RESEND OTP
+export const resendOtp = createAsyncThunk(
+  'otp/resendOtp',
+  async ({ mobile, cc }, { rejectWithValue }) => {
+    try {
+      const res = await resendOtpApi({ mobile, cc });
+      console.log('resendOtpApi response:', JSON.stringify(res, null, 2));
+      return { mobile, cc };
+    } catch (error) {
+      return rejectWithValue(error?.response?.data?.message || error.message);
+    }
+  },
 );
 
 /* ------------------ STATE ------------------ */
@@ -53,16 +74,16 @@ const otpSlice = createSlice({
   initialState,
   reducers: {
     resetOtp: () => initialState,
-    clearOtpError: (state) => {
+    clearOtpError: state => {
       state.error = null;
     },
   },
 
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
 
       /* -------- SEND OTP -------- */
-      .addCase(sendOtp.pending, (state) => {
+      .addCase(sendOtp.pending, state => {
         state.loading = true;
         state.error = null;
         state.otpSent = false;
@@ -70,7 +91,7 @@ const otpSlice = createSlice({
       .addCase(sendOtp.fulfilled, (state, action) => {
         state.loading = false;
         state.otpSent = true;
-        state.phoneNumber = action.payload.phoneNumber;
+        state.phoneNumber = `${action.payload.cc}${action.payload.mobile}`;
         state.isNewUser = action.payload.isNewUser;
       })
       .addCase(sendOtp.rejected, (state, action) => {
@@ -79,7 +100,7 @@ const otpSlice = createSlice({
       })
 
       /* -------- VERIFY OTP -------- */
-      .addCase(verifyOtp.pending, (state) => {
+      .addCase(verifyOtp.pending, state => {
         state.loading = true;
         state.error = null;
         state.otpVerified = false;
@@ -92,6 +113,20 @@ const otpSlice = createSlice({
       .addCase(verifyOtp.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+
+      /* -------- RESEND OTP -------- */
+      .addCase(resendOtp.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(resendOtp.fulfilled, state => {
+        state.loading = false;
+        state.otpSent = true;
+      })
+      .addCase(resendOtp.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
@@ -100,7 +135,6 @@ const otpSlice = createSlice({
 
 export const { resetOtp, clearOtpError } = otpSlice.actions;
 export default otpSlice.reducer;
-
 
 // ── API Contract ──────────────────────────────────────────────────────────────
 

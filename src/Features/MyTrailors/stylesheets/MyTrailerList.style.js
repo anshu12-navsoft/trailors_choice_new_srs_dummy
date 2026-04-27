@@ -96,7 +96,7 @@ export const styles = StyleSheet.create({
     backgroundColor: '#F3F4F6',
     borderRadius: moderateScale(10),
     padding: moderateScale(4),
-    marginBottom:moderateScale(10)
+    marginBottom: moderateScale(10),
   },
   toggleTab: {
     flex: 1,
@@ -167,17 +167,6 @@ export const styles = StyleSheet.create({
     width: 64,
     height: 64,
     borderRadius: 10,
-  },
-
-  dot: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    position: 'absolute',
-    top: -3,
-    left: -3,
-    borderWidth: 2,
-    borderColor: '#fff',
   },
 
   body: {

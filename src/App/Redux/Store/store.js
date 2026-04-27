@@ -1,5 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { setUnauthorizedHandler } from '../../../Services/api';
 import authReducer from "../Slices/authSlice"
+import { logout } from "../Slices/authSlice"
 import trailerReducer from "../Slices/trailerSlice"
 import bookingReducer from "../Slices/bookingSlice"
 import ownerReducer from "../Slices/ownerSlice"
@@ -10,10 +12,12 @@ import addTrailerReducer from "../Slices/addTrailerSlice"
 import profileReducer from "../Slices/profileSlice"
 import languageReducer from "../Slices/languageSlice"
 import notificationReducer from "../Slices/notificationSlice"
+import registerReducer from "../Slices/registerSlice"
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    register: registerReducer,
     otp: otpReducer,
     trailer: trailerReducer,
     booking: bookingReducer,
@@ -26,3 +30,5 @@ export const store = configureStore({
     notification:notificationReducer
   },
 });
+
+setUnauthorizedHandler(() => store.dispatch(logout()));

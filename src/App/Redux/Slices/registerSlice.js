@@ -1,39 +1,18 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { registerApi } from '../../../Services/auth.api';
+import { registerApi } from '../../../Services/ApiList/auth.api';
 
 /* ------------------ THUNK ------------------ */
 
 export const registerUser = createAsyncThunk(
   'register/registerUser',
-  async (formData, { rejectWithValue }) => {
+  async ({ userId, payload }, { rejectWithValue }) => {
     try {
-      // API call (multipart/form-data)
-      const res = await registerApi(formData);
-
-      /**
-       * Expected response:
-       * {
-       *   success: true,
-       *   message: "Registered successfully",
-       *   data: {
-       *     user: {...},
-       *     token: "abc123" // optional
-       *   }
-       * }
-       */
-
-      const { user, token } = res?.data || {};
-
-      // 🔐 Store token if backend sends it (auto-login)
-      if (token) {
-        await AsyncStorage.setItem('ACCESS_TOKEN', token);
-      }
-
+      console.log('registerUser payload:', JSON.stringify(payload, null, 2));
+      const res = await registerApi(userId, payload);
+      console.log('registerApi raw response:', JSON.stringify(res, null, 2));
       return {
-        user: user || null,
-        token: token || null,
-        message: res?.message || 'Registered successfully',
+        user: res?.data?.user ?? null,
+        message: res?.message ?? 'Registered successfully',
       };
     } catch (error) {
       return rejectWithValue(
@@ -89,9 +68,7 @@ const registerSlice = createSlice({
       .addCase(registerUser.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
-
         state.userData = action.payload.user;
-        state.token = action.payload.token;
         state.message = action.payload.message;
       })
 

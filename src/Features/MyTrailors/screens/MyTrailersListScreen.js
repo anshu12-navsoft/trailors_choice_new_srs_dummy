@@ -213,7 +213,7 @@ const MyTrailorsListScreen = ({ navigation }) => {
               navigation.navigate('TrailerDetail', { trailer: item })
             }
             onBookingsPress={() =>
-              navigation.navigate('ActiveBookings', { trailerId: item.id })
+              navigation.navigate('MyRecentBooking', { trailerId: item.id })
             }
           />
         ))}

@@ -14,14 +14,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../../../Components/Buttons/CustomButton';
 import { styles } from '../stylesheets/Register.styles';
-
-// ─── REDUX WIRING (uncomment when backend is ready) ──────────────────────────
-// import { useDispatch, useSelector } from 'react-redux';
-// import { registerUser } from '../../../App/Redux/Slices/registerSlice';
-// ─────────────────────────────────────────────────────────────────────────────
 
 const US_STATES = [
   'Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut',
@@ -237,7 +231,7 @@ const OwnerForm = ({ form, setForm, onStatePress, onOwnerTypePress, onLogoPress 
 
 /* ── Main Screen ── */
 const Register = ({ navigation, route }) => {
-  const { phoneNumber } = route.params || {};
+  const { userId } = route.params || {};
 
   const [activeTab, setActiveTab] = useState('renter');
 
@@ -246,62 +240,36 @@ const Register = ({ navigation, route }) => {
   const [renterForm, setRenterForm] = useState({ ...defaultForm });
   const [ownerForm, setOwnerForm]   = useState({ ...defaultForm, ownerType: 'Business', businessName: '', logoUri: null });
 
-  const [showStatePicker, setShowStatePicker]     = useState(false);
+  const [showStatePicker, setShowStatePicker]         = useState(false);
   const [showOwnerTypePicker, setShowOwnerTypePicker] = useState(false);
 
-  // ── REDUX HOOKS (uncomment when backend is ready) ─────────────────────────
-  // const dispatch = useDispatch();
-  // const { loading } = useSelector(state => state.register);
-  // ─────────────────────────────────────────────────────────────────────────
 
-  const currentForm   = activeTab === 'renter' ? renterForm : ownerForm;
+  const currentForm    = activeTab === 'renter' ? renterForm : ownerForm;
   const setCurrentForm = activeTab === 'renter' ? setRenterForm : setOwnerForm;
 
-  const handleContinue = async () => {
-    if (!currentForm.firstName.trim() || !currentForm.lastName.trim()) {
-      Alert.alert('Required', 'Please enter your full name.'); return;
-    }
-    if (!currentForm.email.trim()) {
-      Alert.alert('Required', 'Please enter your email.'); return;
-    }
+  const handleContinue = () => {
+    const { firstName, lastName, email, address, city, state, zipcode } = currentForm;
 
-    // ── CURRENT FLOW (local AsyncStorage, no backend) ─────────────────────
-    try {
-      await AsyncStorage.setItem(`USER_${phoneNumber}`, JSON.stringify({
-        role: activeTab,
-        ...currentForm,
-      }));
-      navigation.navigate('Verification', { role: activeTab, phoneNumber });
-    } catch {
-      Alert.alert('Error', 'Something went wrong. Please try again.');
-    }
-    // ─────────────────────────────────────────────────────────────────────
+    if (!firstName.trim())  { Alert.alert('Required', 'Please enter your first name.');  return; }
+    if (!lastName.trim())   { Alert.alert('Required', 'Please enter your last name.');   return; }
+    if (!email.trim())      { Alert.alert('Required', 'Please enter your email.');        return; }
+    if (!address.trim())    { Alert.alert('Required', 'Please enter your address.');      return; }
+    if (!city.trim())       { Alert.alert('Required', 'Please enter your city.');         return; }
+    if (!state)             { Alert.alert('Required', 'Please select your state.');       return; }
+    if (!zipcode.trim())    { Alert.alert('Required', 'Please enter your postal code.');  return; }
 
-    // ── REDUX FLOW (uncomment when backend is ready, remove block above) ──
-    // const formData = new FormData();
-    // formData.append('role', activeTab);
-    // formData.append('firstName', currentForm.firstName);
-    // formData.append('lastName', currentForm.lastName);
-    // formData.append('email', currentForm.email);
-    // formData.append('phone', phoneNumber);
-    // formData.append('address', currentForm.address);
-    // formData.append('city', currentForm.city);
-    // formData.append('state', currentForm.state);
-    // formData.append('zipcode', currentForm.zipcode);
-    // if (activeTab === 'owner') {
-    //   formData.append('ownerType', ownerForm.ownerType);
-    //   formData.append('businessName', ownerForm.businessName);
-    //   if (ownerForm.logoUri) {
-    //     formData.append('logo', { uri: ownerForm.logoUri, name: 'logo.jpg', type: 'image/jpeg' });
-    //   }
-    // }
-    // const result = await dispatch(registerUser(formData));
-    // if (registerUser.fulfilled.match(result)) {
-    //   navigation.navigate('Verification', { role: activeTab, phoneNumber });
-    // } else {
-    //   Alert.alert('Error', result.payload || 'Registration failed.');
-    // }
-    // ─────────────────────────────────────────────────────────────────────
+    const payload = {
+      first_name:    firstName.trim(),
+      last_name:     lastName.trim(),
+      email:         email.trim(),
+      address_line1: address.trim(),
+      city:          city.trim(),
+      state,
+      postal_code:   zipcode.trim(),
+      role:          activeTab,
+    };
+
+    navigation.navigate('AccountSettings', { userId, formPayload: payload });
   };
 
   const activeState   = currentForm.state;
@@ -378,7 +346,6 @@ const Register = ({ navigation, route }) => {
             variant="primary"
             size="large"
             style={styles.continueBtn}
-            // loading={loading}   // ← uncomment with Redux flow
           />
         </ScrollView>
       </KeyboardAvoidingView>

@@ -1,18 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
+import { View, ScrollView, Pressable, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Divider, Text } from 'react-native-paper';
-import { moderateScale } from 'react-native-size-matters';
+import { Text } from 'react-native-paper';
 import { styles } from '../stylesheets/MyRecentBookings.style';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import CustomButton from '../../../Components/Buttons/CustomButton';
-import colors from '../../../Constants/Colors';
 import CustomHeader from '../../../Components/Header/CustomHeader';
 
 const MOCK_BOOKINGS = [
   {
     id: '1',
     name: 'James Wilson',
+    avatar: 'https://i.pravatar.cc/150?img=32',
     date: '24 Feb - 28 Feb',
     status: 'requested',
     extra: '7 Days Rental',
@@ -20,6 +18,7 @@ const MOCK_BOOKINGS = [
   {
     id: '2',
     name: 'James Wilson',
+    avatar: 'https://i.pravatar.cc/150?img=32',
     date: '24 Feb - 28 Feb',
     status: 'in_progress',
     extra: 'Return Tomorrow',
@@ -27,6 +26,7 @@ const MOCK_BOOKINGS = [
   {
     id: '3',
     name: 'Michael Johnson',
+    avatar: 'https://i.pravatar.cc/150?img=53',
     date: '28 Feb - 5 Mar',
     status: 'confirmed',
     extra: '3 Days Rental',
@@ -34,13 +34,23 @@ const MOCK_BOOKINGS = [
   {
     id: '4',
     name: 'Michael Johnson',
+    avatar: 'https://i.pravatar.cc/150?img=47',
     date: '5 Mar - 10 Mar',
     status: 'cancelled',
   },
   {
     id: '5',
     name: 'Michael Johnson',
+    avatar: 'https://i.pravatar.cc/150?img=60',
     date: '10 Mar - 15 Mar',
+    status: 'completed',
+    extra: '3 Days Rental',
+  },
+  {
+    id: '6',
+    name: 'Michael Johnson',
+    avatar: 'https://i.pravatar.cc/150?img=60',
+    date: '15 Mar - 20 Mar',
     status: 'completed',
     extra: '3 Days Rental',
   },
@@ -50,20 +60,15 @@ const BookingRow = ({ item }) => {
   const renderStatus = () => {
     switch (item.status) {
       case 'requested':
-        return <Text style={{ color: '#2563EB' }}>Requested</Text>;
-
+        return <Text style={styles.statusRequested}>Requested</Text>;
       case 'in_progress':
-        return <Text style={{ color: '#2563EB' }}>In Progress</Text>;
-
+        return <Text style={styles.statusInProgress}>In Progress</Text>;
       case 'confirmed':
-        return <Text style={{ color: 'green' }}>Confirmed</Text>;
-
+        return <Text style={styles.statusConfirmed}>Confirmed</Text>;
       case 'cancelled':
-        return <Text style={{ color: 'red' }}>Cancelled</Text>;
-
+        return <Text style={styles.statusCancelled}>Cancelled</Text>;
       case 'completed':
-        return <Text style={{ color: 'green' }}>Completed</Text>;
-
+        return <Text style={styles.statusCompleted}>Completed</Text>;
       default:
         return null;
     }
@@ -82,29 +87,29 @@ const BookingRow = ({ item }) => {
             </Pressable>
           </View>
         );
-
       case 'in_progress':
         return (
           <Pressable style={styles.singleBtn}>
             <Text style={styles.singleBtnText}>Confirm Return</Text>
           </Pressable>
         );
-
       case 'confirmed':
         return (
           <Pressable style={styles.singleBtn}>
             <Text style={styles.singleBtnText}>Confirm Pickup</Text>
           </Pressable>
         );
-
       case 'completed':
         return (
           <View style={styles.ratingRow}>
-            <Text>⭐ ⭐ ⭐ ⭐ ⭐</Text>
+            <View style={styles.starsRow}>
+              {[1, 2, 3, 4, 5].map(i => (
+                <Icon key={i} name="star-outline" size={24} color="#D1D5DB" />
+              ))}
+            </View>
             <Text style={styles.rateText}>Rate Renter</Text>
           </View>
         );
-
       default:
         return null;
     }
@@ -112,22 +117,17 @@ const BookingRow = ({ item }) => {
 
   return (
     <View style={styles.card}>
-      {/* Top */}
       <View style={styles.row}>
-        <View style={styles.avatar} />
-
+        <Image source={{ uri: item.avatar }} style={styles.avatar} />
         <View style={{ flex: 1 }}>
           <Text style={styles.name}>{item.name}</Text>
           <Text style={styles.date}>{item.date}</Text>
         </View>
-
         <View style={{ alignItems: 'flex-end' }}>
           {renderStatus()}
           {item.extra && <Text style={styles.extra}>{item.extra}</Text>}
         </View>
       </View>
-
-      {/* Bottom */}
       {renderActions()}
     </View>
   );
@@ -137,56 +137,30 @@ const MyRecentBookingScreen = ({ navigation }) => {
   const [bookings, setBookings] = useState(MOCK_BOOKINGS);
   const [activeTab, setActiveTab] = useState('All');
 
-  // 🔥 FUTURE: API CALL BASED ON TAB
   useEffect(() => {
     fetchBookings();
   }, [activeTab]);
 
   const fetchBookings = async () => {
     try {
-      let status = '';
-
-      switch (activeTab) {
-        case 'Active':
-          status = 'active';
-          break;
-        case 'Upcoming':
-          status = 'upcoming';
-          break;
-        case 'Completed':
-          status = 'completed';
-          break;
-        case 'All':
-        default:
-          status = '';
-      }
-
-      // 🔥 Uncomment when API is ready
-      /*
-      const res = await fetch(`/api/trailers?status=${status}`);
-      const data = await res.json();
-      setTrailers(data);
-      */
-
-      // TEMP: keep mock data
+      // TODO: replace with API call when ready
+      // const res = await fetch(`/api/bookings?status=${status}`);
+      // const data = await res.json();
+      // setBookings(data);
       setBookings(MOCK_BOOKINGS);
     } catch (err) {
       console.log(err);
     }
   };
 
-  // ✅ FILTER LOGIC (for now until API fully used)
   const getFilteredBookings = () => {
     switch (activeTab) {
       case 'Active':
-        return bookings.filter(t => t.status === 'active');
-
+        return bookings.filter(t => ['requested', 'in_progress', 'confirmed'].includes(t.status));
       case 'Upcoming':
         return bookings.filter(t => t.status === 'upcoming');
-
       case 'Completed':
         return bookings.filter(t => t.status === 'completed');
-
       case 'All':
       default:
         return bookings;
@@ -197,22 +171,15 @@ const MyRecentBookingScreen = ({ navigation }) => {
     <SafeAreaView style={styles.safe} edges={['left', 'right']}>
       <CustomHeader title="Manage Trailer" onBack={() => navigation.goBack()} />
 
-      {/* 🔥 Tabs */}
       <View style={styles.toggle}>
         {['All', 'Active', 'Upcoming', 'Completed'].map(tab => (
           <Pressable
             key={tab}
-            style={[
-              styles.toggleTab,
-              activeTab === tab && styles.toggleTabActive,
-            ]}
+            style={[styles.toggleTab, activeTab === tab && styles.toggleTabActive]}
             onPress={() => setActiveTab(tab)}
           >
             <Text
-              style={[
-                styles.toggleText,
-                activeTab === tab && styles.toggleTextActive,
-              ]}
+              style={[styles.toggleText, activeTab === tab && styles.toggleTextActive]}
             >
               {tab}
             </Text>
@@ -224,13 +191,8 @@ const MyRecentBookingScreen = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {bookings.map(item => (
-          <BookingRow
-            key={item.id}
-            item={item}
-            onAccept={() => {}}
-            onDecline={() => {}}
-          />
+        {getFilteredBookings().map(item => (
+          <BookingRow key={item.id} item={item} />
         ))}
       </ScrollView>
     </SafeAreaView>
