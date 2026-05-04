@@ -30,12 +30,13 @@ export const verifyOtp = createAsyncThunk(
       const refreshToken = res?.refresh ?? null;
       const userId       = res?.user_id ?? null;
       const isNewUser    = !(res?.profile_status?.basic_info ?? true);
+      const hasDocuments = res?.profile_status?.has_documents ?? true;
       await Promise.all([
         token        ? AsyncStorage.setItem('ACCESS_TOKEN',  token)        : null,
         refreshToken ? AsyncStorage.setItem('REFRESH_TOKEN', refreshToken) : null,
       ].filter(Boolean));
-      console.log('Stored → access:', token, '| refresh:', refreshToken, '| userId:', userId);
-      return { isNewUser, token, refreshToken, userId };
+      console.log('Stored → access:', token, '| refresh:', refreshToken, '| userId:', userId, '| hasDocuments:', hasDocuments);
+      return { isNewUser, token, refreshToken, userId, hasDocuments };
     } catch (error) {
       return rejectWithValue(error?.response?.data?.message || error.message);
     }

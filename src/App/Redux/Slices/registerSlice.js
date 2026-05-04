@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { registerApi } from '../../../Services/ApiList/auth.api';
+import { registerApi, saveDocumentsApi } from '../../../Services/ApiList/auth.api';
 
 /* ------------------ THUNK ------------------ */
 
@@ -20,6 +20,23 @@ export const registerUser = createAsyncThunk(
         error?.response?.data ||
         error.message ||
         'Registration failed'
+      );
+    }
+  }
+);
+
+export const saveDocuments = createAsyncThunk(
+  'register/saveDocuments',
+  async (formData, { rejectWithValue }) => {
+    try {
+      const res = await saveDocumentsApi(formData);
+      return res;
+    } catch (error) {
+      return rejectWithValue(
+        error?.response?.data?.message ||
+        error?.response?.data ||
+        error.message ||
+        'Failed to save documents'
       );
     }
   }
@@ -76,6 +93,20 @@ const registerSlice = createSlice({
       .addCase(registerUser.rejected, (state, action) => {
         state.loading = false;
         state.success = false;
+        state.error = action.payload || 'Something went wrong';
+      })
+
+      /* -------- SAVE DOCUMENTS -------- */
+      .addCase(saveDocuments.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(saveDocuments.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(saveDocuments.rejected, (state, action) => {
+        state.loading = false;
         state.error = action.payload || 'Something went wrong';
       });
   },

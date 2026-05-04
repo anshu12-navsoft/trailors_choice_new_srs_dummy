@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,25 +10,23 @@ import {
   Modal,
   FlatList,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useDispatch, useSelector } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import CustomButton from '../../../Components/Buttons/CustomButton';
 import { styles } from '../stylesheets/Register.styles';
-
-const US_STATES = [
-  'Alabama','Alaska','Arizona','Arkansas','California','Colorado','Connecticut',
-  'Delaware','Florida','Georgia','Hawaii','Idaho','Illinois','Indiana','Iowa',
-  'Kansas','Kentucky','Louisiana','Maine','Maryland','Massachusetts','Michigan',
-  'Minnesota','Mississippi','Missouri','Montana','Nebraska','Nevada',
-  'New Hampshire','New Jersey','New Mexico','New York','North Carolina',
-  'North Dakota','Ohio','Oklahoma','Oregon','Pennsylvania','Rhode Island',
-  'South Carolina','South Dakota','Tennessee','Texas','Utah','Vermont',
-  'Virginia','Washington','West Virginia','Wisconsin','Wyoming',
-];
+import { registerUser } from '../../../App/Redux/Slices/registerSlice';
+import { fetchStates } from '../../../App/Redux/Slices/stateSlice';
+import { fetchCities } from '../../../App/Redux/Slices/citySlice';
 
 const OWNER_TYPES = ['Business', 'Individual'];
+
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ZIPCODE_REGEX = /^\d+$/;
 
 const Field = ({ label, children }) => (
   <View style={styles.field}>
@@ -38,7 +36,7 @@ const Field = ({ label, children }) => (
 );
 
 /* ── Renter Form ── */
-const RenterForm = ({ form, setForm, onStatePress }) => (
+const RenterForm = ({ form, setForm, onStatePress, onCityPress }) => (
   <>
     <Field label="Your Name">
       <View style={styles.row}>
@@ -81,20 +79,13 @@ const RenterForm = ({ form, setForm, onStatePress }) => (
       />
     </Field>
 
-    <Field label="City">
-      <TextInput
-        style={styles.input}
-        placeholder="City"
-        placeholderTextColor="#9CA3AF"
-        value={form.city}
-        onChangeText={v => setForm(f => ({ ...f, city: v }))}
-      />
-    </Field>
-
-    <View style={styles.row}>
+    <View style={[styles.row, { marginBottom: moderateScale(16) }]}>
       <View style={styles.fieldHalf}>
         <Text style={styles.label}>State</Text>
-        <Pressable style={[styles.iconInput, styles.halfInput]} onPress={onStatePress}>
+        <Pressable
+          style={[styles.iconInput, styles.halfInput]}
+          onPress={onStatePress}
+        >
           <Text style={[styles.inputText, !form.state && styles.placeholder]}>
             {form.state || 'State'}
           </Text>
@@ -113,11 +104,30 @@ const RenterForm = ({ form, setForm, onStatePress }) => (
         />
       </View>
     </View>
+
+    <Field label="City">
+      <Pressable
+        style={[styles.iconInput, !form.stateCode && { opacity: 0.5 }]}
+        onPress={form.stateCode ? onCityPress : undefined}
+      >
+        <Text style={[styles.inputText, !form.city && styles.placeholder]}>
+          {form.city || (form.stateCode ? 'Select city' : 'Select state first')}
+        </Text>
+        <Icon name="chevron-down" size={moderateScale(18)} color="#6B7280" />
+      </Pressable>
+    </Field>
   </>
 );
 
 /* ── Owner Form ── */
-const OwnerForm = ({ form, setForm, onStatePress, onOwnerTypePress, onLogoPress }) => (
+const OwnerForm = ({
+  form,
+  setForm,
+  onStatePress,
+  onCityPress,
+  onOwnerTypePress,
+  onLogoPress,
+}) => (
   <>
     <Field label="Your Name">
       <View style={styles.row}>
@@ -181,20 +191,13 @@ const OwnerForm = ({ form, setForm, onStatePress, onOwnerTypePress, onLogoPress 
       />
     </Field>
 
-    <Field label="City">
-      <TextInput
-        style={styles.input}
-        placeholder="City"
-        placeholderTextColor="#9CA3AF"
-        value={form.city}
-        onChangeText={v => setForm(f => ({ ...f, city: v }))}
-      />
-    </Field>
-
-    <View style={styles.row}>
+    <View style={[styles.row, { marginBottom: moderateScale(16) }]}>
       <View style={styles.fieldHalf}>
         <Text style={styles.label}>State</Text>
-        <Pressable style={[styles.iconInput, styles.halfInput]} onPress={onStatePress}>
+        <Pressable
+          style={[styles.iconInput, styles.halfInput]}
+          onPress={onStatePress}
+        >
           <Text style={[styles.inputText, !form.state && styles.placeholder]}>
             {form.state || 'State'}
           </Text>
@@ -214,10 +217,24 @@ const OwnerForm = ({ form, setForm, onStatePress, onOwnerTypePress, onLogoPress 
       </View>
     </View>
 
+    <Field label="City">
+      <Pressable
+        style={[styles.iconInput, !form.stateCode && { opacity: 0.5 }]}
+        onPress={form.stateCode ? onCityPress : undefined}
+      >
+        <Text style={[styles.inputText, !form.city && styles.placeholder]}>
+          {form.city || (form.stateCode ? 'Select city' : 'Select state first')}
+        </Text>
+        <Icon name="chevron-down" size={moderateScale(18)} color="#6B7280" />
+      </Pressable>
+    </Field>
+
     <Field label="Company Logo">
       <Pressable style={styles.uploadBox} onPress={onLogoPress}>
         {form.logoUri ? (
-          <Text style={styles.uploadedText} numberOfLines={1}>{form.logoUri.split('/').pop()}</Text>
+          <Text style={styles.uploadedText} numberOfLines={1}>
+            {form.logoUri.split('/').pop()}
+          </Text>
         ) : (
           <View style={styles.uploadPlaceholder}>
             <Icon name="image-plus" size={moderateScale(22)} color="#3B5BDB" />
@@ -232,48 +249,127 @@ const OwnerForm = ({ form, setForm, onStatePress, onOwnerTypePress, onLogoPress 
 /* ── Main Screen ── */
 const Register = ({ navigation, route }) => {
   const { userId } = route.params || {};
+  const dispatch = useDispatch();
+  const { loading } = useSelector(state => state.register);
+  const { states } = useSelector(state => state.state);
+  const { cities, loading: citiesLoading } = useSelector(state => state.city);
 
   const [activeTab, setActiveTab] = useState('renter');
 
-  const defaultForm = { firstName: '', lastName: '', email: '', address: '', city: '', state: '', zipcode: '' };
-
-  const [renterForm, setRenterForm] = useState({ ...defaultForm });
-  const [ownerForm, setOwnerForm]   = useState({ ...defaultForm, ownerType: 'Business', businessName: '', logoUri: null });
-
-  const [showStatePicker, setShowStatePicker]         = useState(false);
-  const [showOwnerTypePicker, setShowOwnerTypePicker] = useState(false);
-
-
-  const currentForm    = activeTab === 'renter' ? renterForm : ownerForm;
-  const setCurrentForm = activeTab === 'renter' ? setRenterForm : setOwnerForm;
-
-  const handleContinue = () => {
-    const { firstName, lastName, email, address, city, state, zipcode } = currentForm;
-
-    if (!firstName.trim())  { Alert.alert('Required', 'Please enter your first name.');  return; }
-    if (!lastName.trim())   { Alert.alert('Required', 'Please enter your last name.');   return; }
-    if (!email.trim())      { Alert.alert('Required', 'Please enter your email.');        return; }
-    if (!address.trim())    { Alert.alert('Required', 'Please enter your address.');      return; }
-    if (!city.trim())       { Alert.alert('Required', 'Please enter your city.');         return; }
-    if (!state)             { Alert.alert('Required', 'Please select your state.');       return; }
-    if (!zipcode.trim())    { Alert.alert('Required', 'Please enter your postal code.');  return; }
-
-    const payload = {
-      first_name:    firstName.trim(),
-      last_name:     lastName.trim(),
-      email:         email.trim(),
-      address_line1: address.trim(),
-      city:          city.trim(),
-      state,
-      postal_code:   zipcode.trim(),
-      role:          activeTab,
-    };
-
-    navigation.navigate('AccountSettings', { userId, formPayload: payload });
+  const defaultForm = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    address: '',
+    city: '',
+    state: '',      // display name
+    stateCode: '', // code sent to API, e.g. "US-NY"
+    zipcode: '',
   };
 
-  const activeState   = currentForm.state;
-  const setActiveState = v => setCurrentForm(f => ({ ...f, state: v }));
+  const [renterForm, setRenterForm] = useState({ ...defaultForm });
+  const [ownerForm, setOwnerForm] = useState({
+    ...defaultForm,
+    ownerType: 'Business',
+    businessName: '',
+    logoUri: null,
+  });
+
+  const [showStatePicker, setShowStatePicker] = useState(false);
+  const [showCityPicker, setShowCityPicker] = useState(false);
+  const [showOwnerTypePicker, setShowOwnerTypePicker] = useState(false);
+
+  const currentForm = activeTab === 'renter' ? renterForm : ownerForm;
+  const setCurrentForm = activeTab === 'renter' ? setRenterForm : setOwnerForm;
+
+  useEffect(() => {
+    dispatch(fetchStates());
+  }, []);
+
+  const handleStateSelect = (item) => {
+    setCurrentForm(f => ({ ...f, state: item.name, stateCode: item.code, city: '' }));
+    dispatch(fetchCities(item.code));
+    setShowStatePicker(false);
+  };
+
+  const handleContinue = () => {
+    const { firstName, lastName, email, address, city, stateCode, zipcode } =
+      currentForm;
+
+    if (!firstName.trim()) {
+      Alert.alert('Required', 'Please enter your first name.');
+      return;
+    }
+    if (!lastName.trim()) {
+      Alert.alert('Required', 'Please enter your last name.');
+      return;
+    }
+    if (!email.trim()) {
+      Alert.alert('Required', 'Please enter your email.');
+      return;
+    }
+    if (!EMAIL_REGEX.test(email.trim())) {
+      Alert.alert(
+        'Invalid Email',
+        'Please enter a valid email address (e.g. user@example.com).',
+      );
+      return;
+    }
+    if (!address.trim()) {
+      Alert.alert('Required', 'Please enter your address.');
+      return;
+    }
+    if (!stateCode) {
+      Alert.alert('Required', 'Please select your state.');
+      return;
+    }
+    if (!zipcode.trim()) {
+      Alert.alert('Required', 'Please enter your postal code.');
+      return;
+    }
+    if (!ZIPCODE_REGEX.test(zipcode.trim())) {
+      Alert.alert(
+        'Invalid Postal Code',
+        'Postal code must contain numbers only.',
+      );
+      return;
+    }
+    if (!city) {
+      Alert.alert('Required', 'Please select your city.');
+      return;
+    }
+    if (
+      activeTab === 'owner' &&
+      currentForm.ownerType === 'Business' &&
+      !currentForm.businessName?.trim()
+    ) {
+      Alert.alert('Required', 'Please enter your business name.');
+      return;
+    }
+
+    const payload = {
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
+      email: email.trim(),
+      address_line1: address.trim(),
+      city,
+      state: stateCode,
+      postal_code: zipcode.trim(),
+      role: activeTab,
+    };
+
+    dispatch(registerUser({ userId, payload })).then(async result => {
+      if (registerUser.fulfilled.match(result)) {
+        await AsyncStorage.setItem('USER_ROLE', activeTab);
+        navigation.navigate('AccountSettings', { role: activeTab, userId });
+      } else {
+        Alert.alert(
+          'Registration Failed',
+          result.payload || 'Something went wrong. Please try again.',
+        );
+      }
+    });
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
@@ -282,7 +378,11 @@ const Register = ({ navigation, route }) => {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {/* Back button */}
-        <Pressable style={styles.backBtn} onPress={() => navigation.goBack()} hitSlop={10}>
+        <Pressable
+          style={styles.backBtn}
+          onPress={() => navigation.goBack()}
+          hitSlop={10}
+        >
           <Icon name="arrow-left" size={moderateScale(22)} color="#111827" />
         </Pressable>
 
@@ -299,7 +399,12 @@ const Register = ({ navigation, route }) => {
               style={[styles.tab, activeTab === 'renter' && styles.tabActive]}
               onPress={() => setActiveTab('renter')}
             >
-              <Text style={[styles.tabText, activeTab === 'renter' && styles.tabTextActive]}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === 'renter' && styles.tabTextActive,
+                ]}
+              >
                 I'm a Renter
               </Text>
             </Pressable>
@@ -307,7 +412,12 @@ const Register = ({ navigation, route }) => {
               style={[styles.tab, activeTab === 'owner' && styles.tabActive]}
               onPress={() => setActiveTab('owner')}
             >
-              <Text style={[styles.tabText, activeTab === 'owner' && styles.tabTextActive]}>
+              <Text
+                style={[
+                  styles.tabText,
+                  activeTab === 'owner' && styles.tabTextActive,
+                ]}
+              >
                 I'm an Owner
               </Text>
             </Pressable>
@@ -319,15 +429,16 @@ const Register = ({ navigation, route }) => {
               form={renterForm}
               setForm={setRenterForm}
               onStatePress={() => setShowStatePicker(true)}
+              onCityPress={() => setShowCityPicker(true)}
             />
           ) : (
             <OwnerForm
               form={ownerForm}
               setForm={setOwnerForm}
               onStatePress={() => setShowStatePicker(true)}
+              onCityPress={() => setShowCityPicker(true)}
               onOwnerTypePress={() => setShowOwnerTypePicker(true)}
               onLogoPress={() => {
-                // TODO: wire react-native-image-picker here
                 Alert.alert('Upload', 'Image picker not wired yet.');
               }}
             />
@@ -335,8 +446,7 @@ const Register = ({ navigation, route }) => {
 
           {/* Terms */}
           <Text style={styles.terms}>
-            By clicking{' '}
-            <Text style={styles.termsBold}>Agree and Continue</Text>
+            By clicking <Text style={styles.termsBold}>Agree and Continue</Text>
             , I agree to the terms of service and privacy policy
           </Text>
 
@@ -346,25 +456,35 @@ const Register = ({ navigation, route }) => {
             variant="primary"
             size="large"
             style={styles.continueBtn}
+            loading={loading}
+            disabled={loading}
           />
         </ScrollView>
       </KeyboardAvoidingView>
 
       {/* State picker modal */}
       <Modal visible={showStatePicker} animationType="slide" transparent>
-        <Pressable style={styles.modalOverlay} onPress={() => setShowStatePicker(false)} />
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setShowStatePicker(false)}
+        />
         <View style={styles.modalSheet}>
           <Text style={styles.modalTitle}>Select State</Text>
           <FlatList
-            data={US_STATES}
-            keyExtractor={item => item}
+            data={states}
+            keyExtractor={item => item.id?.toString() ?? item.name}
             renderItem={({ item }) => (
               <Pressable
                 style={styles.stateItem}
-                onPress={() => { setActiveState(item); setShowStatePicker(false); }}
+                onPress={() => handleStateSelect(item)}
               >
-                <Text style={[styles.stateItemText, activeState === item && styles.stateItemActive]}>
-                  {item}
+                <Text
+                  style={[
+                    styles.stateItemText,
+                    currentForm.state === item.name && styles.stateItemActive,
+                  ]}
+                >
+                  {item.name}
                 </Text>
               </Pressable>
             )}
@@ -372,9 +492,52 @@ const Register = ({ navigation, route }) => {
         </View>
       </Modal>
 
+      {/* City picker modal */}
+      <Modal visible={showCityPicker} animationType="slide" transparent>
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setShowCityPicker(false)}
+        />
+        <View style={styles.modalSheet}>
+          <Text style={styles.modalTitle}>Select City</Text>
+          {citiesLoading ? (
+            <ActivityIndicator
+              style={{ padding: moderateScale(24) }}
+              color="#3B5BDB"
+            />
+          ) : (
+            <FlatList
+              data={cities}
+              keyExtractor={item => item.id?.toString() ?? item.name}
+              renderItem={({ item }) => (
+                <Pressable
+                  style={styles.stateItem}
+                  onPress={() => {
+                    setCurrentForm(f => ({ ...f, city: item.name }));
+                    setShowCityPicker(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.stateItemText,
+                      currentForm.city === item.name && styles.stateItemActive,
+                    ]}
+                  >
+                    {item.name}
+                  </Text>
+                </Pressable>
+              )}
+            />
+          )}
+        </View>
+      </Modal>
+
       {/* Owner type picker modal */}
       <Modal visible={showOwnerTypePicker} animationType="slide" transparent>
-        <Pressable style={styles.modalOverlay} onPress={() => setShowOwnerTypePicker(false)} />
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setShowOwnerTypePicker(false)}
+        />
         <View style={styles.modalSheet}>
           <Text style={styles.modalTitle}>Owner Type</Text>
           {OWNER_TYPES.map(item => (
@@ -386,7 +549,12 @@ const Register = ({ navigation, route }) => {
                 setShowOwnerTypePicker(false);
               }}
             >
-              <Text style={[styles.stateItemText, ownerForm.ownerType === item && styles.stateItemActive]}>
+              <Text
+                style={[
+                  styles.stateItemText,
+                  ownerForm.ownerType === item && styles.stateItemActive,
+                ]}
+              >
                 {item}
               </Text>
             </Pressable>

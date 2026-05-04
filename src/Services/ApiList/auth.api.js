@@ -33,6 +33,13 @@ export const registerApi = async (userId, payload) => {
 
 
 
+export const saveDocumentsApi = async (formData) => {
+  const response = await api.post('user/save-documents/', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+  });
+  return response.data;
+};
+
 export const logoutApi = async (refresh) => {
   const response = await api.post('user/logout/', { refresh });
   return response.data;

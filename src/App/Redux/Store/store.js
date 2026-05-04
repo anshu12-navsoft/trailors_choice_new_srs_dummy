@@ -13,6 +13,8 @@ import profileReducer from "../Slices/profileSlice"
 import languageReducer from "../Slices/languageSlice"
 import notificationReducer from "../Slices/notificationSlice"
 import registerReducer from "../Slices/registerSlice"
+import stateReducer from "../Slices/stateSlice"
+import cityReducer from "../Slices/citySlice"
 
 export const store = configureStore({
   reducer: {
@@ -27,7 +29,9 @@ export const store = configureStore({
     addTrailer: addTrailerReducer,
     profile: profileReducer,
     language: languageReducer,
-    notification:notificationReducer
+    notification: notificationReducer,
+    state: stateReducer,
+    city: cityReducer,
   },
 });
 

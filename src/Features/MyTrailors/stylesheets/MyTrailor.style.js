@@ -87,6 +87,7 @@ export const styles = StyleSheet.create({
   earningsRow: {
     flexDirection: 'row',
     alignSelf: 'stretch',
+    paddingBottom:moderateScale(10)
   },
   earningsCol: {
     flex: 1,
@@ -115,8 +116,10 @@ export const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: moderateScale(16),
-    paddingVertical: moderateScale(14),
+    paddingHorizontal: moderateScale(60),
+    paddingVertical: moderateScale(10),
+    borderWidth:1,
+    borderColor:colors.primaryDark,borderRadius:moderateScale(8)
   },
   downloadText: {
     fontSize: Fonts.size.sm,

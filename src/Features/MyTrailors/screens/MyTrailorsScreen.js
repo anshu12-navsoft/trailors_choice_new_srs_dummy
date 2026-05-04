@@ -1,34 +1,15 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StyleSheet, ScrollView, Pressable, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Divider, Text } from 'react-native-paper';
+import { Text } from 'react-native-paper';
 import { moderateScale } from 'react-native-size-matters';
 import { styles } from '../stylesheets/MyTrailor.style';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import CustomButton from '../../../Components/Buttons/CustomButton';
 import colors from '../../../Constants/Colors';
 import CustomHeader from '../../../Components/Header/CustomHeader';
-
-const MOCK_TRAILERS = [
-  {
-    id: '1',
-    name: 'Tandem Axel',
-    earnings: 1236.0,
-    status: 'pending',
-    rating: null,
-    reviewCount: null,
-    thumbnail: null,
-  },
-  {
-    id: '2',
-    name: 'Tandem Axel',
-    earnings: 1236.0,
-    status: 'active',
-    rating: 4.5,
-    reviewCount: 55,
-    thumbnail: null,
-  },
-];
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchMyTrailers } from '../../../App/Redux/Slices/addTrailerSlice';
 
 const MOCK_BOOKINGS = [
   {
@@ -60,17 +41,18 @@ const STATUS_CFG = {
 
 const TrailerRow = ({ item, onPress }) => {
   const cfg = STATUS_CFG[item.status] ?? STATUS_CFG.inactive;
-  const earningsLabel = `$${item.earnings.toLocaleString('en-US', {
-    minimumFractionDigits: 2,
-  })}`;
+  const displayName = item.title || item.makeModel || item.name || 'Trailer';
+  const thumbnail = item.thumbnail || item.mediaPhotoUrls?.[0] || null;
+  const earnings = item.earnings ?? 0;
+  const earningsLabel = `$${earnings.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
   return (
     <Pressable style={styles.trailerRow} onPress={onPress}>
       <View style={styles.thumbWrapper}>
         <View style={styles.thumb}>
-          {item.thumbnail ? (
+          {thumbnail ? (
             <Image
-              source={{ uri: item.thumbnail }}
+              source={{ uri: thumbnail }}
               style={StyleSheet.absoluteFill}
               resizeMode="cover"
             />
@@ -83,7 +65,7 @@ const TrailerRow = ({ item, onPress }) => {
 
       <View style={styles.body}>
         <Text style={styles.trailerName} numberOfLines={1}>
-          {item.name}
+          {displayName}
         </Text>
         <Text style={styles.earnings}>Earnings: {earningsLabel}</Text>
         <View style={styles.bottomRow}>
@@ -92,7 +74,7 @@ const TrailerRow = ({ item, onPress }) => {
               {cfg.label}
             </Text>
           </View>
-          {item.status === 'active' && item.rating !== null && (
+          {item.status === 'active' && item.rating != null && (
             <View style={styles.ratingRow}>
               <Icon name="star" size={moderateScale(13)} color="#F59E0B" />
               <Text style={styles.ratingText}>
@@ -155,8 +137,15 @@ const BookingRow = ({ item, onAccept, onDecline }) => {
 };
 
 const MyTrailorsScreen = ({ navigation }) => {
-  const [trailers] = useState(MOCK_TRAILERS);
+  const dispatch = useDispatch();
+  const { myTrailers, loading } = useSelector(state => state.addTrailer);
   const [bookings] = useState(MOCK_BOOKINGS);
+
+  useEffect(() => {
+    dispatch(fetchMyTrailers());
+  }, [dispatch]);
+
+  const previewTrailers = myTrailers.slice(0, 3);
 
   return (
     <SafeAreaView style={styles.safe} edges={['left', 'right']}>
@@ -203,44 +192,11 @@ const MyTrailorsScreen = ({ navigation }) => {
               <Text style={styles.payoutValue}>$1200.00</Text>
             </View>
           </View>
+          <Pressable style={styles.downloadRow}>
+            <Text style={styles.downloadText}>Download Payout Statement</Text>
+          </Pressable>
         </View>
-        <Divider
-          style={{
-            marginTop: moderateScale(12),
-            marginLeft: moderateScale(16),
-            marginRight: moderateScale(16),
-            marginBottom: moderateScale(0),
-          }}
-        />
-        {/* Download links */}
-        <Pressable style={styles.downloadRow}>
-          <Text style={styles.downloadText}>Download Payout Statement</Text>
-          <Icon
-            name="chevron-right"
-            size={moderateScale(20)}
-            color={colors.primary}
-          />
-        </Pressable>
-        <Divider
-          style={{
-            marginLeft: moderateScale(16),
-            marginRight: moderateScale(16),
-          }}
-        />
-        <Pressable style={styles.downloadRow}>
-          <Text style={styles.downloadText}>Download Invoice</Text>
-          <Icon
-            name="chevron-right"
-            size={moderateScale(20)}
-            color={colors.primary}
-          />
-        </Pressable>
-        <Divider
-          style={{
-            marginLeft: moderateScale(16),
-            marginRight: moderateScale(16),
-          }}
-        />
+
         {/* Rating & Trust Score card */}
         <View style={styles.ratingInfoCard}>
           <View style={styles.ratingSection}>
@@ -275,15 +231,23 @@ const MyTrailorsScreen = ({ navigation }) => {
           </Pressable>
         </View>
 
-        {trailers.map(item => (
-          <TrailerRow
-            key={item.id}
-            item={item}
-            onPress={() =>
-              navigation.navigate('TrailerDetail', { trailer: item })
-            }
+        {loading ? (
+          <ActivityIndicator
+            size="small"
+            color={colors.primary}
+            style={{ marginVertical: moderateScale(12) }}
           />
-        ))}
+        ) : (
+          previewTrailers.map(item => (
+            <TrailerRow
+              key={item.id}
+              item={item}
+              onPress={() =>
+                navigation.navigate('TrailerDetail', { trailer: item })
+              }
+            />
+          ))
+        )}
 
         {/* Recent Bookings section */}
         <View style={styles.sectionHeader}>

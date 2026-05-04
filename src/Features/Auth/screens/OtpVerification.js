@@ -49,10 +49,13 @@ const OtpVerification = ({ navigation, route }) => {
     dispatch(verifyOtp({ mobile, otp: parseInt(otp, 10), cc })).then(result => {
       console.log('verifyOtp result:', JSON.stringify(result, null, 2));
       if (verifyOtp.fulfilled.match(result)) {
-        console.log('OTP verified ✅ | isNewUser:', result.payload.isNewUser, '| token:', result.payload.token);
+        const { isNewUser, hasDocuments, userId: resolvedUserId } = result.payload;
+        console.log('OTP verified ✅ | isNewUser:', isNewUser, '| hasDocuments:', hasDocuments);
         dispatch(resetOtp());
-        if (result.payload.isNewUser) {
-          navigation.navigate('Register', { phoneNumber, userId: result.payload.userId });
+        if (isNewUser) {
+          navigation.navigate('Register', { phoneNumber, userId: resolvedUserId });
+        } else if (!hasDocuments) {
+          navigation.navigate('AccountSettings', { userId: resolvedUserId });
         } else {
           dispatch(loginSuccess());
         }

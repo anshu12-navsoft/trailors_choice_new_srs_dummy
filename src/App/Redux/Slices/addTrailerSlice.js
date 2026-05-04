@@ -4,7 +4,31 @@ import {
   updateTrailerAPI,
   deleteTrailerAPI,
   fetchMyTrailersAPI,
-} from '../../../Services/addTrailer.api';
+} from '../../../Services/ApiList/addTrailer.api';
+import { fetchCategoriesAPI } from '../../../Services/ApiList/category.api';
+
+export const fetchCategories = createAsyncThunk(
+  'addTrailer/fetchCategories',
+  async (_, { rejectWithValue }) => {
+    try {
+      const res = await fetchCategoriesAPI();
+      console.log(
+        'fetchCategories raw res.data:',
+        JSON.stringify(res.data, null, 2),
+      );
+      return res.data;
+    } catch (err) {
+      console.log(
+        'fetchCategories ERROR:',
+        err.response?.status,
+        err.response?.data || err.message,
+      );
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to load categories',
+      );
+    }
+  },
+);
 
 // ── Async Thunks ──────────────────────────────────────────────────────────
 
@@ -15,9 +39,11 @@ export const submitTrailer = createAsyncThunk(
       const res = await addTrailerAPI(formData);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to add trailer');
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to add trailer',
+      );
     }
-  }
+  },
 );
 
 export const updateTrailer = createAsyncThunk(
@@ -27,9 +53,11 @@ export const updateTrailer = createAsyncThunk(
       const res = await updateTrailerAPI(id, data);
       return res.data;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to update trailer');
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to update trailer',
+      );
     }
-  }
+  },
 );
 
 export const deleteTrailer = createAsyncThunk(
@@ -39,21 +67,29 @@ export const deleteTrailer = createAsyncThunk(
       await deleteTrailerAPI(id);
       return id;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to delete trailer');
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to delete trailer',
+      );
     }
-  }
+  },
 );
 
 export const fetchMyTrailers = createAsyncThunk(
   'addTrailer/fetchMine',
-  async (_, { rejectWithValue }) => {
+  async ({ status = '', page = 1, limit = 10 } = {}, { rejectWithValue }) => {
     try {
-      const res = await fetchMyTrailersAPI();
-      return res.data;
+      const res = await fetchMyTrailersAPI({ status, page, limit });
+      return {
+        items: Array.isArray(res.data.results) ? res.data.results : (Array.isArray(res.data) ? res.data : []),
+        hasMore: !!res.data.next,
+        page,
+      };
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || 'Failed to load your trailers');
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to load your trailers',
+      );
     }
-  }
+  },
 );
 
 // ── Initial form draft ────────────────────────────────────────────────────
@@ -104,6 +140,9 @@ const addTrailerSlice = createSlice({
   initialState: {
     draft: { ...INITIAL_DRAFT },
     myTrailers: [],
+    myTrailersHasMore: true,
+    categories: [],
+    categoriesLoading: false,
     loading: false,
     error: null,
     successMessage: null,
@@ -150,38 +189,89 @@ const addTrailerSlice = createSlice({
   extraReducers: builder => {
     builder
       // submitTrailer
-      .addCase(submitTrailer.pending, state => { state.loading = true; state.error = null; })
+      .addCase(submitTrailer.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(submitTrailer.fulfilled, (state, action) => {
         state.loading = false;
         state.myTrailers.unshift(action.payload);
         state.successMessage = 'Trailer listed successfully!';
         state.draft = { ...INITIAL_DRAFT };
       })
-      .addCase(submitTrailer.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+      .addCase(submitTrailer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
       // updateTrailer
-      .addCase(updateTrailer.pending, state => { state.loading = true; state.error = null; })
+      .addCase(updateTrailer.pending, state => {
+        state.loading = true;
+        state.error = null;
+      })
       .addCase(updateTrailer.fulfilled, (state, action) => {
         state.loading = false;
         const idx = state.myTrailers.findIndex(t => t.id === action.payload.id);
         if (idx >= 0) state.myTrailers[idx] = action.payload;
         state.successMessage = 'Trailer updated successfully!';
       })
-      .addCase(updateTrailer.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+      .addCase(updateTrailer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
       // deleteTrailer
-      .addCase(deleteTrailer.pending, state => { state.loading = true; })
+      .addCase(deleteTrailer.pending, state => {
+        state.loading = true;
+      })
       .addCase(deleteTrailer.fulfilled, (state, action) => {
         state.loading = false;
-        state.myTrailers = state.myTrailers.filter(t => t.id !== action.payload);
+        state.myTrailers = state.myTrailers.filter(
+          t => t.id !== action.payload,
+        );
         state.successMessage = 'Trailer deleted.';
       })
-      .addCase(deleteTrailer.rejected, (state, action) => { state.loading = false; state.error = action.payload; })
+      .addCase(deleteTrailer.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
 
       // fetchMyTrailers
-      .addCase(fetchMyTrailers.pending, state => { state.loading = true; })
-      .addCase(fetchMyTrailers.fulfilled, (state, action) => { state.loading = false; state.myTrailers = action.payload; })
-      .addCase(fetchMyTrailers.rejected, (state, action) => { state.loading = false; state.error = action.payload; });
+      .addCase(fetchMyTrailers.pending, state => {
+        state.loading = true;
+      })
+      .addCase(fetchMyTrailers.fulfilled, (state, action) => {
+        state.loading = false;
+        const { items, hasMore, page } = action.payload;
+        if (page === 1) {
+          state.myTrailers = items;
+        } else {
+          state.myTrailers = [...state.myTrailers, ...items];
+        }
+        state.myTrailersHasMore = hasMore;
+      })
+      .addCase(fetchMyTrailers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+
+      // fetchCategories
+      .addCase(fetchCategories.pending, state => {
+        state.categoriesLoading = true;
+      })
+      .addCase(fetchCategories.fulfilled, (state, action) => {
+        state.categoriesLoading = false;
+        const resolved = action.payload?.data ?? action.payload ?? [];
+        console.log(
+          'fetchCategories resolved categories:',
+          JSON.stringify(resolved, null, 2),
+        );
+        state.categories = Array.isArray(resolved) ? resolved : [];
+      })
+      .addCase(fetchCategories.rejected, (state, action) => {
+        state.categoriesLoading = false;
+        console.log('fetchCategories rejected:', action.payload);
+      });
   },
 });
 

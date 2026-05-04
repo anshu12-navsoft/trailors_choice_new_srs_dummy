@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   ScrollView,
@@ -17,22 +17,10 @@ import CustomSearchInput from '../../../Components/TextInput/CustomSearchInput';
 import CustomIconButton from '../../../Components/Buttons/CustomIconButton';
 import CustomButton from '../../../Components/Buttons/CustomButton';
 import CustomCards from '../../../Components/Card/CustomCards';
-import TrailerCard from "../components/TrailerCard"
-import {styles} from "../stylesheets/Home.style"
-
+import TrailerCard from '../components/TrailerCard';
+import { styles } from '../stylesheets/Home.style';
+import { fetchCategories } from '../../../App/Redux/Slices/addTrailerSlice';
 /* ── Mock data ───────────────────────────────────────────────────────────── */
-
-const CATEGORIES = [
-  { id: '1', label: 'Utility' },
-  { id: '2', label: 'Car Hauler' },
-  { id: '3', label: 'Enclosed' },
-  { id: '4', label: 'Flatbed' },
-  { id: '5', label: 'Dump' },
-  { id: '6', label: 'Boat' },
-  { id: '7', label: 'Gooseneck' },
-  { id: '8', label: 'Horse' },
-  { id: '9', label: 'Livestock' },
-];
 
 const MOCK_TRAILERS = [
   {
@@ -71,7 +59,7 @@ const MOCK_TRAILERS = [
     priceDay: 50,
     priceWeek: 150,
   },
-   {
+  {
     id: '5',
     title: 'Tandem Axel',
     distance: '2.4 miles',
@@ -122,8 +110,6 @@ const CategoryItem = ({ label }) => (
   </View>
 );
 
-
-
 /* ── Screen ──────────────────────────────────────────────────────────────── */
 
 const Home = ({ navigation }) => {
@@ -131,29 +117,45 @@ const Home = ({ navigation }) => {
   const [search, setSearch] = useState('');
   const dispatch = useDispatch();
   const favorites = useSelector(state => state.trailer.favorites);
-
+  const { loading, error, successMessage, categories, categoriesLoading } =
+    useSelector(s => s.addTrailer);
+  console.log('Categories dispatched=====>>>>', categories);
+  const categoryOptions = categories.map(c => ({ label: c.name, value: c.id }));
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, []);
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]} edges={['top', 'left', 'right']}>
+    <SafeAreaView
+      style={[styles.safe, { backgroundColor: colors.background }]}
+      edges={['top', 'left', 'right']}
+    >
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* ── Top bar ── */}
         <View style={styles.topBar}>
-          <Pressable onPress={() => navigation.toggleDrawer()} style={styles.logoWrapper}>
+          <Pressable
+            onPress={() => navigation.toggleDrawer()}
+            style={styles.logoWrapper}
+          >
             <Text style={styles.logoT}>T</Text>
             <Text style={styles.logoC}>C</Text>
           </Pressable>
-          <View style={{ flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center'}}>
-         <CustomIconButton
-            icon="bell"
-            variant="ghost"
-            onPress={() => navigation.navigate('Notification')}
-          />
-          <CustomIconButton
-            icon="account-circle"
-            variant="ghost"
-            onPress={() => navigation.navigate('Profile')}
-          />
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <CustomIconButton
+              icon="bell"
+              variant="ghost"
+              onPress={() => navigation.navigate('Notification')}
+            />
+            <CustomIconButton
+              icon="account-circle"
+              variant="ghost"
+              onPress={() => navigation.navigate('Profile')}
+            />
           </View>
         </View>
 
@@ -173,9 +175,12 @@ const Home = ({ navigation }) => {
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoriesRow}
         >
-          {CATEGORIES.map(cat => (
-            <CategoryItem key={cat.id} label={cat.label} />
-          ))}
+          {categoryOptions.map(
+            cat => (
+              console.log('Categories======>>>', cat),
+              (<CategoryItem key={cat.value} label={cat.label} />)
+            ),
+          )}
         </ScrollView>
 
         {/* ── Trailers Near You ── */}
@@ -222,7 +227,5 @@ const Home = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
-
 
 export default Home;

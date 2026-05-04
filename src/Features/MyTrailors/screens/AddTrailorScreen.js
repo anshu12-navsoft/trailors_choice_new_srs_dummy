@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -11,8 +11,10 @@ import {
   Platform,
   UIManager,
   Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useDispatch, useSelector } from 'react-redux';
 import { moderateScale, verticalScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/Feather';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -23,6 +25,11 @@ import colors from '../../../Constants/Colors';
 import Fonts from '../../../Theme/Fonts';
 import { styles } from '../stylesheets/AddTrailor.style';
 import CustomHeader from '../../../Components/Header/CustomHeader';
+import {
+  submitTrailer,
+  clearMessages,
+  fetchCategories,
+} from '../../../App/Redux/Slices/addTrailerSlice';
 
 if (
   Platform.OS === 'android' &&
@@ -32,17 +39,6 @@ if (
 }
 
 const TOTAL_STEPS = 3;
-
-const TRAILER_CATEGORIES = [
-  { label: 'Flatbed', value: 'flatbed' },
-  { label: 'Enclosed', value: 'enclosed' },
-  { label: 'Dump', value: 'dump' },
-  { label: 'Utility', value: 'utility' },
-  { label: 'Car Hauler', value: 'car_hauler' },
-  { label: 'Livestock', value: 'livestock' },
-  { label: 'Boat', value: 'boat' },
-  { label: 'Travel', value: 'travel' },
-];
 
 // ── Segmented Progress Bar ────────────────────────────────────────────────
 const SegmentedTracker = ({ currentStep }) => (
@@ -164,29 +160,19 @@ const photo = StyleSheet.create({
 });
 
 // ── Step 1 — Trailer Detail ───────────────────────────────────────────────
-const StepOne = ({ form, setForm }) => {
+const StepOne = ({ form, setForm, categoryOptions, categoriesLoading }) => {
   const { t } = useTranslation();
   const specs = form.specs || {};
   const features = form.features || {};
-  const handlePickMain = () => {
-    launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, res => {
-      if (res.assets?.[0]?.uri) {
-        setForm(f => ({ ...f, mainPhoto: res.assets[0].uri }));
-      }
-    });
-  };
 
-  const handlePickThumb = index => {
-    launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, res => {
-      if (res.assets?.[0]?.uri) {
-        setForm(f => {
-          const thumbs = [...(f.thumbPhotos || [null, null, null])];
-          thumbs[index] = res.assets[0].uri;
-          return { ...f, thumbPhotos: thumbs };
-        });
-      }
-    });
-  };
+  const setSpec = (key, v) =>
+    setForm(f => ({ ...f, specs: { ...(f.specs || {}), [key]: v } }));
+
+  const toggleFeature = key =>
+    setForm(f => ({
+      ...f,
+      features: { ...(f.features || {}), [key]: !f.features?.[key] },
+    }));
 
   const handlePickSpecs = () => {
     launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, res => {
@@ -194,8 +180,6 @@ const StepOne = ({ form, setForm }) => {
         setForm(f => ({ ...f, specsPhoto: res.assets[0].uri }));
     });
   };
-
-  const thumbPhotos = form.thumbPhotos || [null, null, null, null, null, null];
 
   const FEATURE_LIST = [
     { key: 'ramp', labelKey: 'ramp_included' },
@@ -208,16 +192,32 @@ const StepOne = ({ form, setForm }) => {
     <View style={step.container}>
       <Text style={step.title}>{t('trailer_category_label')}</Text>
 
+      {/* Category */}
       <View style={step.fieldGap}>
         <CustomDropdown
           label={t('trailer_category_label')}
-          placeholder={t('select_trailer_category')}
+          placeholder={
+            categoriesLoading ? 'Loading…' : t('select_trailer_category')
+          }
           value={form.category}
-          options={TRAILER_CATEGORIES}
+          options={categoryOptions}
           onSelect={v => setForm(f => ({ ...f, category: v }))}
         />
       </View>
 
+      {/* Title */}
+      <View style={step.fieldGap}>
+        <CustomTextInput
+          label={t('title_label') || 'Title'}
+          placeholder={
+            t('title_placeholder') || 'e.g. 26ft Big Tex Flatbed for Rent'
+          }
+          value={form.title}
+          onChangeText={v => setForm(f => ({ ...f, title: v }))}
+        />
+      </View>
+
+      {/* Make & Model + Year */}
       <View style={step.fieldGapRow}>
         <View style={{ flex: 1 }}>
           <CustomTextInput
@@ -238,6 +238,7 @@ const StepOne = ({ form, setForm }) => {
         </View>
       </View>
 
+      {/* License Plate */}
       <View style={step.fieldGap}>
         <CustomTextInput
           label={t('license_plate_label')}
@@ -248,47 +249,41 @@ const StepOne = ({ form, setForm }) => {
         />
       </View>
 
-      {/* Photo upload */}
-      {/* <View style={[step.fieldGap, { marginTop: moderateScale(4) }]}>
-        <Text style={step.photoLabel}>
-          {t('upload_photo_label')}{' '}
-          <Text style={step.photoHint}>{t('upload_photo_hint')}</Text>
-        </Text>
+      {/* Description */}
+      <View style={step.fieldGap}>
+        <CustomTextInput
+          label={t('description_label') || 'Description'}
+          placeholder={
+            t('description_placeholder') ||
+            'Describe your trailer, condition, and any special notes…'
+          }
+          value={form.description}
+          onChangeText={v => setForm(f => ({ ...f, description: v }))}
+          multiline
+          numberOfLines={4}
+          inputStyle={step.textArea}
+        />
+      </View>
 
-        <PhotoSlot uri={form.mainPhoto} onPress={handlePickMain} isMain />
-
-        <View style={{ gap: moderateScale(10) }}>
-          {[0, 3].map(offset => (
-            <View
-              key={offset}
-              style={{ flexDirection: 'row', gap: moderateScale(10) }}
-            >
-              {thumbPhotos.slice(offset, offset + 3).map((uri, i) => (
-                <PhotoSlot
-                  key={offset + i}
-                  uri={uri}
-                  onPress={() => handlePickThumb(offset + i)}
-                />
-              ))}
-            </View>
-          ))}
-        </View>
-      </View> */}
       <Text style={step.title}>{t('specs_features_section')}</Text>
 
       {/* Dimensions grid */}
       {[
         [
-          { key: 'length', label: 'Length', ph: 'e.g. 126 ft' },
-          { key: 'width', label: 'Width', ph: 'e.g. 56 ft' },
+          { key: 'length', label: 'Length', ph: 'e.g. 26 ft' },
+          { key: 'width', label: 'Width', ph: 'e.g. 8 ft' },
         ],
         [
           { key: 'heightGround', label: 'Height off Ground', ph: 'e.g. 7 ft' },
           { key: 'totalHeight', label: 'Total Height', ph: 'e.g. 10 ft' },
         ],
         [
-          { key: 'weightCapacity', label: 'Weight Capacity', ph: 'e.g. 500lb' },
-          { key: 'tongueWeight', label: 'Tounge Weight', ph: 'e.g. 200lb' },
+          {
+            key: 'weightCapacity',
+            label: 'Weight Capacity',
+            ph: 'e.g. 14000 lb',
+          },
+          { key: 'tongueWeight', label: 'Tongue Weight', ph: 'e.g. 1400 lb' },
         ],
       ].map((row, ri) => (
         <View key={ri} style={s2.row}>
@@ -362,6 +357,11 @@ const step = StyleSheet.create({
   photoHint: {
     fontWeight: '400',
     color: colors.textSecondary,
+  },
+  textArea: {
+    height: verticalScale(90),
+    textAlignVertical: 'top',
+    paddingTop: moderateScale(8),
   },
 });
 
@@ -687,25 +687,6 @@ const StepThree = ({ form, setForm }) => {
           style={s3.halfInput}
         />
         <CustomTextInput
-          label="Weekly Price"
-          placeholder="$0"
-          value={pricing.weekly || ''}
-          onChangeText={v => setPrice('weekly', v)}
-          keyboardType="decimal-pad"
-          style={s3.halfInput}
-        />
-      </View>
-
-      <View style={s3.row}>
-        <CustomTextInput
-          label="Monthly Price"
-          placeholder="$0"
-          value={pricing.monthly || ''}
-          onChangeText={v => setPrice('monthly', v)}
-          keyboardType="decimal-pad"
-          style={s3.halfInput}
-        />
-        <CustomTextInput
           label="Security Deposit"
           placeholder="$0"
           value={pricing.deposit || ''}
@@ -713,7 +694,34 @@ const StepThree = ({ form, setForm }) => {
           keyboardType="decimal-pad"
           style={s3.halfInput}
         />
+        {/* <CustomTextInput
+          label="Weekly Price"
+          placeholder="$0"
+          value={pricing.weekly || ''}
+          onChangeText={v => setPrice('weekly', v)}
+          keyboardType="decimal-pad"
+          style={s3.halfInput}
+        /> */}
       </View>
+
+      {/* <View style={s3.row}>
+       <CustomTextInput
+          label="Monthly Price"
+          placeholder="$0"
+          value={pricing.monthly || ''}
+          onChangeText={v => setPrice('monthly', v)}
+          keyboardType="decimal-pad"
+          style={s3.halfInput}
+        /> 
+    <CustomTextInput
+          label="Weekly Price"
+          placeholder="$0"
+          value={pricing.weekly || ''}
+          onChangeText={v => setPrice('weekly', v)}
+          keyboardType="decimal-pad"
+          style={s3.halfInput}
+        /> 
+      </View> */}
 
       {/* Pickup Location */}
       <Text style={[step.title, { marginTop: moderateScale(10) }]}>
@@ -797,7 +805,11 @@ const s3 = StyleSheet.create({
     alignItems: 'center',
   },
   mapGrid: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
@@ -830,7 +842,11 @@ const s3 = StyleSheet.create({
     alignItems: 'center',
   },
   mapOverlay: {
-    ...StyleSheet.absoluteFillObject,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(232,238,244,0.7)',
     alignItems: 'center',
     justifyContent: 'center',
@@ -852,22 +868,108 @@ const s3 = StyleSheet.create({
 
 const STEPS = [StepOne, StepTwo, StepThree];
 
+// ── Build multipart FormData payload ─────────────────────────────────────
+const buildFormData = form => {
+  const fd = new FormData();
+  fd.append('make_model', form.makeModel.trim());
+  fd.append('year', form.year.trim());
+  fd.append('license_plate', form.licensePlate.trim());
+  fd.append('title', form.title.trim());
+  fd.append('description', form.description.trim());
+  fd.append('category', form.category);
+  fd.append('pricing', JSON.stringify(form.pricing || {}));
+  fd.append(
+    'location',
+    JSON.stringify({ address: (form.address || '').trim() }),
+  );
+  fd.append('specifications', JSON.stringify(form.specs || {}));
+
+  (form.mediaPhotos || []).forEach((uri, i) => {
+    const ext = uri.split('.').pop()?.split('?')[0] || 'jpg';
+    fd.append('files', {
+      uri,
+      type: `image/${ext}`,
+      name: `photo_${i}.${ext}`,
+    });
+  });
+
+  return fd;
+};
+
 // ── Main Screen ───────────────────────────────────────────────────────────
 const AddTrailorScreen = ({ navigation }) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const { loading, error, successMessage, categories, categoriesLoading } =
+    useSelector(s => s.addTrailer);
+
+  const categoryOptions = categories.map(c => ({ label: c.name, value: c.id }));
+
   const [currentStep, setCurrentStep] = useState(1);
   const [form, setForm] = useState({
     category: null,
+    title: '',
     makeModel: '',
     year: '',
     licensePlate: '',
-    mainPhoto: null,
-    thumbPhotos: [null, null, null, null, null, null],
+    description: '',
+    specs: {
+      length: '',
+      width: '',
+      heightGround: '',
+      totalHeight: '',
+      weightCapacity: '',
+      tongueWeight: '',
+    },
+    features: {
+      ramp: false,
+      spareTire: false,
+      tieDown: false,
+      winch: false,
+    },
+    specsPhoto: null,
+    mediaPhotos: [],
+    mediaVideos: [],
+    mediaDocuments: [],
+    tags: [],
+    pricing: { daily: '', weekly: '', monthly: '', deposit: '' },
+    address: '',
+    safety: '',
   });
+
+  useEffect(() => {
+    dispatch(fetchCategories());
+  }, []);
+
+  useEffect(() => {
+    if (successMessage) {
+      Alert.alert('Success', successMessage, [
+        {
+          text: 'OK',
+          onPress: () => {
+            dispatch(clearMessages());
+            navigation.goBack();
+          },
+        },
+      ]);
+    }
+  }, [successMessage]);
+
+  useEffect(() => {
+    if (error) {
+      Alert.alert('Error', error, [
+        { text: 'OK', onPress: () => dispatch(clearMessages()) },
+      ]);
+    }
+  }, [error]);
 
   const validateStep1 = () => {
     if (!form.category) {
       Alert.alert('Required', 'Please select a trailer category.');
+      return false;
+    }
+    if (!form.title.trim()) {
+      Alert.alert('Required', 'Please enter a title for your listing.');
       return false;
     }
     if (!form.makeModel.trim()) {
@@ -882,7 +984,16 @@ const AddTrailorScreen = ({ navigation }) => {
       Alert.alert('Required', 'Please enter License Plate.');
       return false;
     }
+    if (!form.description.trim()) {
+      Alert.alert('Required', 'Please enter a description.');
+      return false;
+    }
     return true;
+  };
+
+  const handleSubmit = () => {
+    const fd = buildFormData(form);
+    dispatch(submitTrailer(fd));
   };
 
   const goNext = () => {
@@ -890,7 +1001,7 @@ const AddTrailorScreen = ({ navigation }) => {
     if (currentStep < TOTAL_STEPS) {
       setCurrentStep(p => p + 1);
     } else {
-      // submit
+      handleSubmit();
     }
   };
 
@@ -904,12 +1015,9 @@ const AddTrailorScreen = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       {/* Header */}
-      <CustomHeader
-        title={t('post_your_trailer')}
-        onBack={() => navigation.goBack()}
-      />
+      <CustomHeader title={t('post_your_trailer')} onBack={goBack} />
 
-      {/* Segmented tracker — flush under header */}
+      {/* Segmented tracker */}
       <SegmentedTracker currentStep={currentStep} />
 
       {/* Scrollable body */}
@@ -919,16 +1027,27 @@ const AddTrailorScreen = ({ navigation }) => {
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        <StepContent form={form} setForm={setForm} />
+        <StepContent
+          form={form}
+          setForm={setForm}
+          categoryOptions={categoryOptions}
+          categoriesLoading={categoriesLoading}
+        />
         <CustomButton
           title={
-            currentStep === TOTAL_STEPS
+            loading
+              ? ''
+              : currentStep === TOTAL_STEPS
               ? t('submit_button')
               : t('continue_button')
           }
           onPress={goNext}
+          disabled={loading}
           size="large"
           style={styles.continueBtn}
+          leftIcon={
+            loading ? <ActivityIndicator size="small" color="#fff" /> : null
+          }
         />
       </ScrollView>
     </SafeAreaView>
