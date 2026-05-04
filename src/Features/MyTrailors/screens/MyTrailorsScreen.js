@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, StyleSheet, ScrollView, Pressable, Image, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text } from 'react-native-paper';
@@ -31,19 +32,15 @@ const MOCK_BOOKINGS = [
 const STATUS_CFG = {
   pending: { label: 'PENDING', bg: '#FEF3C7', text: '#D97706', dot: '#F59E0B' },
   active: { label: 'ACTIVE', bg: '#D1FAE5', text: '#065F46', dot: '#10B981' },
-  inactive: {
-    label: 'INACTIVE',
-    bg: '#F3F4F6',
-    text: '#6B7280',
-    dot: '#EF4444',
-  },
+  inactive: { label: 'INACTIVE', bg: '#F3F4F6', text: '#6B7280', dot: '#EF4444' },
+  draft: { label: 'DRAFT', bg: '#FEF3C7', text: '#D97706', dot: '#F59E0B' },
 };
 
 const TrailerRow = ({ item, onPress }) => {
-  const cfg = STATUS_CFG[item.status] ?? STATUS_CFG.inactive;
+  const cfg = STATUS_CFG[item.trailer_status] ?? STATUS_CFG.inactive;
   const displayName = item.title || item.makeModel || item.name || 'Trailer';
   const thumbnail = item.thumbnail || item.mediaPhotoUrls?.[0] || null;
-  const earnings = item.earnings ?? 0;
+  const earnings = item.pricing ?? 0;
   const earningsLabel = `$${earnings.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
 
   return (
@@ -74,7 +71,7 @@ const TrailerRow = ({ item, onPress }) => {
               {cfg.label}
             </Text>
           </View>
-          {item.status === 'active' && item.rating != null && (
+          {item.trailer_status === 'active' && item.rating != null && (
             <View style={styles.ratingRow}>
               <Icon name="star" size={moderateScale(13)} color="#F59E0B" />
               <Text style={styles.ratingText}>
@@ -141,9 +138,11 @@ const MyTrailorsScreen = ({ navigation }) => {
   const { myTrailers, loading } = useSelector(state => state.addTrailer);
   const [bookings] = useState(MOCK_BOOKINGS);
 
-  useEffect(() => {
-    dispatch(fetchMyTrailers());
-  }, [dispatch]);
+  useFocusEffect(
+    useCallback(() => {
+      dispatch(fetchMyTrailers());
+    }, [dispatch]),
+  );
 
   const previewTrailers = myTrailers.slice(0, 3);
 

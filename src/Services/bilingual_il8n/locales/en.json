@@ -214,6 +214,7 @@
   "upload_photo_hint": "(5+ images recommended)",
   "add_main_trailer_photo": "Add main trailer photo",
   "specs_features_section": "Specs & Features",
+  "select_category_for_specs": "First select a category to see the specs & features specifically related to the category",
   "length_label": "Length",
   "length_placeholder": "e.g. 126 ft",
   "width_label": "Width",
@@ -633,5 +634,13 @@
   "group_members": "members",
   "create_button": "Create",
   "dark_mode_on": "Dark mode enabled",
-  "dark_mode_off": "Light mode enabled"
+  "dark_mode_off": "Light mode enabled",
+  "towing_vehicle_requirement":"Towing Vehicle Requirement",
+  "enter_requirements_optional":"Enter requirements (Optional)",
+  "usage_rental_rules":"Usage/Rental Rules",
+  "enter_usage_rules_rental_rules":"Enter usage rules and rental rules",
+  "upload_jpeg_png":"Upload JPEG,PNG file. Max size 2MB",
+  "upload_video_mp4":"Upload MP4 file.Max size 2 MB",
+  "upload_pdf":"Upload PDF file. Max size 2MB"
+ 
 }

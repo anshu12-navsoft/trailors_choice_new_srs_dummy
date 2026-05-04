@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   StyleSheet,
@@ -35,7 +36,7 @@ const STATUS_CFG = {
 };
 
 const TrailerRow = ({ item, onPress, onBookingsPress }) => {
-  const cfg = STATUS_CFG[item.status] ?? STATUS_CFG.inactive;
+  const cfg = STATUS_CFG[item.trailer_status] ?? STATUS_CFG.inactive;
   const displayName = item.title || item.makeModel || item.name || 'Trailer';
   const thumbnail = item.thumbnail || item.mediaPhotoUrls?.[0] || null;
   const earnings = item.earnings ?? 0;
@@ -72,7 +73,7 @@ const TrailerRow = ({ item, onPress, onBookingsPress }) => {
                 </Text>
               </View>
 
-              {item.status === 'active' && item.rating != null && (
+              {item.trailer_status === 'active' && item.rating != null && (
                 <View style={styles.ratingRow}>
                   <Icon name="star" size={14} color="#F97316" />
                   <Text style={styles.ratingText}>
@@ -85,7 +86,7 @@ const TrailerRow = ({ item, onPress, onBookingsPress }) => {
         </View>
       </Pressable>
 
-      {item.status === 'active' && (
+      {item.trailer_status === 'active' && (
         <>
           <View style={styles.divider} />
           <Pressable onPress={onBookingsPress} style={styles.bottomStrip}>
@@ -119,10 +120,14 @@ const MyTrailorsListScreen = ({ navigation }) => {
     [dispatch],
   );
 
-  // Initial load
-  useEffect(() => {
-    doFetch('All', 1);
-  }, [doFetch]);
+  // Refresh list every time the screen comes into focus (navigate back, tab switch, etc.)
+  useFocusEffect(
+    useCallback(() => {
+      isFirstMount.current = true;
+      setPage(1);
+      doFetch(activeTab, 1);
+    }, [activeTab, doFetch]),
+  );
 
   // Tab change — reset to page 1 and re-fetch
   useEffect(() => {

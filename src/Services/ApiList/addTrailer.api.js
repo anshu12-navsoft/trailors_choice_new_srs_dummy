@@ -15,6 +15,6 @@ export const deleteTrailerAPI = id =>
 
 export const fetchMyTrailersAPI = ({ status = '', page = 1, limit = 10 } = {}) => {
   const params = { page, limit };
-  if (status) params.status = status;
+  if (status) params.trailer_status = status;
   return api.get('/trailers/my/', { params });
 };

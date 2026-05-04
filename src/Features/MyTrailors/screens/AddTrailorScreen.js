@@ -29,6 +29,7 @@ import {
   submitTrailer,
   clearMessages,
   fetchCategories,
+  fetchCategoryAttributes,
 } from '../../../App/Redux/Slices/addTrailerSlice';
 
 if (
@@ -160,7 +161,14 @@ const photo = StyleSheet.create({
 });
 
 // ── Step 1 — Trailer Detail ───────────────────────────────────────────────
-const StepOne = ({ form, setForm, categoryOptions, categoriesLoading }) => {
+const StepOne = ({
+  form,
+  setForm,
+  categoryOptions,
+  categoriesLoading,
+  attributes,
+  attributesLoading,
+}) => {
   const { t } = useTranslation();
   const specs = form.specs || {};
   const features = form.features || {};
@@ -205,18 +213,6 @@ const StepOne = ({ form, setForm, categoryOptions, categoriesLoading }) => {
         />
       </View>
 
-      {/* Title */}
-      <View style={step.fieldGap}>
-        <CustomTextInput
-          label={t('title_label') || 'Title'}
-          placeholder={
-            t('title_placeholder') || 'e.g. 26ft Big Tex Flatbed for Rent'
-          }
-          value={form.title}
-          onChangeText={v => setForm(f => ({ ...f, title: v }))}
-        />
-      </View>
-
       {/* Make & Model + Year */}
       <View style={step.fieldGapRow}>
         <View style={{ flex: 1 }}>
@@ -249,12 +245,97 @@ const StepOne = ({ form, setForm, categoryOptions, categoriesLoading }) => {
         />
       </View>
 
-      {/* Description */}
+      {/* Specs & Features */}
+      <Text style={step.title}>{t('specs_features_section')}</Text>
+
+      {!form.category ? (
+        <Text style={step.specsPlaceholder}>
+          {t('select_category_for_specs') ||
+            'First select a category to see the specs & features specifically related to the category'}
+        </Text>
+      ) : attributesLoading ? (
+        <ActivityIndicator
+          size="small"
+          color={colors.primary}
+          style={{ marginVertical: moderateScale(12) }}
+        />
+      ) : (
+        (() => {
+          const sorted = [...attributes].sort(
+            (a, b) => (a.display_order ?? 0) - (b.display_order ?? 0),
+          );
+          const rows = [];
+          for (let i = 0; i < sorted.length; i += 2) {
+            rows.push(sorted.slice(i, i + 2));
+          }
+          return rows.map((row, ri) => {
+            const isOddLast = row.length === 1;
+            return (
+              <View
+                key={ri}
+                style={isOddLast ? { marginBottom: moderateScale(12) } : s2.row}
+              >
+                {row.map(attr => {
+                  const key = String(attr.id);
+                  const fieldType = (attr.field_type || 'text').toLowerCase();
+
+                  if (fieldType === 'dropdown') {
+                    const dropOptions = Array.isArray(attr.field_values)
+                      ? attr.field_values.map(o =>
+                          typeof o === 'string' ? { label: o, value: o } : o,
+                        )
+                      : [];
+                    return (
+                      <View
+                        key={key}
+                        style={isOddLast ? undefined : s2.halfInput}
+                      >
+                        <CustomDropdown
+                          label={attr.attribute_name}
+                          placeholder={`Select ${attr.attribute_name}`}
+                          value={specs[key] || null}
+                          options={dropOptions}
+                          onSelect={v => setSpec(key, v)}
+                        />
+                      </View>
+                    );
+                  }
+
+                  return (
+                    <CustomTextInput
+                      key={key}
+                      label={attr.attribute_name}
+                      placeholder={attr.attribute_name}
+                      value={specs[key] || ''}
+                      keyboardType={
+                        fieldType === 'number' ? 'decimal-pad' : 'default'
+                      }
+                      onChangeText={v =>
+                        setSpec(
+                          key,
+                          fieldType === 'number'
+                            ? v.replace(/[^0-9.]/g, '')
+                            : v.replace(/[0-9]/g, ''),
+                        )
+                      }
+                      style={isOddLast ? undefined : s2.halfInput}
+                    />
+                  );
+                })}
+              </View>
+            );
+          });
+        })()
+      )}
+
+      {/* Towing Vehicle Requirement */}
       <View style={step.fieldGap}>
         <CustomTextInput
-          label={t('description_label') || 'Description'}
+          label={
+            t('towing_vehicle_requirement') || 'Towing Vehicle Requirement'
+          }
           placeholder={
-            t('description_placeholder') ||
+            t('enter_requirements_optional') ||
             'Describe your trailer, condition, and any special notes…'
           }
           value={form.description}
@@ -265,71 +346,21 @@ const StepOne = ({ form, setForm, categoryOptions, categoriesLoading }) => {
         />
       </View>
 
-      <Text style={step.title}>{t('specs_features_section')}</Text>
-
-      {/* Dimensions grid */}
-      {[
-        [
-          { key: 'length', label: 'Length', ph: 'e.g. 26 ft' },
-          { key: 'width', label: 'Width', ph: 'e.g. 8 ft' },
-        ],
-        [
-          { key: 'heightGround', label: 'Height off Ground', ph: 'e.g. 7 ft' },
-          { key: 'totalHeight', label: 'Total Height', ph: 'e.g. 10 ft' },
-        ],
-        [
-          {
-            key: 'weightCapacity',
-            label: 'Weight Capacity',
-            ph: 'e.g. 14000 lb',
-          },
-          { key: 'tongueWeight', label: 'Tongue Weight', ph: 'e.g. 1400 lb' },
-        ],
-      ].map((row, ri) => (
-        <View key={ri} style={s2.row}>
-          {row.map(({ key, label, ph }) => (
-            <CustomTextInput
-              key={key}
-              label={label}
-              placeholder={ph}
-              value={specs[key] || ''}
-              onChangeText={v => setSpec(key, v)}
-              keyboardType="decimal-pad"
-              style={s2.halfInput}
-            />
-          ))}
-        </View>
-      ))}
-
-      {/* Included Features */}
-      <Text style={s2.sectionLabel}>{t('included_features')}</Text>
-      <View style={s2.featureList}>
-        {FEATURE_LIST.map(fItem => (
-          <View key={fItem.key} style={s2.featureRow}>
-            <Icon
-              name="anchor"
-              size={moderateScale(18)}
-              color={colors.textSecondary}
-            />
-            <Text style={s2.featureLabel}>{t(fItem.labelKey)}</Text>
-            <Switch
-              value={!!features[fItem.key]}
-              onValueChange={() => toggleFeature(fItem.key)}
-              trackColor={{ false: colors.border, true: colors.textPrimary }}
-              thumbColor="#fff"
-            />
-          </View>
-        ))}
+      {/* Usage/Rental Rules */}
+      <View style={step.fieldGap}>
+        <CustomTextInput
+          label={t('usage_rental_rules') || 'Usage/Rental Rules'}
+          placeholder={
+            t('enter_usage_rules_rental_rules') ||
+            'Describe your trailer, condition, and any special notes…'
+          }
+          value={form.description}
+          onChangeText={v => setForm(f => ({ ...f, description: v }))}
+          multiline
+          numberOfLines={4}
+          inputStyle={step.textArea}
+        />
       </View>
-
-      {/* Upload Specs */}
-      <Text style={s2.sectionLabel}>{t('upload_specs_label')}</Text>
-      <PhotoSlot
-        uri={form.specsPhoto}
-        onPress={handlePickSpecs}
-        isMain
-        specsLabel={t('add_trailer_specs_photo')}
-      />
     </View>
   );
 };
@@ -362,6 +393,12 @@ const step = StyleSheet.create({
     height: verticalScale(90),
     textAlignVertical: 'top',
     paddingTop: moderateScale(8),
+  },
+  specsPlaceholder: {
+    fontSize: Fonts.size.sm,
+    color: colors.textSecondary,
+    marginBottom: moderateScale(16),
+    lineHeight: moderateScale(20),
   },
 });
 
@@ -445,6 +482,24 @@ const StepTwo = ({ form, setForm }) => {
   const tags = form.tags || [];
   const [customTag, setCustomTag] = useState('');
   const [showCustomInput, setShowCustomInput] = useState(false);
+  const specs = form.specs || {};
+  const features = form.features || {};
+
+  const setSpec = (key, v) =>
+    setForm(f => ({ ...f, specs: { ...(f.specs || {}), [key]: v } }));
+
+  const toggleFeature = key =>
+    setForm(f => ({
+      ...f,
+      features: { ...(f.features || {}), [key]: !f.features?.[key] },
+    }));
+
+  const handlePickSpecs = () => {
+    launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, res => {
+      if (res.assets?.[0]?.uri)
+        setForm(f => ({ ...f, specsPhoto: res.assets[0].uri }));
+    });
+  };
 
   const toggleTag = tag =>
     setForm(f => {
@@ -521,7 +576,7 @@ const StepTwo = ({ form, setForm }) => {
         iconOverlay="plus"
         label={t('add_main_trailer_photo')}
       />
-
+      <Text style={s2.sectionValidateLabel}>{t('upload_jpeg_png')}</Text>
       {/* Upload Videos */}
       <Text style={s2.sectionLabel}>{t('upload_videos_label')}</Text>
       <MediaSlot
@@ -531,7 +586,7 @@ const StepTwo = ({ form, setForm }) => {
         iconOverlay="video"
         label={t('add_trailer_videos')}
       />
-
+      <Text style={s2.sectionValidateLabel}>{t('upload_video_mp4')}</Text>
       {/* Upload Documents */}
       <Text style={s2.sectionLabel}>{t('upload_documents_label')}</Text>
       <MediaSlot
@@ -540,7 +595,16 @@ const StepTwo = ({ form, setForm }) => {
         iconName="file-plus"
         label={t('add_trailer_documents')}
       />
-
+      <Text style={s2.sectionValidateLabel}>{t('upload_pdf')}</Text>
+      {/* Upload Specs */}
+      <Text style={s2.sectionLabel}>{t('upload_specs_label')}</Text>
+      <PhotoSlot
+        uri={form.specsPhoto}
+        onPress={handlePickSpecs}
+        isMain
+        specsLabel={t('add_trailer_specs_photo')}
+      />
+      <Text style={s2.sectionValidateLabel}>{t('upload_jpeg_png')}</Text>
       {/* Tags */}
       <Text style={s2.sectionLabel}>{t('add_tags_label')}</Text>
       <View style={s2.tagsWrap}>
@@ -604,6 +668,13 @@ const s2 = StyleSheet.create({
     fontWeight: '700',
     color: colors.textPrimary,
     marginTop: moderateScale(16),
+    marginBottom: moderateScale(10),
+  },
+  sectionValidateLabel: {
+    fontSize: Fonts.size.md,
+    fontWeight: '400',
+    color: colors.textSecondary,
+    marginTop: moderateScale(0),
     marginBottom: moderateScale(10),
   },
   featureList: {
@@ -900,8 +971,15 @@ const buildFormData = form => {
 const AddTrailorScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
-  const { loading, error, successMessage, categories, categoriesLoading } =
-    useSelector(s => s.addTrailer);
+  const {
+    loading,
+    error,
+    successMessage,
+    categories,
+    categoriesLoading,
+    attributes,
+    attributesLoading,
+  } = useSelector(s => s.addTrailer);
 
   const categoryOptions = categories.map(c => ({ label: c.name, value: c.id }));
 
@@ -932,7 +1010,7 @@ const AddTrailorScreen = ({ navigation }) => {
     mediaVideos: [],
     mediaDocuments: [],
     tags: [],
-    pricing: { daily: '', weekly: '', monthly: '', deposit: '' },
+    pricing: { daily: '', deposit: '' },
     address: '',
     safety: '',
   });
@@ -940,6 +1018,13 @@ const AddTrailorScreen = ({ navigation }) => {
   useEffect(() => {
     dispatch(fetchCategories());
   }, []);
+
+  useEffect(() => {
+    if (form.category) {
+      dispatch(fetchCategoryAttributes(form.category));
+      setForm(f => ({ ...f, specs: {} }));
+    }
+  }, [form.category]);
 
   useEffect(() => {
     if (successMessage) {
@@ -968,10 +1053,7 @@ const AddTrailorScreen = ({ navigation }) => {
       Alert.alert('Required', 'Please select a trailer category.');
       return false;
     }
-    if (!form.title.trim()) {
-      Alert.alert('Required', 'Please enter a title for your listing.');
-      return false;
-    }
+
     if (!form.makeModel.trim()) {
       Alert.alert('Required', 'Please enter Make & Model.');
       return false;
@@ -984,10 +1066,7 @@ const AddTrailorScreen = ({ navigation }) => {
       Alert.alert('Required', 'Please enter License Plate.');
       return false;
     }
-    if (!form.description.trim()) {
-      Alert.alert('Required', 'Please enter a description.');
-      return false;
-    }
+   
     return true;
   };
 
@@ -1032,6 +1111,8 @@ const AddTrailorScreen = ({ navigation }) => {
           setForm={setForm}
           categoryOptions={categoryOptions}
           categoriesLoading={categoriesLoading}
+          attributes={attributes}
+          attributesLoading={attributesLoading}
         />
         <CustomButton
           title={

@@ -5,7 +5,7 @@ import {
   deleteTrailerAPI,
   fetchMyTrailersAPI,
 } from '../../../Services/ApiList/addTrailer.api';
-import { fetchCategoriesAPI } from '../../../Services/ApiList/category.api';
+import { fetchCategoriesAPI, fetchCategoryAttributesAPI } from '../../../Services/ApiList/category.api';
 
 export const fetchCategories = createAsyncThunk(
   'addTrailer/fetchCategories',
@@ -25,6 +25,22 @@ export const fetchCategories = createAsyncThunk(
       );
       return rejectWithValue(
         err.response?.data?.message || 'Failed to load categories',
+      );
+    }
+  },
+);
+
+export const fetchCategoryAttributes = createAsyncThunk(
+  'addTrailer/fetchCategoryAttributes',
+  async (categoryId, { rejectWithValue }) => {
+    try {
+      const res = await fetchCategoryAttributesAPI(categoryId);
+      const data = res.data?.data ?? [];
+      return Array.isArray(data) ? data : [];
+    } catch (err) {
+      console.log('fetchCategoryAttributes ERROR:', err.response?.data || err.message);
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to load attributes',
       );
     }
   },
@@ -143,6 +159,8 @@ const addTrailerSlice = createSlice({
     myTrailersHasMore: true,
     categories: [],
     categoriesLoading: false,
+    attributes: [],
+    attributesLoading: false,
     loading: false,
     error: null,
     successMessage: null,
@@ -271,6 +289,20 @@ const addTrailerSlice = createSlice({
       .addCase(fetchCategories.rejected, (state, action) => {
         state.categoriesLoading = false;
         console.log('fetchCategories rejected:', action.payload);
+      })
+
+      // fetchCategoryAttributes
+      .addCase(fetchCategoryAttributes.pending, state => {
+        state.attributesLoading = true;
+        state.attributes = [];
+      })
+      .addCase(fetchCategoryAttributes.fulfilled, (state, action) => {
+        state.attributesLoading = false;
+        state.attributes = action.payload;
+      })
+      .addCase(fetchCategoryAttributes.rejected, state => {
+        state.attributesLoading = false;
+        state.attributes = [];
       });
   },
 });

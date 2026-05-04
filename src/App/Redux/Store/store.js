@@ -15,6 +15,7 @@ import notificationReducer from "../Slices/notificationSlice"
 import registerReducer from "../Slices/registerSlice"
 import stateReducer from "../Slices/stateSlice"
 import cityReducer from "../Slices/citySlice"
+import wishlistReducer from "../Slices/wishlistSlice"
 
 export const store = configureStore({
   reducer: {
@@ -32,6 +33,7 @@ export const store = configureStore({
     notification: notificationReducer,
     state: stateReducer,
     city: cityReducer,
+    wishlist: wishlistReducer,
   },
 });
 

@@ -5,8 +5,8 @@ let _onUnauthorized = null;
 export const setUnauthorizedHandler = (cb) => { _onUnauthorized = cb; };
 
 const api = axios.create({
-  baseURL: 'http://44.212.136.38:4290/api/v1/', // 🔁 change later
-  //  baseURL: 'http://192.168.0.55:8000/api/v1', // localhost
+  // baseURL: 'http://44.212.136.38:4290/api/v1/', // 🔁 change later
+   baseURL: 'http://192.168.0.55:8000/api/v1', // localhost
   timeout: 30000,
   headers: {
     'Content-Type': 'application/json',

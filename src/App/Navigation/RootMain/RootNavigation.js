@@ -3,6 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import DrawerNavigation from '../Drawer/DrawerNavigation';
 import { useSelector } from 'react-redux';
 import { AuthStack } from '../StackTabs/StackNavigation';
+import BottomNavigation  from '../BottomTabs/BottomNavigation';
 
 const RootNavigation = () => {
   const isLoggedIn  = useSelector(state => state.auth.isLoggedIn);
@@ -10,7 +11,7 @@ const RootNavigation = () => {
   return (
     <NavigationContainer>
       {isLoggedIn
-        ? <DrawerNavigation />
+        ? <BottomNavigation />
         : <AuthStack initialRouteName={loggedOut ? 'Login' : 'LanguageSelect'} />
       }
     </NavigationContainer>

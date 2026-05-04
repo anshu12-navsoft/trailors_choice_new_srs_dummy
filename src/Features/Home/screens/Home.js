@@ -133,7 +133,7 @@ const Home = ({ navigation }) => {
         {/* ── Top bar ── */}
         <View style={styles.topBar}>
           <Pressable
-            onPress={() => navigation.toggleDrawer()}
+            // onPress={() => navigation.toggleDrawer()}
             style={styles.logoWrapper}
           >
             <Text style={styles.logoT}>T</Text>
