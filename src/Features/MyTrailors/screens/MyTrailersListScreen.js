@@ -35,13 +35,14 @@ const STATUS_CFG = {
   draft: { label: 'DRAFT', bg: '#FEF3C7', text: '#D97706', dot: '#F59E0B' },
 };
 
-const TrailerRow = ({ item, onPress, onBookingsPress }) => {
+const TrailerRow = ({ item, onPress, onBookingsPress, onEditPress }) => {
   const cfg = STATUS_CFG[item.trailer_status] ?? STATUS_CFG.inactive;
   const displayName = item.title || item.makeModel || item.name || 'Trailer';
   const thumbnail = item.thumbnail || item.mediaPhotoUrls?.[0] || null;
   const earnings = item.earnings ?? 0;
   const earningsLabel = `$${earnings.toLocaleString('en-US', { minimumFractionDigits: 2 })}`;
   const activeBookingsCount = item.activeBookings ?? 0;
+  const isDraft = item.trailer_status === 'draft' || item.trailer_status === 'pending';
 
   return (
     <View style={styles.card}>
@@ -63,7 +64,18 @@ const TrailerRow = ({ item, onPress, onBookingsPress }) => {
           </View>
 
           <View style={styles.body}>
-            <Text style={styles.title}>{displayName}</Text>
+            <View style={listStyles.titleRow}>
+              <Text style={[styles.title, { flex: 1 }]}>{displayName}</Text>
+              {isDraft && (
+                <Pressable
+                  onPress={onEditPress}
+                  hitSlop={moderateScale(8)}
+                  style={listStyles.editBtn}
+                >
+                  <Icon name="pencil" size={moderateScale(18)} color="#2563EB" />
+                </Pressable>
+              )}
+            </View>
             <Text style={styles.earnings}>Earnings: {earningsLabel}</Text>
 
             <View style={styles.bottomRow}>
@@ -157,6 +169,9 @@ const MyTrailorsListScreen = ({ navigation }) => {
         onBookingsPress={() =>
           navigation.navigate('MyRecentBooking', { trailerId: item.id })
         }
+        onEditPress={() =>
+          navigation.navigate('AddTrailor', { trailerId: item.id })
+        }
       />
     ),
     [navigation],
@@ -244,6 +259,15 @@ const listStyles = StyleSheet.create({
   emptyText: {
     fontSize: moderateScale(14),
     color: '#9CA3AF',
+  },
+  titleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: moderateScale(2),
+  },
+  editBtn: {
+    padding: moderateScale(4),
+    marginLeft: moderateScale(6),
   },
 });
 

@@ -31,4 +31,8 @@ export const styles = StyleSheet.create({
   continueBtn: {
     marginTop: moderateScale(4),
   },
+  draftBtn: {
+    marginTop: moderateScale(10),
+    marginBottom: moderateScale(8),
+  },
 });

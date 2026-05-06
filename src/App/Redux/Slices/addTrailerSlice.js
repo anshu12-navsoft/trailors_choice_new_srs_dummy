@@ -4,6 +4,7 @@ import {
   updateTrailerAPI,
   deleteTrailerAPI,
   fetchMyTrailersAPI,
+  fetchTrailerDetailAPI,
 } from '../../../Services/ApiList/addTrailer.api';
 import { fetchCategoriesAPI, fetchCategoryAttributesAPI } from '../../../Services/ApiList/category.api';
 
@@ -35,7 +36,9 @@ export const fetchCategoryAttributes = createAsyncThunk(
   async (categoryId, { rejectWithValue }) => {
     try {
       const res = await fetchCategoryAttributesAPI(categoryId);
-      const data = res.data?.data ?? [];
+      console.log('[fetchCategoryAttributes] raw res.data:', JSON.stringify(res.data, null, 2));
+      const data = res.data?.data ?? res.data?.results ?? res.data ?? [];
+      console.log('[fetchCategoryAttributes] resolved data:', JSON.stringify(data, null, 2));
       return Array.isArray(data) ? data : [];
     } catch (err) {
       console.log('fetchCategoryAttributes ERROR:', err.response?.data || err.message);
@@ -85,6 +88,20 @@ export const deleteTrailer = createAsyncThunk(
     } catch (err) {
       return rejectWithValue(
         err.response?.data?.message || 'Failed to delete trailer',
+      );
+    }
+  },
+);
+
+export const fetchTrailerDetail = createAsyncThunk(
+  'addTrailer/fetchDetail',
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await fetchTrailerDetailAPI(id);
+      return res.data?.data ?? res.data;
+    } catch (err) {
+      return rejectWithValue(
+        err.response?.data?.message || 'Failed to fetch trailer details',
       );
     }
   },
@@ -162,6 +179,7 @@ const addTrailerSlice = createSlice({
     attributes: [],
     attributesLoading: false,
     loading: false,
+    detailLoading: false,
     error: null,
     successMessage: null,
   },
@@ -303,6 +321,17 @@ const addTrailerSlice = createSlice({
       .addCase(fetchCategoryAttributes.rejected, state => {
         state.attributesLoading = false;
         state.attributes = [];
+      })
+
+      // fetchTrailerDetail
+      .addCase(fetchTrailerDetail.pending, state => {
+        state.detailLoading = true;
+      })
+      .addCase(fetchTrailerDetail.fulfilled, state => {
+        state.detailLoading = false;
+      })
+      .addCase(fetchTrailerDetail.rejected, state => {
+        state.detailLoading = false;
       });
   },
 });

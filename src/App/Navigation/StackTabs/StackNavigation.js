@@ -10,6 +10,7 @@ import LanguageSelect from '../../../Features/Auth/screens/LanguageSelectScreen'
 import OtpVerification from '../../../Features/Auth/screens/OtpVerification';
 import AccountSettings from '../../../Features/Auth/screens/AccountSettings';
 import VerificationScreen from '../../../Features/Auth/screens/VerificationScreen';
+import VerificationWebViewScreen from '../../../Features/Auth/screens/VerificationWebViewScreen';
 
 // Home & Discovery
 import Home from '../../../Features/Home/screens/Home';
@@ -77,6 +78,7 @@ const AuthStack = ({ initialRouteName = 'LanguageSelect' }) => (
     <AuthStackNav.Screen name="OtpVerification" component={OtpVerification} />
     <AuthStackNav.Screen name="AccountSettings" component={AccountSettings} />
     <AuthStackNav.Screen name="Verification" component={VerificationScreen} />
+    <AuthStackNav.Screen name="VerificationWebView" component={VerificationWebViewScreen} />
   </AuthStackNav.Navigator>
 );
 

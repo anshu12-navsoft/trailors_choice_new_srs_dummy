@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   View,
@@ -7,7 +7,6 @@ import {
   Pressable,
   ScrollView,
   Image,
-  Switch,
   Platform,
   UIManager,
   Alert,
@@ -27,9 +26,11 @@ import { styles } from '../stylesheets/AddTrailor.style';
 import CustomHeader from '../../../Components/Header/CustomHeader';
 import {
   submitTrailer,
+  updateTrailer,
   clearMessages,
   fetchCategories,
   fetchCategoryAttributes,
+  fetchTrailerDetail,
 } from '../../../App/Redux/Slices/addTrailerSlice';
 
 if (
@@ -171,30 +172,11 @@ const StepOne = ({
 }) => {
   const { t } = useTranslation();
   const specs = form.specs || {};
-  const features = form.features || {};
 
-  const setSpec = (key, v) =>
+  const setSpec = (key, v) => {
+    console.log('[StepOne setSpec] attr_id:', key, '→ value:', v);
     setForm(f => ({ ...f, specs: { ...(f.specs || {}), [key]: v } }));
-
-  const toggleFeature = key =>
-    setForm(f => ({
-      ...f,
-      features: { ...(f.features || {}), [key]: !f.features?.[key] },
-    }));
-
-  const handlePickSpecs = () => {
-    launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, res => {
-      if (res.assets?.[0]?.uri)
-        setForm(f => ({ ...f, specsPhoto: res.assets[0].uri }));
-    });
   };
-
-  const FEATURE_LIST = [
-    { key: 'ramp', labelKey: 'ramp_included' },
-    { key: 'spareTire', labelKey: 'spare_tire' },
-    { key: 'tieDown', labelKey: 'tie_down_points' },
-    { key: 'winch', labelKey: 'winch' },
-  ];
 
   return (
     <View style={step.container}>
@@ -259,6 +241,10 @@ const StepOne = ({
           color={colors.primary}
           style={{ marginVertical: moderateScale(12) }}
         />
+      ) : attributes.length === 0 ? (
+        <Text style={step.specsPlaceholder}>
+          {'No specs found for this category. Check console for API response.'}
+        </Text>
       ) : (
         (() => {
           const sorted = [...attributes].sort(
@@ -315,7 +301,7 @@ const StepOne = ({
                           key,
                           fieldType === 'number'
                             ? v.replace(/[^0-9.]/g, '')
-                            : v.replace(/[0-9]/g, ''),
+                            : v,
                         )
                       }
                       style={isOddLast ? undefined : s2.halfInput}
@@ -338,8 +324,8 @@ const StepOne = ({
             t('enter_requirements_optional') ||
             'Describe your trailer, condition, and any special notes…'
           }
-          value={form.description}
-          onChangeText={v => setForm(f => ({ ...f, description: v }))}
+          value={form.towingRequirements}
+          onChangeText={v => setForm(f => ({ ...f, towingRequirements: v }))}
           multiline
           numberOfLines={4}
           inputStyle={step.textArea}
@@ -354,8 +340,8 @@ const StepOne = ({
             t('enter_usage_rules_rental_rules') ||
             'Describe your trailer, condition, and any special notes…'
           }
-          value={form.description}
-          onChangeText={v => setForm(f => ({ ...f, description: v }))}
+          value={form.rentalRules}
+          onChangeText={v => setForm(f => ({ ...f, rentalRules: v }))}
           multiline
           numberOfLines={4}
           inputStyle={step.textArea}
@@ -482,23 +468,27 @@ const StepTwo = ({ form, setForm }) => {
   const tags = form.tags || [];
   const [customTag, setCustomTag] = useState('');
   const [showCustomInput, setShowCustomInput] = useState(false);
-  const specs = form.specs || {};
-  const features = form.features || {};
 
-  const setSpec = (key, v) =>
-    setForm(f => ({ ...f, specs: { ...(f.specs || {}), [key]: v } }));
-
-  const toggleFeature = key =>
-    setForm(f => ({
-      ...f,
-      features: { ...(f.features || {}), [key]: !f.features?.[key] },
-    }));
-
+  const SPECS_PHOTO_MIN = 3;
+  const SPECS_PHOTO_MAX = 10;
   const handlePickSpecs = () => {
-    launchImageLibrary({ mediaType: 'photo', quality: 0.8 }, res => {
-      if (res.assets?.[0]?.uri)
-        setForm(f => ({ ...f, specsPhoto: res.assets[0].uri }));
-    });
+    const current = form.specsPhotos?.length || 0;
+    const remaining = SPECS_PHOTO_MAX - current;
+    if (remaining <= 0) {
+      Alert.alert('Limit Reached', `You can select a maximum of ${SPECS_PHOTO_MAX} spec photos.`);
+      return;
+    }
+    launchImageLibrary(
+      { mediaType: 'photo', quality: 0.8, selectionLimit: remaining },
+      res => {
+        if (res.assets?.length) {
+          setForm(f => ({
+            ...f,
+            specsPhotos: [...(f.specsPhotos || []), ...res.assets.map(a => a.uri)],
+          }));
+        }
+      },
+    );
   };
 
   const toggleTag = tag =>
@@ -596,13 +586,17 @@ const StepTwo = ({ form, setForm }) => {
         label={t('add_trailer_documents')}
       />
       <Text style={s2.sectionValidateLabel}>{t('upload_pdf')}</Text>
-      {/* Upload Specs */}
+      {/* Upload Specs Photos (min 3, max 10) */}
       <Text style={s2.sectionLabel}>{t('upload_specs_label')}</Text>
       <PhotoSlot
-        uri={form.specsPhoto}
+        uri={form.specsPhotos?.[0]}
         onPress={handlePickSpecs}
         isMain
-        specsLabel={t('add_trailer_specs_photo')}
+        specsLabel={
+          form.specsPhotos?.length
+            ? `${form.specsPhotos.length} photo${form.specsPhotos.length > 1 ? 's' : ''} selected (min ${SPECS_PHOTO_MIN}, max ${SPECS_PHOTO_MAX})`
+            : `Add spec photos (min ${SPECS_PHOTO_MIN}, max ${SPECS_PHOTO_MAX})`
+        }
       />
       <Text style={s2.sectionValidateLabel}>{t('upload_jpeg_png')}</Text>
       {/* Tags */}
@@ -752,16 +746,16 @@ const StepThree = ({ form, setForm }) => {
         <CustomTextInput
           label="Daily Price"
           placeholder="$0"
-          value={pricing.daily || ''}
-          onChangeText={v => setPrice('daily', v)}
+          value={pricing.price_per_day || ''}
+          onChangeText={v => setPrice('price_per_day', v)}
           keyboardType="decimal-pad"
           style={s3.halfInput}
         />
         <CustomTextInput
           label="Security Deposit"
           placeholder="$0"
-          value={pricing.deposit || ''}
-          onChangeText={v => setPrice('deposit', v)}
+          value={pricing.security_deposit || ''}
+          onChangeText={v => setPrice('security_deposit', v)}
           keyboardType="decimal-pad"
           style={s3.halfInput}
         />
@@ -940,39 +934,157 @@ const s3 = StyleSheet.create({
 const STEPS = [StepOne, StepTwo, StepThree];
 
 // ── Build multipart FormData payload ─────────────────────────────────────
-const buildFormData = form => {
+const buildFormData = (form, isDraft = false) => {
+  const spec_attributes_preview = Object.entries(form.specs || {})
+    .filter(([, v]) => v !== '' && v !== null && v !== undefined)
+    .map(([attribute, value]) => ({ attribute: Number(attribute), value: String(value) }));
+
+  console.log('===== TRAILER PAYLOAD =====');
+  console.log('is_draft:', isDraft);
+  console.log('form.specs (raw):', JSON.stringify(form.specs));
+  console.log('make_model:', form.makeModel);
+  console.log('year:', form.year);
+  console.log('license_plate:', form.licensePlate);
+  console.log('category:', form.category);
+  console.log('pricing:', {
+    price_per_day: form.pricing?.price_per_day || '',
+    security_deposit: form.pricing?.security_deposit || '',
+  });
+  console.log('location:', {
+    address: form.address,
+    city: 'Dallas',
+    state: 'Texas',
+    zip_code: '75201',
+    country: 'USA',
+    latitude: '32.776665',
+    longitude: '-96.796989',
+  });
+  console.log('safety_requirements:', form.safety);
+  console.log('specifications:', {
+    spec_attributes: spec_attributes_preview,
+    towing_vehicle_requirements: form.towingRequirements,
+    rental_rules: form.rentalRules,
+  });
+  console.log('files (photos):', form.mediaPhotos);
+  console.log('files (videos):', form.mediaVideos);
+  console.log('files (documents):', form.mediaDocuments);
+  console.log('specs_photos:', form.specsPhotos);
+  console.log('===========================');
+
   const fd = new FormData();
+  fd.append('is_draft', isDraft ? 'true' : 'false');
   fd.append('make_model', form.makeModel.trim());
   fd.append('year', form.year.trim());
   fd.append('license_plate', form.licensePlate.trim());
-  fd.append('title', form.title.trim());
-  fd.append('description', form.description.trim());
   fd.append('category', form.category);
-  fd.append('pricing', JSON.stringify(form.pricing || {}));
+  fd.append(
+    'pricing',
+    JSON.stringify({
+      price_per_day: form.pricing?.price_per_day || '',
+      security_deposit: form.pricing?.security_deposit || '',
+    }),
+  );
+  // TODO: replace with user-entered city, state, zip_code, country, latitude, longitude
   fd.append(
     'location',
-    JSON.stringify({ address: (form.address || '').trim() }),
+    JSON.stringify({
+      address: (form.address || '').trim(),
+      city: 'Dallas',
+      state: 'Texas',
+      zip_code: '75201',
+      country: 'USA',
+      latitude: '32.776665',
+      longitude: '-96.796989',
+    }),
   );
-  fd.append('specifications', JSON.stringify(form.specs || {}));
+  fd.append('safety_requirements', (form.safety || '').trim());
 
-  (form.mediaPhotos || []).forEach((uri, i) => {
+  fd.append(
+    'specifications',
+    JSON.stringify({
+      spec_attributes: spec_attributes_preview,
+      towing_vehicle_requirements: (form.towingRequirements || '').trim(),
+      rental_rules: (form.rentalRules || '').trim(),
+    }),
+  );
+
+  // Media files: photos, videos, documents
+  const allFiles = [
+    ...(form.mediaPhotos || []).map(uri => ({ uri, mediaType: 'image', prefix: 'photo' })),
+    ...(form.mediaVideos || []).map(uri => ({ uri, mediaType: 'video', prefix: 'video' })),
+    ...(form.mediaDocuments || []).map(uri => ({ uri, mediaType: 'application', prefix: 'doc' })),
+  ];
+  allFiles.forEach(({ uri, mediaType, prefix }, i) => {
     const ext = uri.split('.').pop()?.split('?')[0] || 'jpg';
-    fd.append('files', {
-      uri,
-      type: `image/${ext}`,
-      name: `photo_${i}.${ext}`,
-    });
+    fd.append('files', { uri, type: `${mediaType}/${ext}`, name: `${prefix}_${i}.${ext}` });
+  });
+
+  // Spec photos sent separately
+  (form.specsPhotos || []).forEach((uri, i) => {
+    const ext = uri.split('.').pop()?.split('?')[0] || 'jpg';
+    fd.append('specs_photos', { uri, type: `image/${ext}`, name: `spec_${i}.${ext}` });
   });
 
   return fd;
 };
 
+const buildInitialForm = trailerData => {
+  if (!trailerData) {
+    return {
+      category: null,
+      makeModel: '',
+      year: '',
+      licensePlate: '',
+      towingRequirements: '',
+      rentalRules: '',
+      specs: {},
+      specsPhotos: [],
+      mediaPhotos: [],
+      mediaVideos: [],
+      mediaDocuments: [],
+      tags: [],
+      pricing: { price_per_day: '', security_deposit: '' },
+      address: '',
+      safety: '',
+    };
+  }
+
+  const spec = trailerData.specification ?? trailerData.specifications ?? {};
+  const specAttrs = spec.spec_attributes;
+  const specsMap = Array.isArray(specAttrs)
+    ? Object.fromEntries(specAttrs.map(sa => [String(sa.attribute), String(sa.value ?? '')]))
+    : {};
+
+  return {
+    category: trailerData.category ?? null,
+    makeModel: trailerData.make_model || trailerData.makeModel || '',
+    year: trailerData.year ? String(trailerData.year) : '',
+    licensePlate: trailerData.license_plate || trailerData.licensePlate || '',
+    towingRequirements: spec.towing_vehicle_requirements || '',
+    rentalRules: spec.rental_rules || '',
+    specs: specsMap,
+    specsPhotos: trailerData.specs_photo_urls || [],
+    mediaPhotos: trailerData.mediaPhotoUrls || trailerData.media_photo_urls || [],
+    mediaVideos: trailerData.mediaVideoUrls || trailerData.media_video_urls || [],
+    mediaDocuments: trailerData.mediaDocumentUrls || trailerData.media_document_urls || [],
+    tags: trailerData.tags || [],
+    pricing: {
+      price_per_day: trailerData.pricing?.price_per_day ? String(trailerData.pricing.price_per_day) : '',
+      security_deposit: trailerData.pricing?.security_deposit ? String(trailerData.pricing.security_deposit) : '',
+    },
+    address: trailerData.location?.address || trailerData.address || '',
+    safety: trailerData.safety_requirements || trailerData.safety || '',
+  };
+};
+
 // ── Main Screen ───────────────────────────────────────────────────────────
-const AddTrailorScreen = ({ navigation }) => {
+const AddTrailorScreen = ({ navigation, route }) => {
   const { t } = useTranslation();
   const dispatch = useDispatch();
+  const trailerId = route?.params?.trailerId ?? null;
   const {
     loading,
+    detailLoading,
     error,
     successMessage,
     categories,
@@ -984,59 +1096,71 @@ const AddTrailorScreen = ({ navigation }) => {
   const categoryOptions = categories.map(c => ({ label: c.name, value: c.id }));
 
   const [currentStep, setCurrentStep] = useState(1);
-  const [form, setForm] = useState({
-    category: null,
-    title: '',
-    makeModel: '',
-    year: '',
-    licensePlate: '',
-    description: '',
-    specs: {
-      length: '',
-      width: '',
-      heightGround: '',
-      totalHeight: '',
-      weightCapacity: '',
-      tongueWeight: '',
-    },
-    features: {
-      ramp: false,
-      spareTire: false,
-      tieDown: false,
-      winch: false,
-    },
-    specsPhoto: null,
-    mediaPhotos: [],
-    mediaVideos: [],
-    mediaDocuments: [],
-    tags: [],
-    pricing: { daily: '', deposit: '' },
-    address: '',
-    safety: '',
-  });
+  const isDraftRef = useRef(false);
+  const isCategoryInitRef = useRef(false);
+  // Tracks the trailer ID once a draft is first created via POST.
+  // All subsequent step submissions use PUT (updateTrailer) with this ID
+  // so the same license plate never gets re-POSTed.
+  const draftTrailerIdRef = useRef(trailerId);
+  // False while we are fetching existing trailer details for edit mode.
+  const [formReady, setFormReady] = useState(!trailerId);
+  const [form, setForm] = useState(() => buildInitialForm(null));
 
   useEffect(() => {
     dispatch(fetchCategories());
   }, []);
 
+  // When editing an existing draft, fetch its full details and pre-fill the form.
+  useEffect(() => {
+    if (!trailerId) return;
+    dispatch(fetchTrailerDetail(trailerId)).then(action => {
+      if (fetchTrailerDetail.fulfilled.match(action)) {
+        const detail = action.payload;
+        isCategoryInitRef.current = !!detail?.category;
+        setForm(buildInitialForm(detail));
+      }
+      setFormReady(true);
+    });
+  }, [trailerId]);
+
   useEffect(() => {
     if (form.category) {
       dispatch(fetchCategoryAttributes(form.category));
-      setForm(f => ({ ...f, specs: {} }));
+      if (isCategoryInitRef.current) {
+        isCategoryInitRef.current = false;
+      } else {
+        setForm(f => ({ ...f, specs: {} }));
+      }
     }
   }, [form.category]);
 
   useEffect(() => {
     if (successMessage) {
-      Alert.alert('Success', successMessage, [
-        {
-          text: 'OK',
-          onPress: () => {
-            dispatch(clearMessages());
-            navigation.goBack();
+      if (isDraftRef.current) {
+        Alert.alert(
+          'Saved as Draft',
+          'Your trailer has been saved as a draft. You can continue filling in the remaining details.',
+          [
+            {
+              text: 'OK',
+              onPress: () => {
+                dispatch(clearMessages());
+                setCurrentStep(p => p + 1);
+              },
+            },
+          ],
+        );
+      } else {
+        Alert.alert('Success', 'Trailer created successfully.', [
+          {
+            text: 'OK',
+            onPress: () => {
+              dispatch(clearMessages());
+              navigation.goBack();
+            },
           },
-        },
-      ]);
+        ]);
+      }
     }
   }, [successMessage]);
 
@@ -1053,7 +1177,6 @@ const AddTrailorScreen = ({ navigation }) => {
       Alert.alert('Required', 'Please select a trailer category.');
       return false;
     }
-
     if (!form.makeModel.trim()) {
       Alert.alert('Required', 'Please enter Make & Model.');
       return false;
@@ -1066,21 +1189,74 @@ const AddTrailorScreen = ({ navigation }) => {
       Alert.alert('Required', 'Please enter License Plate.');
       return false;
     }
-   
+    for (const attr of attributes) {
+      const val = (form.specs || {})[String(attr.id)];
+      if (!val || String(val).trim() === '') {
+        Alert.alert('Required', `Please fill in ${attr.attribute_name}.`);
+        return false;
+      }
+    }
+    if (!form.towingRequirements.trim()) {
+      Alert.alert('Required', 'Please enter Towing Vehicle Requirement.');
+      return false;
+    }
+    if (!form.rentalRules.trim()) {
+      Alert.alert('Required', 'Please enter Usage/Rental Rules.');
+      return false;
+    }
     return true;
   };
 
-  const handleSubmit = () => {
-    const fd = buildFormData(form);
-    dispatch(submitTrailer(fd));
+  const validateStep2 = () => {
+    if ((form.specsPhotos?.length || 0) < 3) {
+      Alert.alert('Required', 'Please select at least 3 spec photos.');
+      return false;
+    }
+    return true;
   };
 
-  const goNext = () => {
-    if (currentStep === 1 && !validateStep1()) return;
-    if (currentStep < TOTAL_STEPS) {
-      setCurrentStep(p => p + 1);
+  const validateStep3 = () => {
+    if (!form.pricing?.price_per_day?.toString().trim()) {
+      Alert.alert('Required', 'Please enter a Daily Price.');
+      return false;
+    }
+    if (!form.pricing?.security_deposit?.toString().trim()) {
+      Alert.alert('Required', 'Please enter a Security Deposit.');
+      return false;
+    }
+    if (!form.address?.trim()) {
+      Alert.alert('Required', 'Please enter a Pickup Address.');
+      return false;
+    }
+    if (!form.safety?.trim()) {
+      Alert.alert('Required', 'Please enter Safety & Requirements.');
+      return false;
+    }
+    return true;
+  };
+
+  const goNext = async () => {
+    let isDraft = true;
+    if (currentStep === 1) {
+      if (!validateStep1()) return;
+    } else if (currentStep === 2) {
+      if (!validateStep2()) return;
     } else {
-      handleSubmit();
+      if (!validateStep3()) return;
+      isDraft = false;
+    }
+
+    isDraftRef.current = isDraft;
+    const fd = buildFormData(form, isDraft);
+
+    if (draftTrailerIdRef.current) {
+      dispatch(updateTrailer({ id: draftTrailerIdRef.current, data: fd }));
+    } else {
+      const action = await dispatch(submitTrailer(fd));
+      if (submitTrailer.fulfilled.match(action)) {
+        const id = action.payload?.id ?? action.payload?.data?.id ?? null;
+        if (id) draftTrailerIdRef.current = id;
+      }
     }
   };
 
@@ -1091,10 +1267,19 @@ const AddTrailorScreen = ({ navigation }) => {
 
   const StepContent = STEPS[currentStep - 1];
 
+  if (!formReady || detailLoading) {
+    return (
+      <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
+        <CustomHeader title="Edit Trailer" onBack={goBack} />
+        <ActivityIndicator size="large" color={colors.primary} style={{ flex: 1 }} />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea} edges={['left', 'right']}>
       {/* Header */}
-      <CustomHeader title={t('post_your_trailer')} onBack={goBack} />
+      <CustomHeader title={trailerId ? 'Edit Trailer' : t('post_your_trailer')} onBack={goBack} />
 
       {/* Segmented tracker */}
       <SegmentedTracker currentStep={currentStep} />

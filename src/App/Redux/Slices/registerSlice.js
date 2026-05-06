@@ -30,7 +30,8 @@ export const saveDocuments = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const res = await saveDocumentsApi(formData);
-      return res;
+      console.log('[saveDocuments] response:', JSON.stringify(res.data, null, 2));
+      return res.data;
     } catch (error) {
       return rejectWithValue(
         error?.response?.data?.message ||
@@ -51,6 +52,7 @@ const initialState = {
   userData: null,
   token: null,
   message: null,
+  verification_url: null,
 };
 
 /* ------------------ SLICE ------------------ */
@@ -101,9 +103,10 @@ const registerSlice = createSlice({
         state.loading = true;
         state.error = null;
       })
-      .addCase(saveDocuments.fulfilled, (state) => {
+      .addCase(saveDocuments.fulfilled, (state, action) => {
         state.loading = false;
         state.success = true;
+        state.verification_url = action.payload?.verification_url ?? null;
       })
       .addCase(saveDocuments.rejected, (state, action) => {
         state.loading = false;

@@ -158,7 +158,12 @@ const AccountSettings = ({ route, navigation }) => {
 
     dispatch(saveDocuments(fd)).then(result => {
       if (saveDocuments.fulfilled.match(result)) {
-        dispatch(loginSuccess());
+        const verification_url = result.payload?.verification_url;
+        if (verification_url) {
+          navigation.navigate('VerificationWebView', { verification_url });
+        } else {
+          dispatch(loginSuccess());
+        }
       } else {
         Alert.alert('Error', result.payload || 'Failed to save documents.');
       }

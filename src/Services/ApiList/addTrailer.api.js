@@ -18,3 +18,5 @@ export const fetchMyTrailersAPI = ({ status = '', page = 1, limit = 10 } = {}) =
   if (status) params.trailer_status = status;
   return api.get('/trailers/my/', { params });
 };
+
+export const fetchTrailerDetailAPI = id => api.get(`/trailers/${id}/`);

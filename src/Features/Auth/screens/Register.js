@@ -361,7 +361,12 @@ const Register = ({ navigation, route }) => {
     dispatch(registerUser({ userId, payload })).then(async result => {
       if (registerUser.fulfilled.match(result)) {
         await AsyncStorage.setItem('USER_ROLE', activeTab);
-        navigation.navigate('AccountSettings', { role: activeTab, userId });
+        const verification_url = result.payload?.verification_url;
+        if (verification_url) {
+          navigation.navigate('VerificationWebView', { verification_url });
+        } else {
+          navigation.navigate('AccountSettings', { role: activeTab, userId });
+        }
       } else {
         Alert.alert(
           'Registration Failed',
