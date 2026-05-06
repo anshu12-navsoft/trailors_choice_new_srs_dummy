@@ -1,5 +1,5 @@
 import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
-import DocumentPicker, { isCancel, types } from 'react-native-document-picker';
+import DocumentPicker, { isCancel, types } from "@react-native-documents/picker";
 
 const photoOptions = {
   mediaType: 'photo',
