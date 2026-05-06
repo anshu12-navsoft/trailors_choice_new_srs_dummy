@@ -91,7 +91,7 @@ const Login = ({ navigation }) => {
               style={styles.input}
               outlineStyle={styles.inputOutline}
               contentStyle={styles.inputContent}
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#000"
             />
           </View>
 

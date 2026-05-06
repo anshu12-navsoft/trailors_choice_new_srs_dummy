@@ -20,6 +20,10 @@ const VerificationWebViewScreen = ({ navigation, route }) => {
       <WebView
         source={{ uri: verification_url }}
         startInLoadingState
+        javaScriptEnabled
+        domStorageEnabled
+        mixedContentMode="always"
+        thirdPartyCookiesEnabled
         renderLoading={() => (
           <ActivityIndicator
             style={StyleSheet.absoluteFill}

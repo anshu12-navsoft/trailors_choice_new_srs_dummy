@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { moderateScale } from 'react-native-size-matters';
 import Fonts from '../../../Theme/Fonts';
+import colors from '../../../Constants/Colors';
 
 export const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: '#fff' },
@@ -60,6 +61,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     height: moderateScale(52),
+    color:"#000"
   },
   inputOutline: {
     borderRadius: 0,
@@ -69,6 +71,7 @@ export const styles = StyleSheet.create({
   },
   inputContent: {
     fontSize: moderateScale(15),
+    color: '#000',
   },
 
   hint: {

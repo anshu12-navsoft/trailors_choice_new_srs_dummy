@@ -13,6 +13,7 @@ export const registerUser = createAsyncThunk(
       return {
         user: res?.data?.user ?? null,
         message: res?.message ?? 'Registered successfully',
+        verification_url: res?.data?.verification_url ?? res?.verification_url ?? null,
       };
     } catch (error) {
       return rejectWithValue(
@@ -121,55 +122,3 @@ export const { resetRegister } = registerSlice.actions;
 export default registerSlice.reducer;
 
 
-// Payload Structure
-// const formData = new FormData();
-
-// // 🧾 Basic fields
-// formData.append('name', 'Anshu Singh');
-// formData.append('email', 'anshu@email.com');
-// formData.append('password', '123456');
-// formData.append('phone', '9876543210');
-
-// // 📸 Profile Image
-// formData.append('profile_image', {
-//   uri: imageUri,
-//   name: 'profile.jpg',
-//   type: 'image/jpeg',
-// });
-
-// // 📄 Document (PDF / DOC)
-// formData.append('document', {
-//   uri: docUri,
-//   name: 'aadhaar.pdf',
-//   type: 'application/pdf',
-// });
-
-// // 🎥 Video
-// formData.append('video', {
-//   uri: videoUri,
-//   name: 'intro.mp4',
-//   type: 'video/mp4',
-// });
-
-
-// PRACTICE RESPONSE
-// {
-//   "success": true,
-//   "message": "User registered successfully",
-//   "data": {
-//     "user": {
-//       "id": "123",
-//       "name": "Anshu Singh",
-//       "email": "anshu@email.com",
-//       "phone": "9876543210",
-
-//       "profile_image": "https://cdn.yourapp.com/images/profile.jpg",
-//       "document": "https://cdn.yourapp.com/docs/aadhaar.pdf",
-//       "video": "https://cdn.yourapp.com/videos/intro.mp4",
-
-//       "createdAt": "2026-04-20T10:00:00Z"
-//     },
-
-//     "token": "jwt_token_here"
-//   }
-// }
