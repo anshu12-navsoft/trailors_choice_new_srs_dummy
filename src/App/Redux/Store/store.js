@@ -16,6 +16,7 @@ import registerReducer from "../Slices/registerSlice"
 import stateReducer from "../Slices/stateSlice"
 import cityReducer from "../Slices/citySlice"
 import wishlistReducer from "../Slices/wishlistSlice"
+import veriffReducer from "../Slices/veriffSlice"
 
 export const store = configureStore({
   reducer: {
@@ -34,6 +35,7 @@ export const store = configureStore({
     state: stateReducer,
     city: cityReducer,
     wishlist: wishlistReducer,
+    veriff:veriffReducer
   },
 });
 

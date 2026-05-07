@@ -23,7 +23,7 @@ export const loginApi = async (payload) => {
 
 export const registerApi = async (userId, payload) => {
   const isFormData = payload instanceof FormData;
-  const response = await api.patch(`user/register/${userId}/`, payload, {
+ const response = await api.patch(`user/register/${userId}/`, payload, {
     headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {},
   });
   return response.data;
@@ -37,6 +37,11 @@ export const saveDocumentsApi = async (formData) => {
   const response = await api.post('user/save-documents/', formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
   });
+  return response.data;
+};
+
+export const veriffWebhookApi = async (verification) => {
+  const response = await api.post('user/veriff-webhook/', verification);
   return response.data;
 };
 

@@ -61,7 +61,7 @@ const BottomNavigation = () => {
   const { t } = useTranslation();
 
   return (
-    <Tab.Navigator screenOptions={screenOptions}>
+    <Tab.Navigator screenOptions={screenOptions} initialRouteName='Home'>
       <Tab.Screen
         name="Home"
         component={HomeStack}

@@ -14,6 +14,7 @@ const RootNavigation = () => {
         ? <BottomNavigation />
         : <AuthStack initialRouteName={loggedOut ? 'Login' : 'LanguageSelect'} />
       }
+     
     </NavigationContainer>
   );
 };

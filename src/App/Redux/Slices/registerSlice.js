@@ -31,8 +31,8 @@ export const saveDocuments = createAsyncThunk(
   async (formData, { rejectWithValue }) => {
     try {
       const res = await saveDocumentsApi(formData);
-      console.log('[saveDocuments] response:', JSON.stringify(res.data, null, 2));
-      return res.data;
+      console.log('[saveDocuments] response:', JSON.stringify(res, null, 2));
+      return res;
     } catch (error) {
       return rejectWithValue(
         error?.response?.data?.message ||
@@ -54,6 +54,7 @@ const initialState = {
   token: null,
   message: null,
   verification_url: null,
+  verification: null,
 };
 
 /* ------------------ SLICE ------------------ */
@@ -108,6 +109,7 @@ const registerSlice = createSlice({
         state.loading = false;
         state.success = true;
         state.verification_url = action.payload?.verification_url ?? null;
+        state.verification = action.payload?.verification ?? null;
       })
       .addCase(saveDocuments.rejected, (state, action) => {
         state.loading = false;
@@ -120,5 +122,3 @@ const registerSlice = createSlice({
 
 export const { resetRegister } = registerSlice.actions;
 export default registerSlice.reducer;
-
-

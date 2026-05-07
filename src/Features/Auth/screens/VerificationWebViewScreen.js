@@ -1,12 +1,46 @@
-import React from 'react';
-import { View, StyleSheet, Pressable, Text, ActivityIndicator } from 'react-native';
+import React, { useRef } from 'react';
+import {
+  View,
+  StyleSheet,
+  Pressable,
+  Text,
+  ActivityIndicator,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { WebView } from 'react-native-webview';
 import { moderateScale } from 'react-native-size-matters';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useDispatch } from 'react-redux';
+import { loginSuccess } from '../../../App/Redux/Slices/authSlice';
 
 const VerificationWebViewScreen = ({ navigation, route }) => {
   const { verification_url } = route.params || {};
+  const dispatch = useDispatch();
+  const done = useRef(false);
+
+  const handleNavigationChange = navState => {
+    if (done.current) return;
+    const { url } = navState;
+    if (url && !url.includes('veriff.com')) {
+      done.current = true;
+      dispatch(loginSuccess());
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'BottomNavigation' }],
+      });
+    }
+  };
+
+  // const handleShouldStartLoad = ({ url }) => {
+  //   if (done.current) return false;
+  //   if (url && !url.includes('veriff.com')) {
+  //     done.current = true;
+  //     dispatch(loginSuccess());
+
+  //     return false;
+  //   }
+  //   return true;
+  // };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
@@ -24,6 +58,8 @@ const VerificationWebViewScreen = ({ navigation, route }) => {
         domStorageEnabled
         mixedContentMode="always"
         thirdPartyCookiesEnabled
+        onNavigationStateChange={handleNavigationChange}
+        // onShouldStartLoadWithRequest={handleShouldStartLoad}
         renderLoading={() => (
           <ActivityIndicator
             style={StyleSheet.absoluteFill}
