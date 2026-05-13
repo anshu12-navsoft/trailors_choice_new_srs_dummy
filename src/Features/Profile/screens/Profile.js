@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { View, Text, Pressable, Image, Alert, ScrollView } from 'react-native';
 import { useDispatch } from 'react-redux';
-import { logout } from '../../../App/Redux/Slices/authSlice';
+import { logoutUser } from '../../../App/Redux/Slices/authSlice';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   openCamera,
@@ -30,7 +30,6 @@ const Profile = ({ navigation }) => {
     { id: '4', title: t('menu_support'), icon: 'lifebuoy' },
     { id: '5', title: t('settings_title'), icon: 'cog-outline' },
     { id: '6', title: t('menu_about_us'), icon: 'information-outline' },
-    { id: '7', title: t('menu_terms_of_use'), icon: 'file-document-outline' },
     { id: '8', title: t('privacy_policy'), icon: 'shield-check-outline' },
   ];
 
@@ -145,7 +144,15 @@ const Profile = ({ navigation }) => {
         <View style={styles.menuGroup}>{group2.map(renderMenuItem)}</View>
 
         {/* Logout */}
-        <Pressable style={styles.logoutBtn} onPress={() => dispatch(logout())}>
+        <Pressable
+          style={styles.logoutBtn}
+          onPress={() =>
+            Alert.alert('Log Out', 'Are you sure you want to log out?', [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Log Out', style: 'destructive', onPress: () => dispatch(logoutUser()) },
+            ])
+          }
+        >
           <Icon name="logout" size={18} color="#E53935" />
           <Text style={styles.logoutText}>Log Out</Text>
         </Pressable>

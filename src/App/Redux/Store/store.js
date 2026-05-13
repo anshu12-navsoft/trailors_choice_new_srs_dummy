@@ -1,18 +1,42 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { setUnauthorizedHandler } from '../../../Services/api';
 import authReducer from "../Slices/authSlice"
+import { logout } from "../Slices/authSlice"
 import trailerReducer from "../Slices/trailerSlice"
 import bookingReducer from "../Slices/bookingSlice"
 import ownerReducer from "../Slices/ownerSlice"
 import chatReducer from "../Slices/chatSlice"
 import themeReducer from "../Slices/themeSlice"
+import otpReducer from "../Slices/otpSlice"
+import addTrailerReducer from "../Slices/addTrailerSlice"
+import profileReducer from "../Slices/profileSlice"
+import languageReducer from "../Slices/languageSlice"
+import notificationReducer from "../Slices/notificationSlice"
+import registerReducer from "../Slices/registerSlice"
+import stateReducer from "../Slices/stateSlice"
+import cityReducer from "../Slices/citySlice"
+import wishlistReducer from "../Slices/wishlistSlice"
+import veriffReducer from "../Slices/veriffSlice"
 
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    register: registerReducer,
+    otp: otpReducer,
     trailer: trailerReducer,
     booking: bookingReducer,
     owner: ownerReducer,
     chat: chatReducer,
     theme: themeReducer,
+    addTrailer: addTrailerReducer,
+    profile: profileReducer,
+    language: languageReducer,
+    notification: notificationReducer,
+    state: stateReducer,
+    city: cityReducer,
+    wishlist: wishlistReducer,
+    veriff:veriffReducer
   },
 });
+
+setUnauthorizedHandler(() => store.dispatch(logout()));

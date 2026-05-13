@@ -33,99 +33,131 @@ jest.mock('react-native-paper', () => {
 jest.mock('react-native-vector-icons/MaterialCommunityIcons', () => 'Icon');
 jest.mock('react-native-size-matters', () => ({ moderateScale: x => x }));
 
+// correct path relative to this test file
+jest.mock('../../Features/Auth/stylesheets/Login.styles', () => ({ styles: {} }));
+
 jest.mock('../../Components/Buttons/CustomButton', () => {
   const { TouchableOpacity, Text } = require('react-native');
-  return ({ title, onPress }) => (
-    <TouchableOpacity testID="continue-btn" onPress={onPress}>
+  return ({ title, onPress, loading }) => (
+    <TouchableOpacity testID="continue-btn" onPress={onPress} disabled={!!loading}>
       <Text>{title}</Text>
     </TouchableOpacity>
   );
 });
 
-jest.mock('../../Features/Auth/Login.styles', () => ({ styles: {} }));
-
 /* ── Helpers ────────────────────────────────────────────────────────────── */
 
 const mockNavigation = { navigate: jest.fn(), goBack: jest.fn() };
 
-/** Collect all text strings from a toJSON() tree. */
-function collectText(node, results = []) {
-  if (!node) return results;
-  if (typeof node === 'string') { results.push(node); return results; }
-  for (const child of [].concat(node.children ?? [])) {
-    collectText(child, results);
-  }
-  return results;
+function collectText(node, out = []) {
+  if (!node) return out;
+  if (typeof node === 'string') { out.push(node); return out; }
+  for (const child of [].concat(node.children ?? [])) collectText(child, out);
+  return out;
 }
 
-beforeEach(() => jest.clearAllMocks());
+const buildScreen = async () => {
+  let renderer;
+  await ReactTestRenderer.act(() => {
+    renderer = ReactTestRenderer.create(<Login navigation={mockNavigation} />);
+  });
+  return renderer;
+};
 
-/* ── Tests ──────────────────────────────────────────────────────────────── */
+const typePhone = async (renderer, value) => {
+  const input = renderer.root.findByProps({ testID: 'phone-input' });
+  await ReactTestRenderer.act(() => input.props.onChangeText(value));
+};
 
-describe('Login screen', () => {
+const tapContinue = async renderer => {
+  const btn = renderer.root.findByProps({ testID: 'continue-btn' });
+  await ReactTestRenderer.act(async () => btn.props.onPress());
+};
+
+beforeEach(() => {
+  jest.clearAllMocks();
+  mockNavigation.navigate.mockClear();
+  mockNavigation.goBack.mockClear();
+});
+
+/* ── Test Suites ─────────────────────────────────────────────────────────── */
+
+describe('Login — rendering', () => {
   it('renders without crashing', async () => {
-    let renderer;
-    await ReactTestRenderer.act(() => {
-      renderer = ReactTestRenderer.create(<Login navigation={mockNavigation} />);
-    });
+    const renderer = await buildScreen();
     expect(renderer.toJSON()).toBeTruthy();
   });
 
-  it('renders title text', async () => {
-    let renderer;
-    await ReactTestRenderer.act(() => {
-      renderer = ReactTestRenderer.create(<Login navigation={mockNavigation} />);
-    });
+  it('renders title "Log in or Sign up"', async () => {
+    const renderer = await buildScreen();
     expect(collectText(renderer.toJSON())).toContain('Log in or Sign up');
   });
 
-  it('renders calling code +1 for default US', async () => {
-    let renderer;
-    await ReactTestRenderer.act(() => {
-      renderer = ReactTestRenderer.create(<Login navigation={mockNavigation} />);
-    });
+  it('renders "Phone number" label', async () => {
+    const renderer = await buildScreen();
+    expect(collectText(renderer.toJSON())).toContain('Phone number');
+  });
+
+  it('renders default US calling code +1', async () => {
+    const renderer = await buildScreen();
     expect(collectText(renderer.toJSON())).toContain('+1');
   });
 
-  it('shows initial digit counter 0/10', async () => {
-    let renderer;
-    await ReactTestRenderer.act(() => {
-      renderer = ReactTestRenderer.create(<Login navigation={mockNavigation} />);
-    });
-    expect(collectText(renderer.toJSON()).join('')).toContain('0/10');
+  it('renders the Continue button', async () => {
+    const renderer = await buildScreen();
+    const btn = renderer.root.findByProps({ testID: 'continue-btn' });
+    expect(btn).toBeTruthy();
   });
 
-  it('strips non-digit characters and updates phone value', async () => {
-    let renderer;
-    await ReactTestRenderer.act(() => {
-      renderer = ReactTestRenderer.create(<Login navigation={mockNavigation} />);
-    });
+  it('phone input starts empty', async () => {
+    const renderer = await buildScreen();
     const input = renderer.root.findByProps({ testID: 'phone-input' });
-    await ReactTestRenderer.act(() => input.props.onChangeText('abc123def'));
-    expect(input.props.value).toBe('123');
+    expect(input.props.value).toBe('');
   });
+});
 
-  it('truncates input to max length of 10 for US', async () => {
-    let renderer;
-    await ReactTestRenderer.act(() => {
-      renderer = ReactTestRenderer.create(<Login navigation={mockNavigation} />);
-    });
+describe('Login — phone input behaviour', () => {
+  it('accepts digit input and updates value', async () => {
+    const renderer = await buildScreen();
+    await typePhone(renderer, '1234567890');
     const input = renderer.root.findByProps({ testID: 'phone-input' });
-    await ReactTestRenderer.act(() => input.props.onChangeText('12345678901234'));
     expect(input.props.value).toBe('1234567890');
   });
 
-  it('shows Alert when phone is shorter than max length', async () => {
-    const alertSpy = jest.spyOn(Alert, 'alert');
-    let renderer;
-    await ReactTestRenderer.act(() => {
-      renderer = ReactTestRenderer.create(<Login navigation={mockNavigation} />);
-    });
+  it('strips non-digit characters', async () => {
+    const renderer = await buildScreen();
+    await typePhone(renderer, 'abc123def456');
     const input = renderer.root.findByProps({ testID: 'phone-input' });
-    await ReactTestRenderer.act(() => input.props.onChangeText('12345'));
+    expect(input.props.value).toBe('123456');
+  });
 
-    const btn = renderer.root.findByProps({ testID: 'continue-btn' });
-    await ReactTestRenderer.act(async () => btn.props.onPress());
+  it('truncates input to max length of 10 for US', async () => {
+    const renderer = await buildScreen();
+    await typePhone(renderer, '123456789099999');
+    const input = renderer.root.findByProps({ testID: 'phone-input' });
+    expect(input.props.value).toBe('1234567890');
+  });
+
+  it('allows exactly 10 digits without truncation', async () => {
+    const renderer = await buildScreen();
+    await typePhone(renderer, '9876543210');
+    const input = renderer.root.findByProps({ testID: 'phone-input' });
+    expect(input.props.value).toBe('9876543210');
+  });
+
+  it('accepts partial input (fewer than max digits)', async () => {
+    const renderer = await buildScreen();
+    await typePhone(renderer, '55512');
+    const input = renderer.root.findByProps({ testID: 'phone-input' });
+    expect(input.props.value).toBe('55512');
+  });
+});
+
+describe('Login — validation on Continue', () => {
+  it('shows Alert when phone is empty', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert');
+    const renderer = await buildScreen();
+    await tapContinue(renderer);
 
     expect(alertSpy).toHaveBeenCalledWith(
       'Invalid number',
@@ -134,35 +166,48 @@ describe('Login screen', () => {
     expect(mockNavigation.navigate).not.toHaveBeenCalled();
   });
 
+  it('shows Alert when phone is shorter than 10 digits', async () => {
+    const alertSpy = jest.spyOn(Alert, 'alert');
+    const renderer = await buildScreen();
+    await typePhone(renderer, '12345');
+    await tapContinue(renderer);
+
+    expect(alertSpy).toHaveBeenCalledWith(
+      'Invalid number',
+      'Please enter a valid 10-digit phone number.',
+    );
+    expect(mockNavigation.navigate).not.toHaveBeenCalled();
+  });
+
+  it('does not show Alert when phone has exactly 10 digits', async () => {
+    AsyncStorage.getItem.mockResolvedValueOnce(null);
+    const alertSpy = jest.spyOn(Alert, 'alert');
+    const renderer = await buildScreen();
+    await typePhone(renderer, '1234567890');
+    await tapContinue(renderer);
+
+    expect(alertSpy).not.toHaveBeenCalled();
+  });
+});
+
+describe('Login — navigation on Continue', () => {
   it('navigates to OtpVerification as new user when no AsyncStorage record', async () => {
     AsyncStorage.getItem.mockResolvedValueOnce(null);
-    let renderer;
-    await ReactTestRenderer.act(() => {
-      renderer = ReactTestRenderer.create(<Login navigation={mockNavigation} />);
-    });
-    const input = renderer.root.findByProps({ testID: 'phone-input' });
-    await ReactTestRenderer.act(() => input.props.onChangeText('1234567890'));
-
-    const btn = renderer.root.findByProps({ testID: 'continue-btn' });
-    await ReactTestRenderer.act(async () => btn.props.onPress());
+    const renderer = await buildScreen();
+    await typePhone(renderer, '1234567890');
+    await tapContinue(renderer);
 
     expect(mockNavigation.navigate).toHaveBeenCalledWith('OtpVerification', {
       phoneNumber: '+11234567890',
       isNewUser: true,
     });
-  }); 
+  });
 
   it('navigates to OtpVerification as existing user when AsyncStorage has a record', async () => {
     AsyncStorage.getItem.mockResolvedValueOnce(JSON.stringify({ name: 'Jane' }));
-    let renderer;
-    await ReactTestRenderer.act(() => {
-      renderer = ReactTestRenderer.create(<Login navigation={mockNavigation} />);
-    });
-    const input = renderer.root.findByProps({ testID: 'phone-input' });
-    await ReactTestRenderer.act(() => input.props.onChangeText('1234567890'));
-
-    const btn = renderer.root.findByProps({ testID: 'continue-btn' });
-    await ReactTestRenderer.act(async () => btn.props.onPress());
+    const renderer = await buildScreen();
+    await typePhone(renderer, '1234567890');
+    await tapContinue(renderer);
 
     expect(mockNavigation.navigate).toHaveBeenCalledWith('OtpVerification', {
       phoneNumber: '+11234567890',
@@ -170,18 +215,43 @@ describe('Login screen', () => {
     });
   });
 
-  it('looks up AsyncStorage with the correct key', async () => {
+  it('builds the full phone number by prepending the calling code', async () => {
     AsyncStorage.getItem.mockResolvedValueOnce(null);
-    let renderer;
-    await ReactTestRenderer.act(() => {
-      renderer = ReactTestRenderer.create(<Login navigation={mockNavigation} />);
-    });
-    const input = renderer.root.findByProps({ testID: 'phone-input' });
-    await ReactTestRenderer.act(() => input.props.onChangeText('9876543210'));
+    const renderer = await buildScreen();
+    await typePhone(renderer, '9998887777');
+    await tapContinue(renderer);
 
-    const btn = renderer.root.findByProps({ testID: 'continue-btn' });
-    await ReactTestRenderer.act(async () => btn.props.onPress());
+    expect(mockNavigation.navigate).toHaveBeenCalledWith('OtpVerification', {
+      phoneNumber: '+19998887777',
+      isNewUser: true,
+    });
+  });
+
+  it('looks up AsyncStorage with the correct key including calling code', async () => {
+    AsyncStorage.getItem.mockResolvedValueOnce(null);
+    const renderer = await buildScreen();
+    await typePhone(renderer, '9876543210');
+    await tapContinue(renderer);
 
     expect(AsyncStorage.getItem).toHaveBeenCalledWith('USER_+19876543210');
+  });
+
+  it('navigates only once per Continue press', async () => {
+    AsyncStorage.getItem.mockResolvedValue(null);
+    const renderer = await buildScreen();
+    await typePhone(renderer, '1234567890');
+    await tapContinue(renderer);
+
+    expect(mockNavigation.navigate).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('Login — back button', () => {
+  it('calls navigation.goBack when back button is pressed', async () => {
+    const renderer = await buildScreen();
+    const backBtn = renderer.root.findAllByProps({ hitSlop: 10 })[0];
+    await ReactTestRenderer.act(() => backBtn.props.onPress());
+
+    expect(mockNavigation.goBack).toHaveBeenCalledTimes(1);
   });
 });

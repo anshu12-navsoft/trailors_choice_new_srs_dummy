@@ -6,10 +6,11 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import WelcomeScreen from '../../../Features/Auth/screens/WelcomeScreen';
 import Login from '../../../Features/Auth/screens/Login';
 import Register from '../../../Features/Auth/screens/Register';
-import LanguageSelect from "../../../Features/Auth/screens/LanguageSelectScreen"
+import LanguageSelect from '../../../Features/Auth/screens/LanguageSelectScreen';
 import OtpVerification from '../../../Features/Auth/screens/OtpVerification';
-
 import AccountSettings from '../../../Features/Auth/screens/AccountSettings';
+import VerificationScreen from '../../../Features/Auth/screens/VerificationScreen';
+import VerificationWebViewScreen from '../../../Features/Auth/screens/VerificationWebViewScreen';
 
 // Home & Discovery
 import Home from '../../../Features/Home/screens/Home';
@@ -18,7 +19,7 @@ import LocationSearchScreen from '../../../Features/Search/screens/LocationSearc
 import TrailerSearchResultsScreen from '../../../Features/Trailers/screens/TrailerSearchResultsScreen';
 import RenterTrailerDetailScreen from '../../../Features/Trailers/screens/RenterTrailerDetailScreen';
 import TowingCompatibilityScreen from '../../../Features/Trailers/screens/TowingCompatibilityScreen';
-import Notification from "../../../Features/Notification/screens/Notification"
+import Notification from '../../../Features/Notification/screens/Notification';
 
 // Booking
 import BookingScreen from '../../../Features/Booking/screens/BookingScreen';
@@ -43,6 +44,8 @@ import RenterDashboard from '../../../Features/Dashboard/screens/RenterDashboard
 
 // Owner
 import MyTrailorsScreen from '../../../Features/MyTrailors/screens/MyTrailorsScreen';
+import MyTrailersListScreen from '../../../Features/MyTrailors/screens/MyTrailersListScreen';
+import MyRecentBookingScreen from '../../../Features/MyTrailors/screens/MyRecentBookingScreen';
 import AddTrailorScreen from '../../../Features/MyTrailors/screens/AddTrailorScreen';
 import TrailerDetailScreen from '../../../Features/MyTrailors/screens/TrailerDetailScreen';
 import OwnerDashboard from '../../../Features/Dashboard/screens/OwnerDashboard';
@@ -65,15 +68,17 @@ const MyTrailorsStackNav = createNativeStackNavigator();
 const ProfileStackNav = createNativeStackNavigator();
 const AuthStackNav = createNativeStackNavigator();
 /* -------- Auth -------- */
-const AuthStack = () => (
-  <AuthStackNav.Navigator screenOptions={{ headerShown: false }}>
-     <AuthStackNav.Screen name="LanguageSelect" component={LanguageSelect} />
+const AuthStack = ({ initialRouteName = 'LanguageSelect' }) => (
+  <AuthStackNav.Navigator screenOptions={{ headerShown: false }} initialRouteName={initialRouteName}>
+    <AuthStackNav.Screen name="LanguageSelect" component={LanguageSelect} />
     <AuthStackNav.Screen name="Welcome" component={WelcomeScreen} />
-   
+
     <AuthStackNav.Screen name="Login" component={Login} />
     <AuthStackNav.Screen name="Register" component={Register} />
     <AuthStackNav.Screen name="OtpVerification" component={OtpVerification} />
     <AuthStackNav.Screen name="AccountSettings" component={AccountSettings} />
+    <AuthStackNav.Screen name="Verification" component={VerificationScreen} />
+    <AuthStackNav.Screen name="VerificationWebView" component={VerificationWebViewScreen} />
   </AuthStackNav.Navigator>
 );
 
@@ -180,6 +185,14 @@ const MyRentalsStack = () => (
 const MyTrailorsStack = () => (
   <MyTrailorsStackNav.Navigator screenOptions={{ headerShown: false }}>
     <MyTrailorsStackNav.Screen name="MyTrailors" component={MyTrailorsScreen} />
+    <MyTrailorsStackNav.Screen
+      name="MyTrailorsList"
+      component={MyTrailersListScreen}
+    />
+    <MyTrailorsStackNav.Screen
+      name="MyRecentBooking"
+      component={MyRecentBookingScreen}
+    />
     <MyTrailorsStackNav.Screen name="AddTrailor" component={AddTrailorScreen} />
     <MyTrailorsStackNav.Screen
       name="TrailerDetail"

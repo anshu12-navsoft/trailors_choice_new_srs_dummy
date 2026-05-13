@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { loginApi } from '../../services/auth.api';
+import { logoutApi } from '../../../Services/ApiList/auth.api';
 
 /* ------------------ THUNKS ------------------ */
 
@@ -36,9 +36,17 @@ export const loginUser = createAsyncThunk(
 // 🔓 LOGOUT
 export const logoutUser = createAsyncThunk(
   'auth/logoutUser',
-  async () => {
-    await AsyncStorage.removeItem('ACCESS_TOKEN');
-    return true;
+  async (_, { rejectWithValue }) => {
+    try {
+      const refresh = await AsyncStorage.getItem('REFRESH_TOKEN');
+      console.log('logoutUser refresh token:', refresh);
+      await logoutApi(refresh);
+    } catch (error) {
+      console.log('Logout API error:', error?.response?.data || error.message);
+      return rejectWithValue(error?.response?.data?.message || error.message);
+    } finally {
+      await AsyncStorage.multiRemove(['ACCESS_TOKEN', 'REFRESH_TOKEN']);
+    }
   }
 );
 
@@ -63,6 +71,7 @@ export const loadUserFromStorage = createAsyncThunk(
 
 const initialState = {
   isLoggedIn: false,
+  loggedOut: false,
   user: null,
   token: null,
   loading: false,
@@ -77,6 +86,14 @@ const authSlice = createSlice({
   reducers: {
     clearError: (state) => {
       state.error = null;
+    },
+    loginSuccess: (state) => {
+      state.isLoggedIn = true;
+    },
+    logout: (state) => {
+      state.isLoggedIn = false;
+      state.user = null;
+      state.token = null;
     },
   },
 
@@ -104,6 +121,13 @@ const authSlice = createSlice({
         state.isLoggedIn = false;
         state.user = null;
         state.token = null;
+        state.loggedOut = true;
+      })
+      .addCase(logoutUser.rejected, (state) => {
+        state.isLoggedIn = false;
+        state.user = null;
+        state.token = null;
+        state.loggedOut = true;
       })
 
       /* -------- AUTO LOGIN -------- */
@@ -118,7 +142,7 @@ const authSlice = createSlice({
 
 /* ------------------ EXPORTS ------------------ */
 
-export const { clearError } = authSlice.actions;
+export const { clearError, loginSuccess, logout } = authSlice.actions;
 export default authSlice.reducer;
 
 

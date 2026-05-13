@@ -83,4 +83,41 @@ export const styles = StyleSheet.create({
     backgroundColor: '#000',
     borderRadius: moderateScale(10),
   },
+
+  uploadInner: {
+    alignItems: 'center',
+    gap: moderateScale(6),
+  },
+
+  declareRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: moderateScale(10),
+    marginBottom: moderateScale(24),
+  },
+
+  checkbox: {
+    width: moderateScale(20),
+    height: moderateScale(20),
+    borderRadius: moderateScale(4),
+    borderWidth: 1.5,
+    borderColor: '#D1D5DB',
+    backgroundColor: '#fff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: moderateScale(1),
+    flexShrink: 0,
+  },
+
+  checkboxActive: {
+    backgroundColor: '#111827',
+    borderColor: '#111827',
+  },
+
+  declareText: {
+    flex: 1,
+    fontSize: moderateScale(13),
+    color: '#374151',
+    lineHeight: moderateScale(20),
+  },
 });
